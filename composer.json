@@ -1,0 +1,22 @@
+{
+    "name": "phpMySQLGrid/phpMySQLGrid",
+    "type": "library",
+    "description": "A flexible mysql data grid for PHP",
+    "keywords": ["php", "mySQL", "Grid"],
+    "authors": [
+        {
+            "name": "Klaus Reimer",
+            "email": "k@ailis.de"
+        },
+        {
+            "name": "Thorsten Schüller",
+            "email": "thorsten@schueller.me"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2"
+    },
+    "autoload": {
+        "classmap": ["MySQLGrid.php"]
+    }
+}
