@@ -1,5 +1,5 @@
 {
-    "name": "phpMySQLGrid/phpMySQLGrid",
+    "name": "tschueller/phpMySQLGrid",
     "type": "library",
     "description": "A flexible mysql data grid for PHP",
     "keywords": ["php", "mySQL", "Grid"],
