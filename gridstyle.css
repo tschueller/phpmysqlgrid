@@ -1,0 +1,73 @@
+table.phpmysqlgrid
+{
+    padding: 0px;
+    border-width: 0px;
+    empty-cells: show;
+    border-spacing: 1px;
+}
+
+th.phpmysqlgrid, td.phpmysqlgridaction, td.phpmysqlgridnavigation
+{
+    padding: 4px;
+    margin: 0px;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 13px;
+    background-color: #FFBA63;
+    color: #000000;
+}
+
+td.phpmysqlgriddata0
+{
+    padding: 4px;
+    margin: 0px;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 13px;
+    background-color: #dddddd;
+    color: #000000;
+}
+
+td.phpmysqlgriddata1
+{
+    padding: 4px;
+    margin: 0px;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 13px;
+    background-color: #FFFFCE;
+    color: #000000;
+}
+
+td.phpmysqlgriddataadd0, td.phpmysqlgriddataadd1, td.phpmysqlgridactionadd
+{
+    padding: 4px;
+    margin: 0px;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 13px;
+    background-color: #9999ff;
+    color: #000000;
+}
+
+td.phpmysqlgriddataedit0, td.phpmysqlgriddataedit1, td.phpmysqlgridactionedit
+{
+    padding: 4px;
+    margin: 0px;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 13px;
+    background-color: #ffee00;
+    color: #000000;
+}
+
+td.phpmysqlgriddatadelete0, td.phpmysqlgriddatadelete1, td.phpmysqlgridactiondelete
+{
+    padding: 4px;
+    margin: 0px;
+    font-family: arial, helvetica, sans-serif;
+    font-size: 13px;
+    background-color: #ff9999;
+    color: #000000;
+}
+
+input.phpmysqlgrid, select.phpmysqlgrid, option.phpmysqlgrid
+{
+  font-family: arial;
+  font-size: 12px;
+}

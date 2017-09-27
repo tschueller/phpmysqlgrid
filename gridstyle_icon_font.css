@@ -1,0 +1,30 @@
+td.phpmysqlgriddataadd0, td.phpmysqlgriddataadd1, td.phpmysqlgridactionadd {
+    background-color: #d4dcf1;
+}
+
+td.phpmysqlgriddataedit0, td.phpmysqlgriddataedit1, td.phpmysqlgridactionedit {
+    background-color: #d4dcf1;
+}
+
+td.phpmysqlgriddatadelete0, td.phpmysqlgriddatadelete1, td.phpmysqlgridactiondelete {
+    background-color: #ffe3e3;
+}
+
+.phpmysqlgrid a .fa-minus {
+    color: #dca8a8;
+}
+.phpmysqlgrid a .fa-check {
+    color: green;
+}
+
+.phpmysqlgrid a .fa-times {
+    color: red;
+}
+
+.phpmysqlgrid a .fa-sort-asc.in-active {
+    color: #ccc;
+}
+
+.phpmysqlgrid a .fa-sort-desc.in-active {
+    color: #ccc;
+}

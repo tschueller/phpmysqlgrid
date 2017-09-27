@@ -68,6 +68,7 @@ class MySQLGrid
         $this->table = "user";
         $this->primary = array("host", "user");
         $this->style = "phpmysqlgrid";
+        $this->cssClass = "";
         $this->columns = array();
         $this->actions = array();
         $this->limit = 10;
@@ -655,7 +656,7 @@ class MySQLGrid
             $upload ? ' enctype="multipart/form-data"' : '',
             '>',
             '<input type="image" style="width: 0; height: 0; border: none; visibility: hidden; position: absolute; left: -999px" />',
-            '<table class="', $this->style, '" border="0" cellspacing="1">';
+            '<table class="', $this->style, ' ' , $this->cssClass ,'" border="0" cellspacing="1">';
     }
 
     function drawFooter()
@@ -684,7 +685,7 @@ class MySQLGrid
                     $this->cmdSetSort, '=', $i, '&amp;',
                     $this->cmdSetDir, '=0">',
                         ($this->use_icon_font ?
-                        '<i class="fa fa-sort-asc" style="font-size:large;position: relative; top: -2px;'.(($this->sort == $i) && !$this->dir ? "": "color: #ccc").'"></i>'
+                        '<i class="fa fa-sort-asc '.(($this->sort == $i) && !$this->dir ? "active": "in-active").'" style="font-size:large;position: relative; top: -2px;"></i>'
                         :
                         '<img src="'. $this->imagedir. '/down'.
                         (($this->sort == $i) && !$this->dir ? "active" : "").
@@ -712,7 +713,7 @@ class MySQLGrid
                     $this->cmdSetSort, '=', $i, '&amp;',
                     $this->cmdSetDir, '=1">',
                         ($this->use_icon_font ?
-                        '<i class="fa fa-sort-desc" style="font-size:large;position: relative; top: 5px;'.(($this->sort == $i) && $this->dir ? "" : "color: #ccc").'"></i>'
+                        '<i class="fa fa-sort-desc '.(($this->sort == $i) && $this->dir ? "active" : "in-active").'" style="font-size:large;position: relative; top: 5px;"></i>'
                         :
                         '<img src="'. $this->imagedir. '/up'.
                         (($this->sort == $i) && $this->dir ? "active" : "").
@@ -756,7 +757,7 @@ class MySQLGrid
                     $this->cmdConfirmDelete, '=1&amp;',
                     $this->varDeleteID, '=', $data[0], '">',
                         ($this->use_icon_font ?
-                        '<i class="fa fa-check" title="'.$this->convertToHtmlEntities($this->txtConfirm).'" style="padding-right: 0.75em; color: green"></i>'
+                        '<i class="fa fa-check" title="'.$this->convertToHtmlEntities($this->txtConfirm).'" style="padding-right: 0.75em;"></i>'
                         :
                         '<img hspace="1" src="'. $this->imagedir. '/confirm.png" alt="'.
                         $this->convertToHtmlEntities($this->txtConfirm). '" title="'.
@@ -766,7 +767,7 @@ class MySQLGrid
                     '<a href="', $_SERVER["PHP_SELF"], '?',
                     $this->cmdCancel, '=1">',
                         ($this->use_icon_font ?
-                        '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'" style="color: red;"></i>'
+                        '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'" style="  red;"></i>'
                         :
                         '<img hspace="1" src="'. $this->imagedir. '/cancel.png" alt="'.
                         $this->convertToHtmlEntities($this->txtCancel). '" title="'.
@@ -798,7 +799,7 @@ class MySQLGrid
                         $this->cmdDelete, '=1&amp;', $this->varDeleteID,
                         '=', $data[0], '">',
                             ($this->use_icon_font ?
-                            '<i class="fa fa-minus" title="'.$this->convertToHtmlEntities($this->txtDelete).'" style="color:#dca8a8"></i>'
+                            '<i class="fa fa-minus" title="'.$this->convertToHtmlEntities($this->txtDelete).'"></i>'
                             :
                             '<img hspace="1" src="'. $this->imagedir. '/delete.png" alt="'.
                             $this->convertToHtmlEntities($this->txtDelete). '" title="'.
@@ -935,7 +936,7 @@ class MySQLGrid
                 ($this->use_icon_font ?
                 '<input type="hidden" name="' . $this->cmdConfirmEdit. '" value="true" />'.
                 '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;">'.
-                  '<i class="fa fa-check" style="color: green; padding-right: 0.75em;" title="' .
+                  '<i class="fa fa-check" style="padding-right: 0.75em;" title="' .
                   $this->convertToHtmlEntities($this->txtConfirm) . '"></i>'.
                 '</a>'
                 :
@@ -947,7 +948,7 @@ class MySQLGrid
                 '<a href="', $_SERVER["PHP_SELF"], "?",
                 $this->cmdCancel, '=1">',
                     ($this->use_icon_font ?
-                    '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'" style="color: red;"></i>'
+                    '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'"></i>'
                     :
                     '<img hspace="1" src="'. $this->imagedir. '/cancel.png" alt="'.
                     $this->convertToHtmlEntities($this->txtCancel). '" title="'.
@@ -962,7 +963,7 @@ class MySQLGrid
                 ($this->use_icon_font ?
                 '<input type="hidden" name="' . $this->cmdConfirmAdd. '" value="true" />'.
                 '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;">'.
-                  '<i class="fa fa-check" style="color: green; padding-right: 0.75em;" title="' .
+                  '<i class="fa fa-check" style="padding-right: 0.75em;" title="' .
                   $this->convertToHtmlEntities($this->txtConfirm) . '"></i>'.
                 '</a>'
                 :
@@ -975,7 +976,7 @@ class MySQLGrid
                 '<a href="', $_SERVER["PHP_SELF"], "?",
                 $this->cmdCancel, '=1">',
                     ($this->use_icon_font ?
-                    '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'" style="color: red;"></i>'
+                    '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'"></i>'
                     :
                     '<img hspace="1" src="'. $this->imagedir. '/cancel.png" alt="'.
                     $this->convertToHtmlEntities($this->txtCancel). '" title="'.
