@@ -663,7 +663,7 @@ class MySQLGrid
     {
         echo
             '</table>',
-            '</form>';
+            '</form><a href="#" id="',$this->name,'_bottom"></a>';
     }
 
     function drawCaptions()
@@ -1195,7 +1195,7 @@ class MySQLGrid
         if ($this->can_add)
         {
             echo
-                '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdAdd, '=1">',
+                '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdAdd, '=1#',$this->name,'_bottom" class="add-button">',
                     ($this->use_icon_font ?
                     '<i class="fa fa-plus" title="'.$this->convertToHtmlEntities($this->txtAdd).'"></i>'
                     :
@@ -1214,23 +1214,9 @@ class MySQLGrid
         {
             $pages = ceil($this->rows / $this->limit);
             echo
-                '<table border="0" cellspacing="0" cellpadding="0" width="100%">',
+                '<table border="0" cellspacing="0" cellpadding="0" class="page-navigation">',
                 '<tr>',
-                '<td class="', $this->style, 'navigation">';
-            if ($this->page > 1) echo
-                '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=',
-                $this->page - 1, '">',
-                $this->convertToHtmlEntities($this->txtPrevious), '</a>&nbsp;';
-            else
-                echo $this->convertToHtmlEntities($this->txtPrevious), '&nbsp;';
-            if ($this->page < $pages) echo
-                '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=',
-                $this->page + 1, '">',
-                $this->convertToHtmlEntities($this->txtNext), '</a>&nbsp;';
-            else
-                echo $this->convertToHtmlEntities($this->txtNext), '&nbsp;';
-            echo
-                '</td><td align="right" class="', $this->style, 'navigation">';
+                '<td align="right" class="', $this->style, 'navigation">';
             if ($this->page > 3) echo
                 '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdSetPage,
                     '=1">1</a>&nbsp;';
@@ -1251,7 +1237,21 @@ class MySQLGrid
                 echo '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=',
                     $pages, '">', $pages, '</a> ';
             echo
-                '</td>',
+                '</td><td class="', $this->style, 'navigation next-prev-navigation">';
+                if ($this->page > 1) echo
+                    '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=',
+                    $this->page - 1, '">',
+                    $this->convertToHtmlEntities($this->txtPrevious), '</a>&nbsp;';
+                else
+                    echo $this->convertToHtmlEntities($this->txtPrevious), '&nbsp;';
+                if ($this->page < $pages) echo
+                    '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=',
+                    $this->page + 1, '">',
+                    $this->convertToHtmlEntities($this->txtNext), '</a>&nbsp;';
+                else
+                    echo $this->convertToHtmlEntities($this->txtNext), '&nbsp;';
+                echo
+                    '</td>',
                 '</tr>',
                 '</table>';
         } else echo '&nbsp;';
