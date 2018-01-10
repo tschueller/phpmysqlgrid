@@ -58,7 +58,7 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
 
 class MySQLGrid
 {
-    function MySQLGrid()
+    function __construct()
     {
         $this->hostname = "localhost";
         $this->port = 3128;
@@ -97,6 +97,11 @@ class MySQLGrid
 		$this->db_utf8 = false;
         $this->use_icon_font = false;
         $this->internationalize();
+    }
+
+    function MySQLGrid()
+    {
+        self::__construct();
     }
 
     function internationalize()
