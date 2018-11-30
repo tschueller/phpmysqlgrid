@@ -1048,8 +1048,9 @@ class MySQLGrid
                             '<option class="', $this->style, '" value="',
                             $this->convertToHtmlEntities($key),
                             '"';
-                        if ($data && ($key == $data[$i
-                                + $this->countPrimaries()]))
+                        if ($data && ($key == $data[$i + $this->countPrimaries()]))
+                            echo ' selected="selected"';
+                        else if (!$data && isset($this->columns[$i]["default"]) && $key == $this->columns[$i]["default"])
                             echo ' selected="selected"';
                         echo
                             '>',
@@ -1106,7 +1107,10 @@ class MySQLGrid
                     if ($style)
                         echo ' style="', $style, '"';
                     echo '>';
-                    if ($data) echo $this->convertToHtmlEntities($data[$i + $this->countPrimaries()]);
+                    if ($data)
+                        echo $this->convertToHtmlEntities($data[$i + $this->countPrimaries()]);
+                    else if (!$data && isset($this->columns[$i]["default"]))
+                        echo $this->convertToHtmlEntities($this->columns[$i]["default"]);
                     echo '</textarea>';
                     break;
                 case PHPMYSQLGRID_FILE:
@@ -1167,7 +1171,10 @@ class MySQLGrid
                     echo
                         '<input class="', $this->style,
                         '" type="text" value="';
-                    if ($data) echo $this->convertToHtmlEntities($value);
+                    if ($data)
+                        echo $this->convertToHtmlEntities($value);
+                    else if (!$data && isset($this->columns[$i]["default"]))
+                        echo $this->convertToHtmlEntities($this->columns[$i]["default"]);
                     echo '" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
                         echo ' size="', $this->columns[$i]["size"], '"';
