@@ -322,14 +322,14 @@ class MySQLGrid
         else
         {
             $this->sort = $this->default_sort_column;
-            $_SESSION["phpMySQLGrid_" . $this->name]["sort"] = 0;
+            $_SESSION["phpMySQLGrid_" . $this->name]["sort"] = $this->default_sort_column;
         }
         if (isset($_SESSION["phpMySQLGrid_" . $this->name]["dir"]))
             $this->dir = $_SESSION["phpMySQLGrid_" . $this->name]["dir"];
         else
         {
             $this->dir = $this->default_sort_direction;
-            $_SESSION["phpMySQLGrid_" . $this->name]["dir"] = 0;
+            $_SESSION["phpMySQLGrid_" . $this->name]["dir"] = $this->default_sort_direction;
         }
     }
 
