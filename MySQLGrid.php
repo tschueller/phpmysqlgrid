@@ -597,10 +597,7 @@ class MySQLGrid
                         next($_FILES);
                         break;
                     default:
-                        if (get_magic_quotes_gpc())
-                            $data[$i] = stripslashes($_REQUEST[$this->cmdSetData][$i]);
-                        else
-                            $data[$i] = $_REQUEST[$this->cmdSetData][$i];
+                        $data[$i] = $_REQUEST[$this->cmdSetData][$i];
                 }
             }
         } else $data = array();
