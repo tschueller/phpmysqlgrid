@@ -864,7 +864,7 @@ class MySQLGrid
 
                 // Handle output converter
                 if (isset($this->columns[$i]["convert_output"]))
-                    $text = $this->columns[$i]["convert_output"]($this, $text, $i + $this->countPrimaries(), $data);
+                    $text = $this->columns[$i]["convert_output"]($this, $text, $i + $this->countPrimaries(), $data, false);
                 else
                 {
                     switch ($this->columns[$i]["type"])
@@ -1115,7 +1115,7 @@ class MySQLGrid
                     {
                         $value = $data ? $data[$i + $this->countPrimaries()] : '';
                         if (isset($this->columns[$i]["convert_output"]))
-                            $value = $this->columns[$i]["convert_output"]($this, $value, $i + $this->countPrimaries(), $data);
+                            $value = $this->columns[$i]["convert_output"]($this, $value, $i + $this->countPrimaries(), $data, true);
                         else
                             $value = $value ? $this->txtFileTrue : $this->txtFileFalse;
                         if ($data) echo $value;
@@ -1164,7 +1164,7 @@ class MySQLGrid
                 default:
                     $value = $data ? $data[$i + $this->countPrimaries()] : '';
                     if (isset($this->columns[$i]["convert_output"]))
-                        $value = $this->columns[$i]["convert_output"]($this, $value, $i + $this->countPrimaries(), $data);
+                        $value = $this->columns[$i]["convert_output"]($this, $value, $i + $this->countPrimaries(), $data, true);
                     echo
                         '<input class="', $this->style,
                         '" type="text" value="';
