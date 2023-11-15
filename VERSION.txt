@@ -1,5 +1,6 @@
 History:
-- v0.5.8 (2020-09-03): add add new param to convert_output wehich signals the editMode
+- v0.5.9 (2023-11-15): add #[AllowDynamicProperties] annotation to fix php8.2 warnings
+- v0.5.8 (2020-09-03): add add new param to convert_output which signals the editMode
 - v0.5.7 (2020-02-18): fix deprecated warning in PHP 7 (get_magic_quotes_gpc)
 - v0.5.6 (2018-11-30): fix default sort order
 - v0.5.5 (2018-11-30): add default values for text, textarea and select

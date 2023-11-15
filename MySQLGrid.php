@@ -56,6 +56,7 @@ define("PHPMYSQLGRID_IMAGEBUTTON", 1);
 
 define("PHPMYSQLGRID_PWDUMMY", "********");
 
+#[AllowDynamicProperties]
 class MySQLGrid
 {
     function __construct()
