@@ -893,7 +893,7 @@ class MySQLGrid
                 else
                 {
                     if (isset($this->columns[$i]["size"])
-                        && (strlen($text) > $this->columns[$i]["size"]))
+                        && (strlen($text ?? "") > $this->columns[$i]["size"]))
                     {
                         echo
                             '<span title="', $this->convertToHtmlEntities($text), '">',
@@ -1342,7 +1342,7 @@ class MySQLGrid
 
     function convertToHtmlEntities($data)
     {
-        return htmlentities($data, ENT_COMPAT, $this->charset);
+        return htmlentities($data ?? "", ENT_COMPAT, $this->charset);
     }
 
 }
