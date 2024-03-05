@@ -672,7 +672,7 @@ class MySQLGrid
     function drawCaptions()
     {
         echo
-            '<tr>',
+            '<thead><tr>',
             '<th class="', $this->style, '">&nbsp;</th>';
         for ($i = 0; $i < count($this->columns); $i++)
         {
@@ -724,11 +724,12 @@ class MySQLGrid
                     '</a>';
             echo '</th>';
         }
-        echo "</tr>";
+        echo "</tr></thead>";
     }
 
     function drawData()
     {
+        echo '<tbody>';
         $this->row = 0;
         while (($data = mysqli_fetch_row($this->result)))
         {
@@ -750,7 +751,7 @@ class MySQLGrid
                 continue;
             }
             echo
-                '<tr>',
+                '<tr data-id="',$data[0],'">',
                 '<td class="', $headstyle, '" nowrap="nowrap" align="right">';
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
                 && ($_REQUEST[$this->varDeleteID] == $data[0]))
@@ -909,6 +910,7 @@ class MySQLGrid
             echo '</tr>';
             $this->row ++;
         }
+        echo '</tbody>';
     }
 
     function drawEditControls($data = false)
@@ -1199,7 +1201,7 @@ class MySQLGrid
     function drawNavigation()
     {
         echo
-            '<tr>',
+            '<tfoot><tr>',
             '<td align="right" class="', $this->style, 'action">';
         // Draw Add Button if wanted
         if ($this->can_add)
@@ -1267,7 +1269,7 @@ class MySQLGrid
         } else echo '&nbsp;';
         echo
             '</td>',
-            '</tr>';
+            '</tr></tfoot>';
     }
 
     function validateColumns()

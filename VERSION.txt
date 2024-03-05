@@ -1,4 +1,5 @@
 History:
+- v0.5.11 (2024-03-04): add thead, tbody and tfoot; add id as data attribute to each row
 - v0.5.10 (2024-02-29): fix php8.2 warnings
 - v0.5.9  (2023-11-15): add #[AllowDynamicProperties] annotation to fix php8.2 warnings
 - v0.5.8  (2020-09-03): add add new param to convert_output which signals the editMode
