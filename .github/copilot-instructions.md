@@ -4,7 +4,7 @@
 
 **phpMySQLGrid** is a flexible MySQL data grid library for PHP that provides a reusable class for displaying and managing MySQL database records in a grid/table format. The project is maintained as a Composer package under `tschueller/phpmysqlgrid`.
 
-- **Current Version**: See `CHANGELOG.md` for the latest release entry
+- **Current Version**: See `../CHANGELOG.md` for the latest release entry
 - **PHP Requirement**: >= 8.2
 - **Main Files**: `MySQLGrid.php` (core class), CSS stylesheets for theming
 - **Package Type**: PHP library (Composer-managed)
@@ -57,6 +57,16 @@ $grid->columns, $grid->actions    // Field and action definitions
 - Run the full quality gate with `composer run lint`
 - Static analysis config lives in `phpstan.neon.dist`
 - Current PHPStan level is `8`
+- CI is configured in `../.github/workflows/ci.yml`
+- Dependabot is configured in `../.github/dependabot.yml`
+
+### Repository Standards
+
+- Keep `CONTRIBUTING.md` and `SECURITY.md` up to date.
+- Use issue templates from `../.github/ISSUE_TEMPLATE` and PR template from `../.github/pull_request_template.md`.
+- `CODE_OF_CONDUCT.md` is optional for now and can be added when contributor activity grows.
+- Prefer simple Conventional Commit-style messages such as `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, and `chore:`.
+- For new features, prefer `feat:` messages with a short, imperative summary (optionally with a scope like `feat(grid): ...`).
 
 ### Constants & Naming
 
@@ -69,7 +79,7 @@ Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list).
 
 ### Maintenance & Updates
 
-- Check [CHANGELOG.md](CHANGELOG.md) for version history and changelog
+- Check [CHANGELOG.md](../CHANGELOG.md) for version history and changelog
 - Maintain backward compatibility—this library is used in production systems
 - Test with PHP 8.2+ for compatibility warnings (see v0.5.9+ fixes)
 - When fixing issues, add entry to CHANGELOG.md with date and description
@@ -101,8 +111,8 @@ Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list).
 
 ## Resources
 
-- Package info: See [composer.json](composer.json) for dependencies and autoloading
-- Setup and usage examples: See [README.md](README.md)
-- Version history: See [CHANGELOG.md](CHANGELOG.md) for evolution and fixes
-- Deferred work items: See [TODO.md](TODO.md)
+- Package info: See [composer.json](../composer.json) for dependencies and autoloading
+- Setup and usage examples: See [README.md](../README.md)
+- Version history: See [CHANGELOG.md](../CHANGELOG.md) for evolution and fixes
+- Deferred work items: See [TODO.md](../TODO.md)
 - Authors: Klaus Reimer (original), Thorsten Schüller (current maintainer)

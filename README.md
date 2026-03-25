@@ -95,6 +95,17 @@ The project currently uses PHPStan level 8.
 3. Run lint checks before submitting changes.
 4. Update CHANGELOG.md for user-visible fixes and improvements.
 
+For contribution details, see CONTRIBUTING.md.
+
+## Security
+
+Please report vulnerabilities according to SECURITY.md.
+
+## Code of Conduct (Optional)
+
+For now, this project does not enforce a dedicated code of conduct file due to its small scope.
+If the contributor base grows, CODE_OF_CONDUCT.md can be added again.
+
 ## License
 
 MIT
