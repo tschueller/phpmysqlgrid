@@ -1,6 +1,6 @@
 <?php
 // +----------------------------------------------------------------------+
-// | phpMySQLGrid version 0.5                                             |
+// | phpMySQLGrid version 0.6                                             |
 // |                                                                      |
 // | A flexible mysql data grid for PHP.                                  |
 // +----------------------------------------------------------------------+
@@ -57,10 +57,8 @@ define("PHPMYSQLGRID_IMAGEBUTTON", 1);
 define("PHPMYSQLGRID_PWDUMMY", "********");
 
 #[AllowDynamicProperties]
-class MySQLGrid
-{
-    function __construct()
-    {
+class MySQLGrid {
+    function __construct() {
         $this->hostname = "localhost";
         $this->port = 3128;
         $this->username = "root";
@@ -95,18 +93,16 @@ class MySQLGrid
         $this->edit_after = false;
         $this->lookups = array();
         $this->charset = "UTF-8";
-		$this->db_utf8 = false;
+        $this->db_utf8 = false;
         $this->use_icon_font = false;
         $this->internationalize();
     }
 
-    function MySQLGrid()
-    {
+    function MySQLGrid(): void {
         self::__construct();
     }
 
-    function internationalize()
-    {
+    function internationalize(): void {
         $this->txtPrevious = "Previous";
         $this->txtNext = "Next";
         $this->txtDelete = "Delete";
@@ -122,29 +118,28 @@ class MySQLGrid
         $this->txtURL = "URL";
     }
 
-    function connect()
-    {
+    function connect(): void {
         $this->db = mysqli_connect($this->hostname, $this->username, $this->password);
         if (!$this->db) die();
         if (!mysqli_select_db($this->db, $this->database))
             trigger_error(mysqli_error($this->db), E_USER_ERROR);
 
         // Switch to utf-8
-		if ($this->db_utf8)
-        	if(!mysqli_query($this->db, "set names 'utf8'"))
-        		trigger_error(mysqli_error($this->db), E_USER_ERROR);
+        if ($this->db_utf8)
+            if(!mysqli_query($this->db, "set names 'utf8'"))
+                trigger_error(mysqli_error($this->db), E_USER_ERROR);
     }
 
-    function disconnect()
-    {
+    function disconnect(): void {
         mysqli_close($this->db);
     }
 
-    function useAllColumns()
-    {
+    function useAllColumns(): void {
         $this->columns = array();
         if (!($fields = mysqli_query($this->db, "SHOW COLUMNS FROM $this->database.$this->table")))
             trigger_error(mysqli_error($this->db), E_USER_ERROR);
+        if ($fields === true)
+            trigger_error("Unexpected mysqli result type", E_USER_ERROR);
         if (mysqli_num_rows($fields) > 0) {
             while ($row = mysqli_fetch_assoc($fields)) {
                 $this->columns[] = array(
@@ -154,29 +149,25 @@ class MySQLGrid
         }
     }
 
-    function countPrimaries()
-    {
+    function countPrimaries(): int {
         if (is_array($this->primary))
             return count($this->primary);
         else
             return 1;
     }
 
-    function prepareData()
-    {
+    function prepareData(): void {
         // Create query parameters
-        if (is_array($this->primary))
-        {
+        if (is_array($this->primary)) {
             $fields = array();
             foreach($this->primary as $primary)
                 $fields[] = $this->table . "." . $primary;
-        }
-        else
+        } else {
             $fields = array($this->table . "." . $this->primary);
+        }
         $joins = array();
         $counter = 0;
-        for ($i = 0; $i < count($this->lookups); $i++)
-        {
+        for ($i = 0; $i < count($this->lookups); $i++) {
             $joins[] = sprintf("INNER JOIN %s AS l%d ON %s.%s=%s.%s",
                 $this->lookups[$i]["lookup_table"],
                 $counter, "l$counter",
@@ -187,11 +178,9 @@ class MySQLGrid
             $counter++;
         }
         $counter = 0;
-        $filter = $this->filter;
-        for ($i = 0; $i < count($this->columns); $i++)
-        {
-            switch($this->columns[$i]["type"])
-            {
+        $filter = (string)$this->filter;
+        for ($i = 0; $i < count($this->columns); $i++) {
+            switch($this->columns[$i]["type"]) {
                 case PHPMYSQLGRID_LOOKUP:
                     $fields[] = "t$counter" . "."
                         . $this->columns[$i]["lookup_field"];
@@ -202,8 +191,7 @@ class MySQLGrid
                         $this->table,
                         $this->columns[$i]["field"]
                     );
-                    if ($this->columns[$i]['active_filter'])
-                    {
+                    if ($this->columns[$i]['active_filter']) {
                         if ($filter) $filter .= ' AND ';
                         $filter .= sprintf("t$counter.%s LIKE '%%%s%%'",
                             $this->columns[$i]['lookup_field'],
@@ -221,8 +209,7 @@ class MySQLGrid
                     break;
                 default:
                     $fields[] = $this->table . '.' . $this->columns[$i]["field"];
-                    if ($this->columns[$i]['active_filter'])
-                    {
+                    if ($this->columns[$i]['active_filter']) {
                         if ($filter) $filter .= ' AND ';
                         $filter .= sprintf("%s.%s LIKE '%%%s%%'",
                             $this->table,
@@ -242,14 +229,19 @@ class MySQLGrid
         $result = mysqli_query($this->db, $query);
         if (!$result)
             trigger_error(mysqli_error($this->db), E_USER_ERROR);
+        if ($result === true)
+            trigger_error("Unexpected mysqli result type", E_USER_ERROR);
         $data = mysqli_fetch_row($result);
+        if (!is_array($data) || !array_key_exists(0, $data)) {
+            mysqli_free_result($result);
+            trigger_error("Failed to fetch row count", E_USER_ERROR);
+        }
 
         mysqli_free_result($result);
         $this->rows = $data[0];
 
         // Check if result is visible. If not jump to page 1
-        if ($this->rows <= (($this->page - 1) * $this->limit))
-        {
+        if ($this->rows <= (($this->page - 1) * $this->limit)) {
             $this->page = ceil($this->rows / $this->limit);
             $_SESSION["phpMySQLGrid_" . $this->name]["page"] = $this->page;
         }
@@ -268,13 +260,11 @@ class MySQLGrid
             trigger_error(mysqli_error($this->db), E_USER_ERROR);
     }
 
-    function unprepareData()
-    {
+    function unprepareData(): void {
         mysqli_free_result($this->result);
     }
 
-    function prepareQueryVars()
-    {
+    function prepareQueryVars(): void {
         $this->cmdSetPage = $this->name . "_setpage";
         $this->cmdSetSort = $this->name . "_setsort";
         $this->cmdSetDir = $this->name . "_setdir";
@@ -294,48 +284,42 @@ class MySQLGrid
         $this->varEditID = $this->name . "_editid";
     }
 
-    function processSession()
-    {
-        if (!isset($this->page))
-        {
+    function processSession(): void {
+        if (!isset($this->page)) {
             if (isset($_SESSION["phpMySQLGrid_" . $this->name]["page"]))
                 $this->page = $_SESSION["phpMySQLGrid_" . $this->name]["page"];
-            else
-            {
+            else {
                 $this->page = 1;
                 $_SESSION["phpMySQLGrid_" . $this->name]["page"] = 1;
             }
         } else $_SESSION['phpMySQLGrid_' . $this->name]['page'] = $this->page;
-        for ($i = 0; $i < count($this->columns); $i++)
-        {
-            if (isset($_SESSION['phpMySQLGrid_' . $this->name]['filter'][$i]))
+        for ($i = 0; $i < count($this->columns); $i++) {
+            if (isset($_SESSION['phpMySQLGrid_' . $this->name]['filter'][$i])) {
                 $this->columns[$i]['active_filter'] =
                     $_SESSION['phpMySQLGrid_' . $this->name]['filter'][$i];
-            else if (isset($this->columns[$i]['filter']))
+            } else if (isset($this->columns[$i]['filter'])) {
                 $this->columns[$i]['active_filter'] =
                     $this->columns[$i]['filter'];
-            else
+            } else {
                 $this->columns[$i]['active_filter'] = '';
+            }
         }
         if (isset($_SESSION["phpMySQLGrid_" . $this->name]["sort"]))
             $this->sort = min(count($this->columns) - 1,
                 $_SESSION["phpMySQLGrid_" . $this->name]["sort"]);
-        else
-        {
+        else {
             $this->sort = $this->default_sort_column;
             $_SESSION["phpMySQLGrid_" . $this->name]["sort"] = $this->default_sort_column;
         }
         if (isset($_SESSION["phpMySQLGrid_" . $this->name]["dir"]))
             $this->dir = $_SESSION["phpMySQLGrid_" . $this->name]["dir"];
-        else
-        {
+        else {
             $this->dir = $this->default_sort_direction;
             $_SESSION["phpMySQLGrid_" . $this->name]["dir"] = $this->default_sort_direction;
         }
     }
 
-    function addData($data)
-    {
+    function addData(mixed $data): void {
         if (!$this->can_add) return;
         $columns = array();
         $values = array();
@@ -345,38 +329,33 @@ class MySQLGrid
         if (is_callable($hook))
             if (!$hook($this, $data)) return;
 
-        for ($i = 0; $i < count($this->columns); $i++)
-        {
-            if ($this->columns[$i]["type"] == PHPMYSQLGRID_FILE)
-            {
+        for ($i = 0; $i < count($this->columns); $i++) {
+            if ($this->columns[$i]["type"] == PHPMYSQLGRID_FILE) {
                 // Call input converter if there is one
-                if (isset($this->columns[$i]["convert_input"]))
-                {
+                if (isset($this->columns[$i]["convert_input"])) {
                     $data[$i] = $this->columns[$i]["convert_input"]($this,
                         $data[$i], $i + $this->countPrimaries(),
                         array_merge((array)false, (array)$data));
                     $columns[] = $this->columns[$i]["field"];
                     $values[] = "'" . addslashes($data[$i]) . "'";
-                }
-                else
-                {
+                } else {
                     // Ignore if data is empty
                     if (!$data[$i]) continue;
 
                     // If data is an array, process file upload
-                    if (is_array($data[$i]))
-                    {
+                    if (is_array($data[$i])) {
                         // Ignore empty or non-uploaded files
                         if (!$data[$i]['size']) continue;
                         $handle = fopen($data[$i]['tmp_name'], 'rb');
+                        if ($handle === false) continue;
                         $content = fread($handle, $data[$i]['size']);
+                        if ($content === false) $content = '';
                         fclose($handle);
                         $columns[] = $this->columns[$i]["field"];
                         $values[] = "'" . addslashes($content) . "'";
                     }
                     // If it's not an array fetch the URL
-                    else
-                    {
+                    else {
                         // Open URL and suppress messages
                         @$handle = fopen($data[$i]  , 'rb');
                         // Ignore invalid URLs;
@@ -394,18 +373,16 @@ class MySQLGrid
 
             if ((($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD)
                 || ($data[$i] != PHPMYSQLGRID_PWDUMMY))
-                && ($this->columns[$i]["type"] != PHPMYSQLGRID_FILE))
-            {
+                && ($this->columns[$i]["type"] != PHPMYSQLGRID_FILE)) {
                 if (isset($this->columns[$i]["convert_input"]))
                     $data[$i] = $this->columns[$i]["convert_input"]($this,
                         $data[$i], $i + $this->countPrimaries(),
                         array_merge((array)false, (array)$data));
                 $columns[] = $this->columns[$i]["field"];
-                $values[] = "'" . addslashes($data[$i]) . "'";
+                $values[] = "'" . addslashes((string)$data[$i]) . "'";
             }
         }
-        foreach ($this->add_values as $key => $value)
-        {
+        foreach ($this->add_values as $key => $value) {
             $columns[] = $key;
             $values[] = "'" . $value . "'";
         }
@@ -419,15 +396,13 @@ class MySQLGrid
 
         // Call add_after hook if set
         $hook = $this->add_after;
-        if (is_callable($hook))
-        {
+        if (is_callable($hook)) {
             $id = mysqli_insert_id($this->db);
             if (!$hook($this, $id, $data)) return;
         }
     }
 
-    function deleteData($id)
-    {
+    function deleteData(mixed $id): void {
         if (!$this->can_delete) return;
 
         // Call delete hook if set
@@ -447,8 +422,7 @@ class MySQLGrid
         if (is_callable($hook)) $hook($this, $id);
     }
 
-    function editData($id, $data)
-    {
+    function editData(mixed $id, mixed $data): void {
         if (!$this->can_edit) return;
 
         // Call edit_before hook if set
@@ -457,42 +431,36 @@ class MySQLGrid
             if (!$hook($this, $id, $data)) return;
 
         $updates = array();
-        for ($i = 0; $i < count($this->columns); $i++)
-        {
-            if ($this->columns[$i]["type"] == PHPMYSQLGRID_FILE)
-            {
+        for ($i = 0; $i < count($this->columns); $i++) {
+            if ($this->columns[$i]["type"] == PHPMYSQLGRID_FILE) {
                 // Call input converter if there is one
-                if (isset($this->columns[$i]["convert_input"]))
-                {
+                if (isset($this->columns[$i]["convert_input"])) {
                     $data[$i] = $this->columns[$i]["convert_input"]($this,
                         $data[$i], $i + $this->countPrimaries(),
                         array_merge((array)$id, (array)$data));
-                    if ($data[$i] !== false)
-                    {
+                    if ($data[$i] !== false) {
                         $updates[] = sprintf("%s='%s'",
                             $this->columns[$i]["field"],
                             addslashes($data[$i])
                         );
                     }
-                }
-                else
-                {
+                } else {
 
                     // Delete file blob if empty
-                    if (!$data[$i])
-                    {
+                    if (!$data[$i]) {
                         $updates[] = sprintf("%s=''",
                             $this->columns[$i]["field"]
                         );
                     }
 
                     // If data is an array, process file upload
-                    else if (is_array($data[$i]))
-                    {
+                    else if (is_array($data[$i])) {
                         // Ignore empty or non-uploaded files
                         if (!$data[$i]['size']) continue;
                         $handle = fopen($data[$i]['tmp_name'], 'rb');
+                        if ($handle === false) continue;
                         $content = fread($handle, $data[$i]['size']);
+                        if ($content === false) $content = '';
                         fclose($handle);
                         $updates[] = sprintf("%s='%s'",
                             $this->columns[$i]["field"],
@@ -500,8 +468,7 @@ class MySQLGrid
                         );
                     }
                     // If it's not an array fetch the URL
-                    else
-                    {
+                    else {
                         // Open URL and suppress messages
                         @$handle = fopen($data[$i]  , 'rb');
                         // Ignore invalid URLs;
@@ -520,8 +487,7 @@ class MySQLGrid
             }
 
             if (($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD)
-                || ($data[$i] != PHPMYSQLGRID_PWDUMMY))
-            {
+                || ($data[$i] != PHPMYSQLGRID_PWDUMMY)) {
                 if (isset($this->columns[$i]["convert_input"]))
                     $data[$i] = $this->columns[$i]["convert_input"]($this,
                         $data[$i], $i + $this->countPrimaries(),
@@ -546,48 +512,40 @@ class MySQLGrid
 
     }
 
-    function processRequests()
-    {
+    function processRequests(): void {
         // Process SetPage command
-        if (isset($_REQUEST[$this->cmdSetPage]))
-        {
+        if (isset($_REQUEST[$this->cmdSetPage])) {
             $this->page = intval($_REQUEST[$this->cmdSetPage]);
             $_SESSION["phpMySQLGrid_" . $this->name]["page"] = $this->page;
         }
 
         // Process SetSort command
-        if (isset($_REQUEST[$this->cmdSetSort]))
-        {
+        if (isset($_REQUEST[$this->cmdSetSort])) {
             $this->sort = intval($_REQUEST[$this->cmdSetSort]);
             $_SESSION["phpMySQLGrid_" . $this->name]["sort"] = $this->sort;
         }
 
         // Process SetFilter command
-        if (isset($_REQUEST[$this->cmdSetFilter]))
-        {
-            foreach ($_REQUEST[$this->cmdSetFilter] as $key => $value)
-            {
+        if (isset($_REQUEST[$this->cmdSetFilter])) {
+            foreach ($_REQUEST[$this->cmdSetFilter] as $key => $value) {
                 $this->columns[$key]['active_filter'] = stripslashes($value);
                 $_SESSION["phpMySQLGrid_" . $this->name]["filter"][$key] = $this->columns[$key]['active_filter'];
             }
         }
 
         // Process SetDir command
-        if (isset($_REQUEST[$this->cmdSetDir]))
-        {
+        if (isset($_REQUEST[$this->cmdSetDir])) {
             $this->dir = intval($_REQUEST[$this->cmdSetDir]);
             $_SESSION["phpMySQLGrid_" . $this->name]["dir"] = $this->dir;
         }
 
         // Process data vars
-        if (isset($_REQUEST[$this->cmdSetData]))
-        {
+        $data = array();
+        if (isset($_REQUEST[$this->cmdSetData])) {
             reset($_FILES);
 
-            for ($i = 0; $i < count($this->columns); $i++)
-            {
-                switch ($this->columns[$i]["type"])
-                {
+            for ($i = 0; $i < count($this->columns); $i++) {
+                switch ($this->columns[$i]["type"]) {
                     case PHPMYSQLGRID_FILE:
                         if (isset($_REQUEST[$this->cmdClearFile][$i]))
                             $data[$i] = false;
@@ -601,56 +559,47 @@ class MySQLGrid
                         $data[$i] = $_REQUEST[$this->cmdSetData][$i];
                 }
             }
-        } else $data = array();
+        }
 
         // Process Add command
-        if (($this->can_add) && (isset($_REQUEST[$this->cmdAdd])))
-        {
+        if (($this->can_add) && (isset($_REQUEST[$this->cmdAdd]))) {
             $this->mode = PHPMYSQLGRID_ADDMODE;
         }
 
         // Process ConfirmAdd command
-        if (($this->can_add) && (isset($_REQUEST[$this->cmdConfirmAdd])))
-        {
+        if (($this->can_add) && (isset($_REQUEST[$this->cmdConfirmAdd]))) {
             $this->addData($data);
         }
 
         // Process Delete command
-        if (($this->can_delete) && (isset($_REQUEST[$this->cmdDelete])))
-        {
+        if (($this->can_delete) && (isset($_REQUEST[$this->cmdDelete]))) {
             $this->mode = PHPMYSQLGRID_DELETEMODE;
         }
 
         // Process ConfirmDelete command
         if (($this->can_delete) &&
-            (isset($_REQUEST[$this->cmdConfirmDelete])))
-        {
+            (isset($_REQUEST[$this->cmdConfirmDelete]))) {
             $this->deleteData($_REQUEST[$this->varDeleteID]);
         }
 
         // Process Edit command
-        if (($this->can_edit) && (isset($_REQUEST[$this->cmdEdit])))
-        {
+        if (($this->can_edit) && (isset($_REQUEST[$this->cmdEdit]))) {
             $this->mode = PHPMYSQLGRID_EDITMODE;
         }
 
         // Process ConfirmEdit command
         if (($this->can_edit) &&
-            (isset($_REQUEST[$this->cmdConfirmEdit])))
-        {
+            (isset($_REQUEST[$this->cmdConfirmEdit]))) {
             $this->editData($_REQUEST[$this->varEditID], $data);
         }
-
     }
 
-    function drawHeader()
-    {
+    function drawHeader(): void {
         // Check if a file upload is present in this grid. This is
         // important to switch to multipart/form-data encoding.
         $upload = false;
         for ($i = 0; $i < count($this->columns); $i++)
-            if ($this->columns[$i]["type"] == PHPMYSQLGRID_FILE)
-            {
+            if ($this->columns[$i]["type"] == PHPMYSQLGRID_FILE) {
                 $upload = true;
                 break;
             }
@@ -662,20 +611,17 @@ class MySQLGrid
             '<table class="', $this->style, ' ' , $this->cssClass ,'" border="0" cellspacing="1">';
     }
 
-    function drawFooter()
-    {
+    function drawFooter(): void {
         echo
             '</table>',
             '</form><a href="#" id="',$this->name,'_bottom"></a>';
     }
 
-    function drawCaptions()
-    {
+    function drawCaptions(): void {
         echo
             '<thead><tr>',
             '<th class="', $this->style, '">&nbsp;</th>';
-        for ($i = 0; $i < count($this->columns); $i++)
-        {
+        for ($i = 0; $i < count($this->columns); $i++) {
             if (isset($this->columns[$i]["caption"]))
                 $caption = $this->columns[$i]["caption"];
             else
@@ -696,8 +642,7 @@ class MySQLGrid
                     '</a>&nbsp;';
             echo $this->convertToHtmlEntities($caption);
             if ($this->can_filter && $this->columns[$i]['can_filter']
-                    && ($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD))
-            {
+                    && ($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD)) {
                 echo
                     '&nbsp;<input type="text" name="',
                     $this->cmdSetFilter,
@@ -727,26 +672,20 @@ class MySQLGrid
         echo "</tr></thead>";
     }
 
-    function drawData()
-    {
+    function drawData(): void {
         echo '<tbody>';
         $this->row = 0;
-        while (($data = mysqli_fetch_row($this->result)))
-        {
+        while (($data = mysqli_fetch_row($this->result))) {
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
-                && ($_REQUEST[$this->varDeleteID] == $data[0]))
-            {
+                && ($_REQUEST[$this->varDeleteID] == $data[0])) {
                 $headstyle = $this->style . 'actiondelete';
                 $datastyle = $this->style . 'datadelete' . ($this->row % 2);
-            }
-            else
-            {
+            } else {
                 $headstyle = $this->style . 'action';
                 $datastyle = $this->style . 'data' . ($this->row % 2);
             }
             if (($this->mode == PHPMYSQLGRID_EDITMODE)
-                && ($_REQUEST[$this->varEditID] == $data[0]))
-            {
+                && ($_REQUEST[$this->varEditID] == $data[0])) {
                 $this->drawEditControls($data);
                 continue;
             }
@@ -754,8 +693,7 @@ class MySQLGrid
                 '<tr data-id="',$data[0],'">',
                 '<td class="', $headstyle, '" nowrap="nowrap" align="right">';
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
-                && ($_REQUEST[$this->varDeleteID] == $data[0]))
-            {
+                && ($_REQUEST[$this->varDeleteID] == $data[0])) {
                 echo
                     '<a href="', $_SERVER["PHP_SELF"], '?',
                     $this->cmdConfirmDelete, '=1&amp;',
@@ -778,11 +716,8 @@ class MySQLGrid
                         $this->convertToHtmlEntities($this->txtCancel).
                         '" width="13" height="13" border="0" />'),
                     '</a>';
-            }
-            else
-            {
-                if ($this->can_edit)
-                {
+            } else {
+                if ($this->can_edit) {
                     echo
                         '<a href="', $_SERVER["PHP_SELF"], '?',
                         $this->cmdEdit, '=1&amp;', $this->varEditID,
@@ -796,8 +731,7 @@ class MySQLGrid
                             '" border="0" width="13" height="13" align="middle" />'),
                         '</a>';
                 }
-                if ($this->can_delete)
-                {
+                if ($this->can_delete) {
                     echo
                         '<a href="', $_SERVER["PHP_SELF"], '?',
                         $this->cmdDelete, '=1&amp;', $this->varDeleteID,
@@ -811,10 +745,8 @@ class MySQLGrid
                             '" border="0" width="13" height="13" align="middle" />'),
                         '</a>';
                 }
-                foreach ($this->actions as $action)
-                {
-                    switch ($action["type"])
-                    {
+                foreach ($this->actions as $action) {
+                    switch ($action["type"]) {
                         case PHPMYSQLGRID_IMAGEBUTTON:
                             echo
                                 '<a href="',
@@ -846,10 +778,8 @@ class MySQLGrid
             echo
                 '</td>';
 
-            for ($i = 0; $i < count($this->columns); $i++)
-            {
-                switch ($this->columns[$i]["type"])
-                {
+            for ($i = 0; $i < count($this->columns); $i++) {
+                switch ($this->columns[$i]["type"]) {
                     case PHPMYSQLGRID_PASSWORD:
                         $text = PHPMYSQLGRID_PWDUMMY;
                         break;
@@ -867,10 +797,8 @@ class MySQLGrid
                 // Handle output converter
                 if (isset($this->columns[$i]["convert_output"]))
                     $text = $this->columns[$i]["convert_output"]($this, $text, $i + $this->countPrimaries(), $data, false);
-                else
-                {
-                    switch ($this->columns[$i]["type"])
-                    {
+                else {
+                    switch ($this->columns[$i]["type"]) {
                         case PHPMYSQLGRID_BOOLEAN:
                             $text = $text ? $this->txtYes : $this->txtNo;
                             break;
@@ -891,11 +819,9 @@ class MySQLGrid
                 // Trust converted output, otherwise htmlentity it.
                 if (isset($this->columns[$i]["convert_output"]))
                     echo $text;
-                else
-                {
+                else {
                     if (isset($this->columns[$i]["size"])
-                        && (strlen($text ?? "") > $this->columns[$i]["size"]))
-                    {
+                        && (strlen($text ?? "") > $this->columns[$i]["size"])) {
                         echo
                             '<span title="', $this->convertToHtmlEntities($text), '">',
                             $this->convertToHtmlEntities(
@@ -913,10 +839,11 @@ class MySQLGrid
         echo '</tbody>';
     }
 
-    function drawEditControls($data = false)
-    {
-        switch ($this->mode)
-        {
+    /**
+     * @param array<int, mixed>|false $data
+     */
+    function drawEditControls(array|false $data = false): void {
+        switch ($this->mode) {
             case PHPMYSQLGRID_EDITMODE:
                 $headstyle = $this->style . 'actionedit';
                 $datastyle = $this->style . 'dataedit' . ($this->row % 2);
@@ -933,8 +860,7 @@ class MySQLGrid
             '<tr>',
             '<td align="right" class="', $headstyle, '" nowrap="nowrap">';
 
-        if ($this->mode == PHPMYSQLGRID_EDITMODE)
-        {
+        if ($this->mode == PHPMYSQLGRID_EDITMODE) {
             echo
                 '<input type="hidden" name="', $this->varEditID, '" value="',
                 $_REQUEST[$this->varEditID], '">',
@@ -961,9 +887,7 @@ class MySQLGrid
                     '" width="13" height="13" border="0" />'),
                 '</a>',
                 '</td>';
-        }
-        else
-        {
+        } else {
             echo
                 ($this->use_icon_font ?
                 '<input type="hidden" name="' . $this->cmdConfirmAdd. '" value="true" />'.
@@ -989,14 +913,12 @@ class MySQLGrid
                     '" width="13" height="13" border="0" />'),
                 '</a>';
         }
-        for ($i = 0; $i < count($this->columns); $i++)
-        {
+        for ($i = 0; $i < count($this->columns); $i++) {
             echo '<td class="', $datastyle, '"';
             if (isset($this->columns[$i]["align"]))
                 echo ' align="', $this->columns[$i]["align"], '"';
             echo '>';
-            switch($this->columns[$i]["type"])
-            {
+            switch($this->columns[$i]["type"]) {
                 case PHPMYSQLGRID_LOOKUP:
                     echo
                         '<select class="',
@@ -1015,8 +937,9 @@ class MySQLGrid
                         isset($this->columns[$i]["lookup_filter"]) ? " WHERE "
                             . $this->columns[$i]["lookup_filter"] : ""
                     )))) trigger_error(mysqli_error($this->db), E_USER_ERROR);
-                    while ($lookup_data = mysqli_fetch_row($lookup))
-                    {
+                    if ($lookup === true)
+                        trigger_error("Unexpected mysqli result type", E_USER_ERROR);
+                    while ($lookup_data = mysqli_fetch_row($lookup)) {
                         echo
                             '<option class="', $this->style, '" value="',
                             $this->convertToHtmlEntities($lookup_data[0]),
@@ -1042,8 +965,7 @@ class MySQLGrid
                             ' style="width:', $this->columns[$i]["width"],
                             'px;"';
                     echo '>';
-                    foreach($this->columns[$i]["selection"] as $key => $value)
-                    {
+                    foreach($this->columns[$i]["selection"] as $key => $value) {
                         echo
                             '<option class="', $this->style, '" value="',
                             $this->convertToHtmlEntities($key),
@@ -1109,13 +1031,12 @@ class MySQLGrid
                     echo '>';
                     if ($data)
                         echo $this->convertToHtmlEntities($data[$i + $this->countPrimaries()]);
-                    else if (!$data && isset($this->columns[$i]["default"]))
+                    else if (isset($this->columns[$i]["default"]))
                         echo $this->convertToHtmlEntities($this->columns[$i]["default"]);
                     echo '</textarea>';
                     break;
                 case PHPMYSQLGRID_FILE:
-                    if ($this->mode == PHPMYSQLGRID_EDITMODE)
-                    {
+                    if ($this->mode == PHPMYSQLGRID_EDITMODE) {
                         $value = $data ? $data[$i + $this->countPrimaries()] : '';
                         if (isset($this->columns[$i]["convert_output"]))
                             $value = $this->columns[$i]["convert_output"]($this, $value, $i + $this->countPrimaries(), $data, true);
@@ -1155,8 +1076,7 @@ class MySQLGrid
                     echo
                         '>';
 
-                    if ($this->mode == PHPMYSQLGRID_EDITMODE)
-                    {
+                    if ($this->mode == PHPMYSQLGRID_EDITMODE) {
                         echo
                             '<br>',
                             $this->txtDelete, '&nbsp;<input type="checkbox"',
@@ -1173,7 +1093,7 @@ class MySQLGrid
                         '" type="text" value="';
                     if ($data)
                         echo $this->convertToHtmlEntities($value);
-                    else if (!$data && isset($this->columns[$i]["default"]))
+                    else if (isset($this->columns[$i]["default"]))
                         echo $this->convertToHtmlEntities($this->columns[$i]["default"]);
                     echo '" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
@@ -1198,14 +1118,12 @@ class MySQLGrid
             '</tr>';
     }
 
-    function drawNavigation()
-    {
+    function drawNavigation(): void {
         echo
             '<tfoot><tr>',
             '<td align="right" class="', $this->style, 'action">';
         // Draw Add Button if wanted
-        if ($this->can_add)
-        {
+        if ($this->can_add) {
             echo
                 '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdAdd, '=1#',$this->name,'_bottom" class="add-button">',
                     ($this->use_icon_font ?
@@ -1222,8 +1140,7 @@ class MySQLGrid
 
         echo
             '<td class="', $this->style, 'navigation" style="padding:0px" colspan="', count($this->columns), '">';
-        if ($this->can_navigate)
-        {
+        if ($this->can_navigate) {
             $pages = ceil($this->rows / $this->limit);
             echo
                 '<table border="0" cellspacing="0" cellpadding="0" class="page-navigation">',
@@ -1234,9 +1151,7 @@ class MySQLGrid
                     '=1">1</a>&nbsp;';
             if ($this->page > 4)
                 echo '...&nbsp;';
-            for ($i = max(1, $this->page - 2); $i <= min($pages, $this->page + 2);
-                $i++)
-            {
+            for ($i = max(1, $this->page - 2); $i <= min($pages, $this->page + 2); $i++) {
                 if ($i == $this->page)
                     echo $i, '&nbsp;';
                 else
@@ -1272,10 +1187,8 @@ class MySQLGrid
             '</tr></tfoot>';
     }
 
-    function validateColumns()
-    {
-        for ($i = 0; $i < count($this->columns); $i++)
-        {
+    function validateColumns(): void {
+        for ($i = 0; $i < count($this->columns); $i++) {
             if (!isset($this->columns[$i]['type']))
                 $this->columns[$i]['type'] = PHPMYSQLGRID_TEXT;
             if (!isset($this->columns[$i]['can_sort']))
@@ -1285,17 +1198,14 @@ class MySQLGrid
         }
     }
 
-    function validateActions()
-    {
-        for ($i = 0; $i < count($this->actions); $i++)
-        {
+    function validateActions(): void {
+        for ($i = 0; $i < count($this->actions); $i++) {
             if (!isset($this->actions[$i]["type"]))
                 $this->columns[$i]["type"] = PHPMYSQLGRID_TEXTBUTTON;
         }
     }
 
-    function execute()
-    {
+    function execute(): void {
         // Prepare some variables
         $this->prepareQueryVars();
 
@@ -1342,11 +1252,9 @@ class MySQLGrid
         $this->disconnect();
     }
 
-    function convertToHtmlEntities($data)
-    {
+    function convertToHtmlEntities(mixed $data): string {
         return htmlentities($data ?? "", ENT_COMPAT, $this->charset);
     }
-
 }
 
 ?>

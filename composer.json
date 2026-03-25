@@ -1,6 +1,7 @@
 {
     "name": "tschueller/phpmysqlgrid",
     "type": "library",
+    "license": "BSD-3-Clause",
     "description": "A flexible mysql data grid for PHP",
     "keywords": ["php", "mySQL", "Grid"],
     "authors": [
@@ -14,9 +15,24 @@
         }
     ],
     "require": {
-        "php": ">=5.3.2"
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpstan/phpstan": "^1.0"
     },
     "autoload": {
         "classmap": ["MySQLGrid.php"]
+    },
+    "scripts": {
+        "lint:syntax": "php -l MySQLGrid.php",
+        "lint:style": "php-cs-fixer fix --dry-run --diff",
+        "fix:style": "php-cs-fixer fix",
+        "lint:static": "phpstan analyse",
+        "lint": [
+            "@lint:syntax",
+            "@lint:style",
+            "@lint:static"
+        ]
     }
 }
