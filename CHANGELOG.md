@@ -7,6 +7,7 @@ All notable changes to this project are documented in this file.
 - Require PHP >= 8.2.
 - Add Composer lint workflow (syntax/style/static) with PHPStan level 8.
 - Add README and TODO documentation.
+- Change license from BSD-3-Clause to MIT.
 
 ## [0.5.11] - 2024-03-04
 - Add `thead`, `tbody`, and `tfoot`.

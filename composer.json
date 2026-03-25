@@ -1,7 +1,7 @@
 {
     "name": "tschueller/phpmysqlgrid",
     "type": "library",
-    "license": "BSD-3-Clause",
+    "license": "MIT",
     "description": "A flexible mysql data grid for PHP",
     "keywords": ["php", "mySQL", "Grid"],
     "authors": [

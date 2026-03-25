@@ -8,7 +8,7 @@
 - [x] Add README, CHANGELOG, and TODO documentation
 - [ ] Add unit tests (PHPUnit) for core functionality
 - [ ] Add demo page with example usage and styling options
-- [ ] Change license to MIT
+- [x] Change license to MIT
 - [ ] Check for security issues (SQL injection, XSS) and add mitigations if needed
 - [ ] Investigate PSR coding standards
 - [ ] Document public properties and methods with doc blocks

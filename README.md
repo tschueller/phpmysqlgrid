@@ -97,4 +97,4 @@ The project currently uses PHPStan level 8.
 
 ## License
 
-BSD-3-Clause
+MIT
