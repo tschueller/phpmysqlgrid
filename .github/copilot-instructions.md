@@ -45,6 +45,12 @@ $grid->columns, $grid->actions    // Field and action definitions
 - Uses `#[AllowDynamicProperties]` attribute for PHP 8.2+ compatibility (line 48 of MySQLGrid.php)
 - Dynamic property usage is intentional and expected (due to project's age and backward compatibility needs)
 - Class constructor initializes all public properties with sensible defaults
+- **All new methods and properties must declare explicit visibility** (`public`, `protected`, or `private`). Never rely on the implicit `public` default.
+- Internal implementation methods that must stay `public` for unit-testability are annotated with `/** @internal */`. This signals to consumers that the method is not part of the public API, and PHPStan will warn if such methods are called from outside the package. Example:
+  ```php
+  /** @internal */
+  public function validateColumns(): void { ... }
+  ```
 - Follow existing code style in MySQLGrid.php for consistency
 - Write English comments and doc blocks where necessary, especially for new methods or complex logic
 - Write new documentation files in English (for example `README.md` and `TODO.md`)

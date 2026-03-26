@@ -4,7 +4,7 @@
 // |                                                                      |
 // | A flexible mysql data grid for PHP.                                  |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 2003  Klaus Reimer, 2026 Thorsten Schüller             |
+// | Copyright (c) 2003 Klaus Reimer, 2026 Thorsten Schüller             |
 // +----------------------------------------------------------------------+
 // | Released under the MIT License.                                      |
 // | See LICENSE file in the project root for full license text.          |
@@ -78,7 +78,7 @@ class MySQLGrid {
         self::__construct();
     }
 
-    function internationalize(): void {
+    private function internationalize(): void {
         $this->txtPrevious = "Previous";
         $this->txtNext = "Next";
         $this->txtDelete = "Delete";
@@ -240,6 +240,7 @@ class MySQLGrid {
         mysqli_free_result($this->result);
     }
 
+    /** @internal */
     function prepareQueryVars(): void {
         $this->cmdSetPage = $this->name . "_setpage";
         $this->cmdSetSort = $this->name . "_setsort";
@@ -570,6 +571,7 @@ class MySQLGrid {
         }
     }
 
+    /** @internal */
     function drawHeader(): void {
         // Check if a file upload is present in this grid. This is
         // important to switch to multipart/form-data encoding.
@@ -587,12 +589,14 @@ class MySQLGrid {
             '<table class="', $this->style, ' ' , $this->cssClass ,'" border="0" cellspacing="1">';
     }
 
+    /** @internal */
     function drawFooter(): void {
         echo
             '</table>',
             '</form><a href="#" id="',$this->name,'_bottom"></a>';
     }
 
+    /** @internal */
     function drawCaptions(): void {
         echo
             '<thead><tr>',
@@ -1094,6 +1098,7 @@ class MySQLGrid {
             '</tr>';
     }
 
+    /** @internal */
     function drawNavigation(): void {
         echo
             '<tfoot><tr>',
@@ -1163,6 +1168,7 @@ class MySQLGrid {
             '</tr></tfoot>';
     }
 
+    /** @internal */
     function validateColumns(): void {
         for ($i = 0; $i < count($this->columns); $i++) {
             if (!isset($this->columns[$i]['type']))
@@ -1174,6 +1180,7 @@ class MySQLGrid {
         }
     }
 
+    /** @internal */
     function validateActions(): void {
         for ($i = 0; $i < count($this->actions); $i++) {
             if (!isset($this->actions[$i]["type"]))
