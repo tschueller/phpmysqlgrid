@@ -16,7 +16,7 @@
   - [x] add SQLite in-memory test infrastructure (fixtures + shared DB test base class)
   - [ ] add tests for all DB methods in MySQLGrid.php
   - [x] add SQLite CRUD integration tests via test adapter (connect/disconnect/useAllColumns/add/edit/delete)
-  - [ ] add security tests for SQL injection and XSS vulnerabilities
+  - [x] add security tests for SQL injection and XSS vulnerabilities
   - [x] update github copilot instructions with testing guidelines
 - [x] Change license to MIT
 - [ ] Check for security issues (SQL injection, XSS) and add mitigations if needed
