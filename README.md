@@ -84,6 +84,10 @@ Run checks individually:
     composer run lint:style
     composer run lint:static
 
+Run unit tests:
+
+    composer run test
+
 ## Current Static Analysis Level
 
 The project currently uses PHPStan level 8.

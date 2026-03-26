@@ -2,12 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
-## [0.6.0] - 2026-03-25
+## [Unreleased]
 - Convert code style to 1TBS.
 - Require PHP >= 8.2.
 - Add Composer lint workflow (syntax/style/static) with PHPStan level 8.
 - Add README and TODO documentation.
 - Change license from BSD-3-Clause to MIT.
+- Add PHPUnit configuration and a first automated unit test suite for core non-DB methods.
+
 
 ## [0.5.11] - 2024-03-04
 - Add `thead`, `tbody`, and `tfoot`.

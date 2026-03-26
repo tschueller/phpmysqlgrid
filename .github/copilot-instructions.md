@@ -55,10 +55,20 @@ $grid->columns, $grid->actions    // Field and action definitions
 - Run style checks with `composer run lint:style`
 - Run static analysis with `composer run lint:static`
 - Run the full quality gate with `composer run lint`
+- Run unit tests with `composer run test`
 - Static analysis config lives in `phpstan.neon.dist`
+- PHPUnit config lives in `phpunit.xml.dist`
 - Current PHPStan level is `8`
 - CI is configured in `../.github/workflows/ci.yml`
 - Dependabot is configured in `../.github/dependabot.yml`
+
+### Testing Conventions
+
+- Test files live in `tests/`, class `MySQLGridUnitTest`, namespace `MySQLGridTests`
+- Import `MySQLGrid` explicitly via `use MySQLGrid;` to satisfy Intelephense's static analysis
+- `MySQLGrid.php` is loaded via Composer classmap autoloading — no separate bootstrap needed
+- Prefer descriptive test method names over inline comments; add a comment only when testing known-buggy or non-obvious behavior
+- When a test intentionally documents a bug (current incorrect behavior), add a `// TODO:` comment explaining what should change after the fix
 
 ### Repository Standards
 

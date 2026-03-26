@@ -19,7 +19,8 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
-        "phpstan/phpstan": "^1.0"
+        "phpstan/phpstan": "^1.0",
+        "phpunit/phpunit": "^11.5"
     },
     "autoload": {
         "classmap": ["MySQLGrid.php"]
@@ -29,6 +30,7 @@
         "lint:style": "php-cs-fixer fix --dry-run --diff",
         "fix:style": "php-cs-fixer fix",
         "lint:static": "phpstan analyse",
+        "test": "phpunit",
         "lint": [
             "@lint:syntax",
             "@lint:style",

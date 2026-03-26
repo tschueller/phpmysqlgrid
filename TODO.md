@@ -6,7 +6,13 @@
 - [x] Require PHP >= 8.2
 - [x] Add Composer lint workflow (syntax/style/static) with PHPStan level 8
 - [x] Add README, CHANGELOG, and TODO documentation
-- [ ] Add unit tests (PHPUnit) for core functionality
+- [ ] Add unit tests
+  - [x] add first simple tests
+  - [ ] add tests for all non-DB methods in MySQLGrid.php
+  - [ ] investigate integration testing options for DB methods (e.g. in-memory SQLite)
+  - [ ] add tests for all DB methods in MySQLGrid.php
+  - [ ] add security tests for SQL injection and XSS vulnerabilities
+  - [ ] update github copilot instructions with testing guidelines
 - [ ] Add demo page with example usage and styling options
 - [x] Change license to MIT
 - [ ] Check for security issues (SQL injection, XSS) and add mitigations if needed
@@ -21,7 +27,7 @@
   - [-] Add CODE_OF_CONDUCT.md (optional, if contributor base grows)
   - [x] Add issue and PR templates
   - [x] Add .editorconfig
-  - [ ] Add PHPUnit config and first automated test suite
+  - [x] Add PHPUnit config and first automated test suite
   - [ ] Add release checklist document for tags and publishing
   - [ ] Add README badges (CI, license, latest release)
 
