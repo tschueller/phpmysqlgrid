@@ -62,12 +62,10 @@ Benefits:
   - Shared abstract base class for DB integration tests.
   - Creates a fresh database in `setUp()`.
   - Provides common helpers such as row-count and user fetch assertions.
-- `tests/MySQLGridSqliteAdapter.php`
-  - Test-only adapter that extends `MySQLGrid`.
-  - Routes database operations to SQLite/PDO.
-  - Provides integration-focused methods (`connect`, `disconnect`, `useAllColumns`, `addData`, `editData`, `deleteData`, `fetchRows`).
-- `tests/MySQLGridDatabaseIntegrationTest.php`
-  - CRUD integration tests against the adapter.
+- `tests/MySQLGridRealCrudIntegrationTest.php`
+  - Integration tests that execute real `MySQLGrid` DB methods via injected `pdo_sqlite` connection, including `addData`, `editData`, `deleteData`, `useAllColumns`, `prepareData`, `unprepareData`, and lookup-query rendering in `drawEditControls`.
+- `tests/MySQLGridSqlInjectionTest.php`
+  - SQL injection behavior tests executed against real `MySQLGrid` methods via injected `pdo_sqlite` connection.
 
 ### How Isolation Works
 
@@ -86,18 +84,29 @@ Use explicit includes where needed:
 
 ```php
 require_once __DIR__ . "/DatabaseTestCase.php";
-require_once __DIR__ . "/MySQLGridSqliteAdapter.php";
 ```
 
 ## Writing New DB Integration Tests
 
 1. Extend `DatabaseTestCase`.
-2. Create and configure `MySQLGridSqliteAdapter` in `setUp()`.
+2. Prefer configuring `MySQLGrid` directly with `setDatabaseConnection($pdo, "pdo_sqlite")`.
 3. Keep schema/fixtures deterministic.
 4. Verify both behavior and persisted DB state.
 5. Prefer descriptive test names.
 6. Use `array(...)` style to match repository code style.
 
+## Current State of Real vs Adapter Coverage
+
+- Real `MySQLGrid` methods covered via injected PDO: `addData`, `editData`, `deleteData`, `useAllColumns`, `prepareData`, `unprepareData`.
+- Still not fully migrated: remaining DB-related `execute()`/render branches that may still rely on legacy `mysqli` assumptions under non-tested combinations.
+
+The target is to migrate remaining DB methods to real-code-path tests and complete full execute()-path parity.
+
+### Migration Plan (Updated)
+
+1. Continue moving DB methods to injectable-connection-compatible code in `MySQLGrid`.
+2. Add or move tests to execute the real methods directly with injected `pdo_sqlite`.
+3. Expand real integration tests to remaining DB-dependent execute()/render branches.
 ## Security Tests Guidance
 
 When adding SQL injection and XSS tests:
@@ -105,25 +114,6 @@ When adding SQL injection and XSS tests:
 - Use malicious payload samples for insert/update/delete/filter paths.
 - Assert database integrity (e.g., table still exists, row count unchanged when blocked).
 - For output encoding checks, assert escaped HTML output explicitly.
-
-## Known Limitation of the Current Adapter Approach
-
-The current integration tests use `MySQLGridSqliteAdapter`, which **overrides** the DB methods from `MySQLGrid` (`addData`, `editData`, `deleteData`, etc.) with a new SQLite/PDO implementation.
-
-This means the tests exercise the adapter code, **not the original `MySQLGrid` methods**. A bug in the real `addData` in `MySQLGrid.php` would not be caught by the current integration tests.
-
-This is a known trade-off accepted to get test infrastructure in place without breaking changes.
-
-### Future Migration Plan
-
-Once the DB connection in `MySQLGrid` is made injectable (tracked in `TODO.md` under Refactoring), the test setup will change:
-
-1. Pass a SQLite/PDO connection directly into `MySQLGrid`.
-2. The real `addData`, `editData`, `deleteData` methods run against SQLite.
-3. `tests/MySQLGridSqliteAdapter.php` is deleted — it becomes obsolete.
-4. `tests/MySQLGridDatabaseIntegrationTest.php` is updated to use `MySQLGrid` directly instead of the adapter.
-
-Until that refactoring is done, treat the adapter tests as a **smoke test layer** only — they verify the overall flow, not the actual production SQL code paths.
 
 If MySQL-specific behavior is changed in core methods, add at least one MySQL-backed validation path in CI or local verification before release.
 

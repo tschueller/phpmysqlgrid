@@ -14,12 +14,26 @@
   - [x] fix test wich are testing wrong behavior (current buggy behavior)
   - [x] investigate integration testing options for DB methods (e.g. in-memory SQLite)
   - [x] add SQLite in-memory test infrastructure (fixtures + shared DB test base class)
-  - [ ] add tests for all DB methods in MySQLGrid.php
-  - [x] add SQLite CRUD integration tests via test adapter (connect/disconnect/useAllColumns/add/edit/delete)
+  - [x] add tests for all DB methods in MySQLGrid.php
+  - [x] add real-code-path integration tests for MySQLGrid addData/editData/deleteData via injected PDO connection
+  - [x] add real-code-path integration test for MySQLGrid useAllColumns via injected PDO connection
+  - [x] add real-code-path integration tests for MySQLGrid prepareData/unprepareData via injected PDO connection
+  - [x] migrate former adapter-based CRUD/security integration tests to real MySQLGrid methods with injected PDO
+  - [x] add real-code-path integration test for lookup query rendering in drawEditControls via injected PDO connection
+  - [x] add execute()-path integration tests for confirm add/edit/delete request handling via injected PDO connection
   - [x] add security tests for SQL injection and XSS vulnerabilities
   - [x] update github copilot instructions with testing guidelines
+  - [ ] More tests / check if this is already tested:
+    - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
+    - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
+    - [ ] test filter/sort/pagination behavior
+
 - [x] Change license to MIT
-- [ ] Check for security issues (SQL injection, XSS) and add mitigations if needed
+- [x] Check for security issues (SQL injection, XSS) and add mitigations if needed
+  - [x] Harden mysqli write/query paths by replacing raw addslashes/id interpolation with connection-aware escaping helper
+  - [x] Replace mysqli string-built SQL in add/edit/delete write paths with prepared statements
+  - [x] Parameterize active filter values in PDO prepareData queries (count + data select)
+  - [x] Review remaining read/filter SQL construction and add raw SQL fragment guard for `filter`/`lookup_filter` dangerous tokens
 - [ ] Investigate PSR coding standards
 - [ ] Document public properties and methods with doc blocks
 - [x] Update cspell word list for new identifiers and technical terms
@@ -36,12 +50,17 @@
   - [ ] Add README badges (CI, license, latest release)
 
 ## Refactoring
-- [ ] Make DB connection injectable in `MySQLGrid` (prerequisite for proper integration testing)
-  - Reason: All DB methods currently hardcode `mysqli_*` calls. Tests can only exercise a parallel re-implementation (adapter), not the real code paths.
+- [x] Make DB connection injectable in `MySQLGrid` (prerequisite for proper integration testing)
+  - [x] Add non-breaking injection hook via `setDatabaseConnection()` + injected connection handling in `connect()`/`disconnect()`
+  - [x] Route real `addData`/`editData`/`deleteData` through injected PDO path while preserving mysqli default behavior
+  - [x] Route real `useAllColumns` through injected PDO path while preserving mysqli default behavior
+  - [x] Route real `prepareData`/`unprepareData` result handling through injected PDO path while preserving mysqli default behavior
+  - [x] Remove obsolete `tests/MySQLGridSqliteAdapter.php` and adapter-based integration test suite
+  - [x] Route lookup query path in `drawEditControls` through DB-agnostic query helper (PDO/mysqli compatible)
+  - Reason: Historically, DB methods hardcoded `mysqli_*` calls, and tests exercised a parallel adapter implementation instead of real code paths.
   - Approach: Accept an optional `$db` parameter in `connect()` or constructor, or introduce a thin wrapper interface around the DB calls.
   - Breaking change: Existing consumers using `$grid->hostname` etc. are unaffected as long as the default behavior (auto-connect via mysqli) is preserved.
-  - Acceptance criteria: Tests in `MySQLGridDatabaseIntegrationTest` exercise the real `addData`, `editData`, `deleteData` methods from `MySQLGrid.php` directly.
-  - When done: Remove `tests/MySQLGridSqliteAdapter.php` and replace adapter-based tests with direct `MySQLGrid` tests.
+  - Acceptance criteria: Integration tests exercise real `MySQLGrid` DB methods directly with injected PDO connections. (done)
 
 ## Tooling / Quality
 - [ ] Raise PHPStan to level 9

@@ -5,30 +5,22 @@ declare(strict_types=1);
 namespace MySQLGridTests;
 
 require_once __DIR__ . "/DatabaseTestCase.php";
-require_once __DIR__ . "/MySQLGridSqliteAdapter.php";
+use MySQLGrid;
 
 /**
- * SQL injection behavior tests via MySQLGridSqliteAdapter.
+ * SQL injection behavior tests via real MySQLGrid methods using injected PDO.
  *
  * These tests document the CORRECT expected behavior: SQL injection payloads
  * must be stored as literal strings and must not affect table integrity.
- *
- * IMPORTANT: These tests pass because MySQLGridSqliteAdapter uses PDO prepared
- * statements and is therefore inherently safe. They do NOT exercise the real
- * MySQLGrid::addData / editData / deleteData methods, which currently use
- * addslashes() + string interpolation and are vulnerable to SQL injection.
- *
- * After the injectable-connection refactoring tracked in TODO.md under
- * "Refactoring", these same tests must pass against the real MySQLGrid code
- * paths to confirm the vulnerability is fixed.
  */
 final class MySQLGridSqlInjectionTest extends DatabaseTestCase {
-    private MySQLGridSqliteAdapter $grid;
+    private MySQLGrid $grid;
 
     protected function setUp(): void {
         parent::setUp();
 
-        $this->grid = new MySQLGridSqliteAdapter($this->sqlite);
+        $this->grid = new MySQLGrid();
+        $this->grid->setDatabaseConnection($this->sqlite, "pdo_sqlite");
         $this->grid->table = "users";
         $this->grid->primary = "id";
         $this->grid->columns = array(

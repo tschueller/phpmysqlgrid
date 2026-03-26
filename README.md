@@ -17,6 +17,7 @@ phpMySQLGrid provides a reusable class to display and manage MySQL table data in
 
 - PHP 8.2 or newer
 - MySQL-compatible database
+- Optional for injected-connection mode and tests: PDO (`pdo_mysql` or `pdo_sqlite`)
 
 ## Installation
 
@@ -57,6 +58,59 @@ $grid->columns = array(
 $grid->execute();
 ```
 
+## Database Connection Modes
+
+phpMySQLGrid now supports two connection modes:
+
+1. Default mode (legacy-compatible): internal `mysqli` connection via `hostname`, `username`, `password`, `database`.
+2. Injected connection mode: externally managed DB connection via `setDatabaseConnection()`.
+
+### 1) Default `mysqli` mode
+
+This mode is fully backward compatible with existing integrations.
+
+```php
+$grid = new MySQLGrid();
+$grid->hostname = "127.0.0.1";
+$grid->username = "root";
+$grid->password = "";
+$grid->database = "test_db";
+$grid->table = "users";
+$grid->primary = "id";
+$grid->execute();
+```
+
+### 2) Injected PDO mode
+
+Use this mode when you already manage your DB connection externally or when you want to run integration tests against SQLite.
+
+```php
+$pdo = new PDO("mysql:host=127.0.0.1;dbname=test_db;charset=utf8mb4", "root", "");
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$grid = new MySQLGrid();
+$grid->setDatabaseConnection($pdo, "pdo_mysql");
+$grid->table = "users";
+$grid->primary = "id";
+$grid->execute();
+```
+
+### SQLite example (tests/local tooling)
+
+```php
+$pdo = new PDO("sqlite::memory:");
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$grid = new MySQLGrid();
+$grid->setDatabaseConnection($pdo, "pdo_sqlite");
+```
+
+Notes:
+
+- In injected mode, `connect()` reuses the injected connection.
+- In injected mode, `disconnect()` is a no-op (the caller owns connection lifecycle).
+- Existing `mysqli` integrations remain supported.
+
 Include one of the CSS files in your page to style the grid:
 
 ```html
@@ -71,6 +125,8 @@ Include one of the CSS files in your page to style the grid:
 - phpstan.neon.dist: Static analysis configuration
 - TODO.md: Planned follow-up tasks
 - CHANGELOG.md: Release history
+- .github/testing-instructions.md: Test architecture and conventions
+- docs/refactoring-notes-v0.6.md: Internal detailed refactoring notes (vs 0.5.11)
 
 ## Quality Checks
 
@@ -100,6 +156,12 @@ The project currently uses PHPStan level 8.
 4. Update CHANGELOG.md for user-visible fixes and improvements.
 
 For contribution details, see CONTRIBUTING.md.
+
+## Additional Documentation
+
+- Changelog and release history: CHANGELOG.md
+- Testing conventions and integration setup: .github/testing-instructions.md
+- Internal detailed refactoring notes (v0.6 vs v0.5.11): docs/refactoring-notes-v0.6.md
 
 ## Security
 

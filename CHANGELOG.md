@@ -8,7 +8,35 @@ All notable changes to this project are documented in this file.
 - Add Composer lint workflow (syntax/style/static) with PHPStan level 8.
 - Add README and TODO documentation.
 - Change license from BSD-3-Clause to MIT.
-- Add PHPUnit configuration and a first automated unit test suite for core non-DB methods.
+- Add PHPUnit configuration and automated tests.
+
+### Added
+- Add injected database connection support via `setDatabaseConnection(mixed $connection, string $driver)`.
+- Add support for injected PDO drivers (`pdo_mysql`, `pdo_sqlite`) while preserving default `mysqli` behavior.
+- Add internal DB helper methods for PDO/mysqli parity (query execution, result row fetching, numeric-row lookup queries).
+- Add real integration tests for DB methods using injected `pdo_sqlite`.
+- Add execute-path integration tests for confirm add/edit/delete request flows.
+- Add security regression tests for SQL injection payload handling and XSS encoding scenarios.
+- Add testing guidance in `.github/testing-instructions.md`.
+- Add internal refactoring notes in `docs/refactoring-notes-v0.6.md`.
+
+### Changed
+- Refactor DB write paths to support injected connections without breaking existing `mysqli` consumers.
+- Migrate former adapter-based DB tests to real `MySQLGrid` code-path integration tests.
+- Remove obsolete test adapter layer and adapter-specific integration test suite.
+- Route lookup query rendering in `drawEditControls()` through a DB-agnostic query helper.
+- Update `prepareData()` behavior for injected PDO mode to use consistent query/result handling.
+
+### Security
+- Replace mysqli string-built SQL in add/edit/delete write paths with prepared statements.
+- Parameterize active filter values in PDO `prepareData()` queries (both count and data selects).
+- Add raw SQL fragment guard for dangerous token patterns in `filter` and `lookup_filter` (`;`, `--`, `/*`, `*/`, null byte).
+- Keep HTML output encoding test coverage for XSS payloads in `convertToHtmlEntities()`.
+
+### Testing
+- Cover real DB method execution paths for: `addData`, `editData`, `deleteData`, `useAllColumns`, `prepareData`, `unprepareData`.
+- Cover lookup rendering query path in `drawEditControls()`.
+- Cover execute/render/request integration path against injected PDO connection.
 
 
 ## [0.5.11] - 2024-03-04
