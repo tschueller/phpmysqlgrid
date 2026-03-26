@@ -12,6 +12,7 @@
 - [ ] Check for security issues (SQL injection, XSS) and add mitigations if needed
 - [ ] Investigate PSR coding standards
 - [ ] Document public properties and methods with doc blocks
+- [x] Update cspell word list for new identifiers and technical terms
 - [ ] Repository Standards
   - [x] Add GitHub Actions CI workflow for composer validate + lint
   - [x] Add Dependabot configuration for Composer and GitHub Actions

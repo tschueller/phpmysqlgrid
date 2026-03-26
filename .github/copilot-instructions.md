@@ -75,7 +75,7 @@ All magic constants are prefixed with `PHPMYSQLGRID_`:
 - Modes: `PHPMYSQLGRID_VIEWMODE`, `PHPMYSQLGRID_ADDMODE`, `PHPMYSQLGRID_EDITMODE`, `PHPMYSQLGRID_DELETEMODE`
 - Button styles: `PHPMYSQLGRID_TEXTBUTTON`, `PHPMYSQLGRID_IMAGEBUTTON`
 
-Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list).
+Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list). When adding new identifiers, constants, or technical terms that are flagged by the spell checker, update the `cSpell.words` list in `.vscode/settings.json` accordingly.
 
 ### Maintenance & Updates
 
@@ -91,7 +91,7 @@ Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list).
 ### Understanding Grid Rendering
 
 - The grid renders database results as HTML tables with styling
-- Support for thead, tbody, tfoot elements (added in v0.5.11)
+- Support for `<thead>`, `<tbody>`, `<tfoot>` elements (added in v0.5.11)
 - Row IDs stored as data attributes (data-id attribute on each row)
 - CSS classes control visual appearance and responsiveness
 
@@ -108,6 +108,15 @@ Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list).
 - **MySQL Connectivity**: Test with actual MySQL database; connection parameters are instance properties
 - **Security**: Ensure SQL injection protection is maintained when modifying database operations
 - **Legacy Code**: This library originated in 2003; some patterns reflect older PHP practices but work reliably
+
+## Planning & Task Tracking
+
+Before planning or implementing any feature or improvement:
+
+1. **Read [TODO.md](../TODO.md)** to understand what is already planned, in progress, or deferred.
+2. Avoid duplicating work that is already tracked there.
+3. When completing a tracked item, mark it as done (`[x]`) in `TODO.md`.
+4. When proposing new work that goes beyond the current request, add it to `TODO.md` rather than implementing it unsolicited.
 
 ## Resources
 
