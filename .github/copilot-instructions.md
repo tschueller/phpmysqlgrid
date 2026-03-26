@@ -46,6 +46,8 @@ $grid->columns, $grid->actions    // Field and action definitions
 - Dynamic property usage is intentional and expected (due to project's age and backward compatibility needs)
 - Class constructor initializes all public properties with sensible defaults
 - **All new methods and properties must declare explicit visibility** (`public`, `protected`, or `private`). Never rely on the implicit `public` default.
+- Prefer double quotes for string literals in project code when practical.
+- Do not enable PHP-CS-Fixer's `single_quote` rule for this repository.
 - Internal implementation methods that must stay `public` for unit-testability are annotated with `/** @internal */`. This signals to consumers that the method is not part of the public API, and PHPStan will warn if such methods are called from outside the package. Example:
   ```php
   /** @internal */

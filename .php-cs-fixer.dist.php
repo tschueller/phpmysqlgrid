@@ -7,6 +7,7 @@ $finder = PhpCsFixer\Finder::create()
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(false)
     ->setRules([
+        'single_quote' => false,
         'braces_position' => [
             'classes_opening_brace' => 'same_line',
             'functions_opening_brace' => 'same_line',
