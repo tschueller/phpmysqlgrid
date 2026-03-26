@@ -12,10 +12,12 @@
   - [x] add first simple tests
   - [x] add tests for all non-DB methods in MySQLGrid.php
   - [x] fix test wich are testing wrong behavior (current buggy behavior)
-  - [ ] investigate integration testing options for DB methods (e.g. in-memory SQLite)
+  - [x] investigate integration testing options for DB methods (e.g. in-memory SQLite)
+  - [x] add SQLite in-memory test infrastructure (fixtures + shared DB test base class)
   - [ ] add tests for all DB methods in MySQLGrid.php
+  - [x] add SQLite CRUD integration tests via test adapter (connect/disconnect/useAllColumns/add/edit/delete)
   - [ ] add security tests for SQL injection and XSS vulnerabilities
-  - [ ] update github copilot instructions with testing guidelines
+  - [x] update github copilot instructions with testing guidelines
 - [x] Change license to MIT
 - [ ] Check for security issues (SQL injection, XSS) and add mitigations if needed
 - [ ] Investigate PSR coding standards
@@ -32,6 +34,14 @@
   - [x] Add PHPUnit config and first automated test suite
   - [ ] Add release checklist document for tags and publishing
   - [ ] Add README badges (CI, license, latest release)
+
+## Refactoring
+- [ ] Make DB connection injectable in `MySQLGrid` (prerequisite for proper integration testing)
+  - Reason: All DB methods currently hardcode `mysqli_*` calls. Tests can only exercise a parallel re-implementation (adapter), not the real code paths.
+  - Approach: Accept an optional `$db` parameter in `connect()` or constructor, or introduce a thin wrapper interface around the DB calls.
+  - Breaking change: Existing consumers using `$grid->hostname` etc. are unaffected as long as the default behavior (auto-connect via mysqli) is preserved.
+  - Acceptance criteria: Tests in `MySQLGridDatabaseIntegrationTest` exercise the real `addData`, `editData`, `deleteData` methods from `MySQLGrid.php` directly.
+  - When done: Remove `tests/MySQLGridSqliteAdapter.php` and replace adapter-based tests with direct `MySQLGrid` tests.
 
 ## Tooling / Quality
 - [ ] Raise PHPStan to level 9

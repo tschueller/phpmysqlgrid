@@ -72,11 +72,7 @@ $grid->columns, $grid->actions    // Field and action definitions
 
 ### Testing Conventions
 
-- Test files live in `tests/`, class `MySQLGridUnitTest`, namespace `MySQLGridTests`
-- Import `MySQLGrid` explicitly via `use MySQLGrid;` to satisfy Intelephense's static analysis
-- `MySQLGrid.php` is loaded via Composer classmap autoloading — no separate bootstrap needed
-- Prefer descriptive test method names over inline comments; add a comment only when testing known-buggy or non-obvious behavior
-- When a test intentionally documents a bug (current incorrect behavior), add a `// TODO:` comment explaining what should change after the fix
+- For all testing conventions (unit + DB integration), see `.github/testing-instructions.md`
 
 ### Repository Standards
 

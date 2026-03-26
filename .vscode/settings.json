@@ -53,5 +53,8 @@
         "tschueller",
         "unprepare",
         "VIEWMODE"
-    ]
+    ],
+    "chat.tools.terminal.autoApprove": {
+        "composer": true
+    }
 }
