@@ -105,6 +105,37 @@ $grid = new MySQLGrid();
 $grid->setDatabaseConnection($pdo, "pdo_sqlite");
 ```
 
+## Manual Demo Page (SQLite)
+
+This repository includes a manual demo page with seeded user data and a persistent SQLite database file.
+
+The demo covers these field types:
+
+- text
+- boolean
+- selection
+- lookup
+- multiline text
+- password
+
+Start the demo server from the project root:
+
+    composer run demo:start
+
+Then open:
+
+    http://127.0.0.1:8000/
+
+Alternative direct URL:
+
+    http://127.0.0.1:8000/demo/index.php
+
+Notes:
+
+- The demo database is stored at `demo/demo.sqlite` and is kept across page loads.
+- Use `http://127.0.0.1:8000/demo/index.php?reset=1` to recreate schema and seed data.
+- Add/edit/delete/filter/sort can be tested directly in the browser.
+
 Notes:
 
 - In injected mode, `connect()` reuses the injected connection.

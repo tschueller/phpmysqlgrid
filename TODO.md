@@ -7,7 +7,7 @@
 - [x] Add Composer lint workflow (syntax/style/static) with PHPStan level 8
 - [x] Add README, CHANGELOG, and TODO documentation
 - [ ] update visibility of methods and properties (currently all public, but some should be private/protected)
-- [ ] Add demo page with example usage and styling options
+- [x] Add demo page with example usage and styling options
 - [ ] Add unit tests
   - [x] add first simple tests
   - [x] add tests for all non-DB methods in MySQLGrid.php

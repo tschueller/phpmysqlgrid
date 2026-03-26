@@ -19,6 +19,8 @@ All notable changes to this project are documented in this file.
 - Add security regression tests for SQL injection payload handling and XSS encoding scenarios.
 - Add testing guidance in `.github/testing-instructions.md`.
 - Add internal refactoring notes in `docs/refactoring-notes-v0.6.md`.
+- Add a manual SQLite demo page at `demo/index.php` with seeded user data for interactive grid testing.
+- Add Composer script `demo:start` to run the local demo server.
 
 ### Changed
 - Refactor DB write paths to support injected connections without breaking existing `mysqli` consumers.
