@@ -70,10 +70,7 @@ final class MySQLGridUnitTest extends TestCase {
         $this->assertTrue($grid->columns[1]["can_filter"]);
     }
 
-    // TODO: validateActions() has a bug — it sets $this->columns[$i]["type"] instead of
-    //       $this->actions[$i]["type"] when a type is missing. This test documents the
-    //       current (incorrect) behavior. Fix the bug and update assertions accordingly.
-    public function testValidateActionsCurrentBehaviorWithMissingType(): void {
+    public function testValidateActionsSetsDefaultTypeWhenMissing(): void {
         $grid = new MySQLGrid();
         $grid->actions = array(
             array("caption" => "Custom Action")
@@ -84,8 +81,8 @@ final class MySQLGridUnitTest extends TestCase {
 
         $grid->validateActions();
 
-        $this->assertArrayNotHasKey("type", $grid->actions[0]);
-        $this->assertSame(PHPMYSQLGRID_TEXTBUTTON, $grid->columns[0]["type"]);
+        $this->assertSame(PHPMYSQLGRID_TEXTBUTTON, $grid->actions[0]["type"]);
+        $this->assertArrayNotHasKey("type", $grid->columns[0]);
     }
 
     public function testValidateActionsDoesNotModifyExistingType(): void {

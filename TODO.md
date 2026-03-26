@@ -11,7 +11,7 @@
 - [ ] Add unit tests
   - [x] add first simple tests
   - [x] add tests for all non-DB methods in MySQLGrid.php
-  - [ ] fix test wich are testing wrong behavior (current buggy behavior)
+  - [x] fix test wich are testing wrong behavior (current buggy behavior)
   - [ ] investigate integration testing options for DB methods (e.g. in-memory SQLite)
   - [ ] add tests for all DB methods in MySQLGrid.php
   - [ ] add security tests for SQL injection and XSS vulnerabilities

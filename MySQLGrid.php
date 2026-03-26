@@ -1184,7 +1184,7 @@ class MySQLGrid {
     function validateActions(): void {
         for ($i = 0; $i < count($this->actions); $i++) {
             if (!isset($this->actions[$i]["type"]))
-                $this->columns[$i]["type"] = PHPMYSQLGRID_TEXTBUTTON;
+                $this->actions[$i]["type"] = PHPMYSQLGRID_TEXTBUTTON;
         }
     }
 
