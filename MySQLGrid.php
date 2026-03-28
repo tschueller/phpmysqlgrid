@@ -1107,13 +1107,13 @@ class MySQLGrid {
     function drawCaptions(): void {
         echo
             '<thead><tr>',
-            '<th class="', $this->style, '">&nbsp;</th>';
+            '<th class="', $this->style, '-header">&nbsp;</th>';
         for ($i = 0; $i < count($this->columns); $i++) {
             if (isset($this->columns[$i]["caption"]))
                 $caption = $this->columns[$i]["caption"];
             else
                 $caption = $this->columns[$i]["field"];
-            echo '<th class="', $this->style, '" nowrap="nowrap">';
+            echo '<th class="', $this->style, '-header" nowrap="nowrap">';
             if ($this->can_sort && $this->columns[$i]['can_sort']
                     && ($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD))
                 echo
@@ -1163,13 +1163,14 @@ class MySQLGrid {
         echo '<tbody>';
         $this->row = 0;
         while (($data = $this->fetchResultRow()) !== false) {
+            $rowClass = $this->style . '-cell--' . (($this->row % 2) ? 'odd' : 'even');
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
                 && ($_REQUEST[$this->varDeleteID] == $data[0])) {
-                $headstyle = $this->style . 'actiondelete';
-                $datastyle = $this->style . 'datadelete' . ($this->row % 2);
+                $headstyle = $this->style . '-action ' . $this->style . '-action--delete';
+                $datastyle = $this->style . '-cell ' . $rowClass . ' ' . $this->style . '-cell--delete';
             } else {
-                $headstyle = $this->style . 'action';
-                $datastyle = $this->style . 'data' . ($this->row % 2);
+                $headstyle = $this->style . '-action';
+                $datastyle = $this->style . '-cell ' . $rowClass;
             }
             if (($this->mode == PHPMYSQLGRID_EDITMODE)
                 && ($_REQUEST[$this->varEditID] == $data[0])) {
@@ -1330,18 +1331,19 @@ class MySQLGrid {
      * @param array<int, mixed>|false $data
      */
     function drawEditControls(array|false $data = false): void {
+        $rowClass = $this->style . '-cell--' . (($this->row % 2) ? 'odd' : 'even');
         switch ($this->mode) {
             case PHPMYSQLGRID_EDITMODE:
-                $headstyle = $this->style . 'actionedit';
-                $datastyle = $this->style . 'dataedit' . ($this->row % 2);
+                $headstyle = $this->style . '-action ' . $this->style . '-action--edit';
+                $datastyle = $this->style . '-cell ' . $rowClass . ' ' . $this->style . '-cell--edit';
                 break;
             case PHPMYSQLGRID_ADDMODE:
-                $headstyle = $this->style . 'actionadd';
-                $datastyle = $this->style . 'dataadd' . ($this->row % 2);
+                $headstyle = $this->style . '-action ' . $this->style . '-action--add';
+                $datastyle = $this->style . '-cell ' . $rowClass . ' ' . $this->style . '-cell--add';
                 break;
             default:
-                $headstyle = $this->style . 'action';
-                $datastyle = $this->style . 'data' . ($this->row % 2);
+                $headstyle = $this->style . '-action';
+                $datastyle = $this->style . '-cell ' . $rowClass;
         }
         echo
             '<tr>',
@@ -1401,7 +1403,7 @@ class MySQLGrid {
                 '</a>';
         }
         for ($i = 0; $i < count($this->columns); $i++) {
-            echo '<td class="', $datastyle, '"';
+            echo '<td class="', $datastyle, '-input"';
             if (isset($this->columns[$i]["align"]))
                 echo ' align="', $this->columns[$i]["align"], '"';
             echo '>';
@@ -1409,8 +1411,8 @@ class MySQLGrid {
                 case PHPMYSQLGRID_LOOKUP:
                     echo
                         '<select class="',
-                        $this->style,
-                        '" name="', $this->cmdSetData, '[', $i, ']"';
+                        $this->style, '-lookup"',
+                        ' name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["width"]))
                         echo
                             ' style="width:', $this->columns[$i]["width"],
@@ -1444,8 +1446,8 @@ class MySQLGrid {
                 case PHPMYSQLGRID_SELECTION:
                     echo
                         '<select class="',
-                        $this->style,
-                        '" name="', $this->cmdSetData, '[', $i, ']"';
+                        $this->style, '-select"',
+                        ' name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["width"]))
                         echo
                             ' style="width:', $this->columns[$i]["width"],
@@ -1469,8 +1471,7 @@ class MySQLGrid {
                     break;
                 case PHPMYSQLGRID_PASSWORD:
                     echo
-                        '<input class="', $this->style,
-                        '" type="password" value="';
+                        '<input class="', $this->style, '-password" type="password" value="';
                     if ($data) echo PHPMYSQLGRID_PWDUMMY;
                     echo '" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
@@ -1489,18 +1490,17 @@ class MySQLGrid {
                     echo
                         '<input type="hidden" name="',
                         $this->cmdSetData, '[', $i, ']" value="0">',
-                        '<input class="', $this->style,
-                        '" type="checkbox" value="1"';
+                        '<input class="', $this->style, '-checkbox"',
+                        ' type="checkbox" value="1"';
                     if ($data && $data[$i + $this->countPrimaries()])
-                        echo 'checked="checked"';
+                        echo ' checked="checked"';
                     else if (!$data && isset($this->columns[$i]["default"]) && $this->columns[$i]["default"] == 1)
-                        echo 'checked="checked"';
-                    echo '" name="', $this->cmdSetData, '[', $i, ']">';
+                        echo ' checked="checked"';
+                    echo ' name="', $this->cmdSetData, '[', $i, ']">';
                     break;
                 case PHPMYSQLGRID_MULTILINETEXT:
                     echo
-                        '<textarea class="', $this->style,
-                        '" name="', $this->cmdSetData, '[', $i, ']"';
+                        '<textarea class="', $this->style, '-textarea" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
                         echo ' cols="', $this->columns[$i]["size"], '"';
                     if (isset($this->columns[$i]["lines"]))
@@ -1532,8 +1532,8 @@ class MySQLGrid {
                         echo '<br><br>';
                     }
                     echo
-                        $this->txtURL, '&nbsp;<input type="text" class="', $this->style,
-                        '" name="', $this->cmdSetURL, '[', $i, ']"';
+                        $this->txtURL, '&nbsp;<input type="text" class="', $this->style,'-file" ',
+                        'name="', $this->cmdSetURL, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
                         echo ' size="', $this->columns[$i]["size"], '"';
                     $style = "";
@@ -1575,8 +1575,8 @@ class MySQLGrid {
                     if (isset($this->columns[$i]["convert_output"]))
                         $value = $this->columns[$i]["convert_output"]($this, $value, $i + $this->countPrimaries(), $data, true);
                     echo
-                        '<input class="', $this->style,
-                        '" type="text" value="';
+                        '<input class="', $this->style, '-text"',
+                        ' type="text" value="';
                     if ($data)
                         echo $this->convertToHtmlEntities($value);
                     else if (isset($this->columns[$i]["default"]))
@@ -1608,7 +1608,7 @@ class MySQLGrid {
     function drawNavigation(): void {
         echo
             '<tfoot><tr>',
-            '<td align="right" class="', $this->style, 'action">';
+            '<td align="right" class="', $this->style, '-action">';
         // Draw Add Button if wanted
         if ($this->can_add) {
             echo
@@ -1624,7 +1624,7 @@ class MySQLGrid {
         } else echo '&nbsp;';
         echo '</td>';
 
-        echo '<td class="', $this->style, 'navigation" colspan="', count($this->columns), '">';
+        echo '<td class="', $this->style, '-navigation" colspan="', count($this->columns), '">';
         if ($this->can_navigate) {
             $pages = ceil($this->rows / $this->limit);
             echo '<nav class="phpmysqlgrid-pagination" aria-label="', $this->convertToHtmlEntities($this->txtPaginationLabel), '">';
