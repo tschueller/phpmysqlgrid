@@ -31,7 +31,10 @@
         "fix:style": "php-cs-fixer fix",
         "lint:static": "phpstan analyse",
         "test": "phpunit",
-        "demo:start": "php -S 127.0.0.1:8000 -t . demo/router.php",
+        "demo:start": [
+            "Composer\\Config::disableProcessTimeout",
+            "php -S 127.0.0.1:8000 -t . demo/router.php"
+        ],
         "lint": [
             "@lint:syntax",
             "@lint:style",
