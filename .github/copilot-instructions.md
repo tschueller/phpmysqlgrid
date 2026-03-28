@@ -37,6 +37,7 @@ $grid->columns, $grid->actions    // Field and action definitions
 - **gridstyle.css** - Main stylesheet for default theme
 - **gridstyle_icon_font.css** - Icon font variant
 - Uses class-based styling approach (customizable via `$grid->cssClass`)
+- For styling architecture, naming, migration phases, and accessibility goals, see `.github/styling-instructions.md`
 
 ## Development Conventions
 

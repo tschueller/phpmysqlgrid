@@ -1,73 +1,198 @@
-table.phpmysqlgrid
-{
-    padding: 0px;
-    border-width: 0px;
-    empty-cells: show;
-    border-spacing: 1px;
+/* MySQLGrid default theme */
+
+:root {
+    --phpmysqlgrid-header-bg: #545e67;
+    --phpmysqlgrid-header-text: #ffffff;
+    --phpmysqlgrid-action-bg: #545e67;
+    --phpmysqlgrid-action-text: #ffffff;
+    --phpmysqlgrid-footer-bg: #545e67;
+    --phpmysqlgrid-footer-text: #ffffff;
+    --phpmysqlgrid-row-even: #f8f9fa;
+    --phpmysqlgrid-row-odd: #ffffff;
+    --phpmysqlgrid-row-hover: #e9ecef;
+    --phpmysqlgrid-border: #dee2e6;
+    --phpmysqlgrid-add-bg: #d1ecf1;
+    --phpmysqlgrid-add-text: #0c5460;
+    --phpmysqlgrid-edit-bg: #cfe2ff;
+    --phpmysqlgrid-edit-text: #084298;
+    --phpmysqlgrid-delete-bg: #f8d7da;
+    --phpmysqlgrid-delete-text: #721c24;
+    --phpmysqlgrid-text-color: #212529;
+    --phpmysqlgrid-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --phpmysqlgrid-font-size: 14px;
+    --phpmysqlgrid-line-height: 1.5;
 }
 
-th.phpmysqlgrid, td.phpmysqlgridaction, td.phpmysqlgridnavigation
-{
-    padding: 4px;
-    margin: 0px;
-    font-family: arial, helvetica, sans-serif;
-    font-size: 13px;
-    background-color: #FFBA63;
-    color: #000000;
+table.phpmysqlgrid {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--phpmysqlgrid-border);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-family: var(--phpmysqlgrid-font-family);
+    font-size: var(--phpmysqlgrid-font-size);
+    line-height: var(--phpmysqlgrid-line-height);
+    color: var(--phpmysqlgrid-text-color);
 }
 
-td.phpmysqlgriddata0
-{
-    padding: 4px;
-    margin: 0px;
-    font-family: arial, helvetica, sans-serif;
-    font-size: 13px;
-    background-color: #dddddd;
-    color: #000000;
+table.phpmysqlgrid th {
+    padding: 0.8em 1em;
+    margin: 0;
+    font-weight: 600;
+    background-color: var(--phpmysqlgrid-header-bg);
+    color: var(--phpmysqlgrid-header-text);
+    text-align: left;
 }
 
-td.phpmysqlgriddata1
-{
-    padding: 4px;
-    margin: 0px;
-    font-family: arial, helvetica, sans-serif;
-    font-size: 13px;
-    background-color: #FFFFCE;
-    color: #000000;
+table.phpmysqlgrid tbody {
+    border-top: 1px solid var(--phpmysqlgrid-border);
+    border-bottom: 1px solid var(--phpmysqlgrid-border);
 }
 
-td.phpmysqlgriddataadd0, td.phpmysqlgriddataadd1, td.phpmysqlgridactionadd
-{
-    padding: 4px;
-    margin: 0px;
-    font-family: arial, helvetica, sans-serif;
-    font-size: 13px;
-    background-color: #9999ff;
-    color: #000000;
+
+table.phpmysqlgrid td {
+    padding: 0.5em 1em;
+    margin: 0;
 }
 
-td.phpmysqlgriddataedit0, td.phpmysqlgriddataedit1, td.phpmysqlgridactionedit
-{
-    padding: 4px;
-    margin: 0px;
-    font-family: arial, helvetica, sans-serif;
-    font-size: 13px;
-    background-color: #ffee00;
-    color: #000000;
+table.phpmysqlgrid td.phpmysqlgriddata0,
+table.phpmysqlgrid td.phpmysqlgriddata1 {
+    border-bottom: 1px solid var(--phpmysqlgrid-border);
 }
 
-td.phpmysqlgriddatadelete0, td.phpmysqlgriddatadelete1, td.phpmysqlgridactiondelete
-{
-    padding: 4px;
-    margin: 0px;
-    font-family: arial, helvetica, sans-serif;
-    font-size: 13px;
-    background-color: #ff9999;
-    color: #000000;
+
+
+table.phpmysqlgrid tbody tr:nth-of-type(even) td {
+    background-color: var(--phpmysqlgrid-row-even);
 }
 
-input.phpmysqlgrid, select.phpmysqlgrid, option.phpmysqlgrid
-{
-  font-family: arial;
-  font-size: 12px;
+table.phpmysqlgrid tbody tr:nth-of-type(odd) td {
+    background-color: var(--phpmysqlgrid-row-odd);
 }
+
+/* Action and navigation cells - must override row colors */
+table.phpmysqlgrid tbody tr td.phpmysqlgridaction,
+table.phpmysqlgrid tbody tr td.phpmysqlgridnavigation {
+    background-color: var(--phpmysqlgrid-action-bg);
+    color: var(--phpmysqlgrid-action-text);
+    font-weight: 600;
+}
+
+/* Footer styling */
+table.phpmysqlgrid tfoot tr td {
+    background-color: var(--phpmysqlgrid-footer-bg);
+    color: var(--phpmysqlgrid-footer-text);
+    font-weight: 600;
+}
+
+/* Add mode styling */
+td.phpmysqlgridactionadd,
+tr.phpmysqlgridadd td {
+    background-color: var(--phpmysqlgrid-add-bg);
+    color: var(--phpmysqlgrid-add-text);
+    font-weight: 500;
+}
+
+/* Edit mode styling */
+td.phpmysqlgridactionedit,
+tr.phpmysqlgridedit td {
+    background-color: var(--phpmysqlgrid-edit-bg);
+    color: var(--phpmysqlgrid-edit-text);
+    font-weight: 500;
+}
+
+/* Delete mode styling */
+td.phpmysqlgridactiondelete,
+tr.phpmysqlgriddelete td {
+    background-color: var(--phpmysqlgrid-delete-bg);
+    color: var(--phpmysqlgrid-delete-text);
+    font-weight: 500;
+}
+
+/* Form input styling */
+input.phpmysqlgrid,
+select.phpmysqlgrid,
+option.phpmysqlgrid {
+    font-family: var(--phpmysqlgrid-font-family);
+    font-size: var(--phpmysqlgrid-font-size);
+    padding: 8px 12px;
+    border: 1px solid var(--phpmysqlgrid-border);
+    border-radius: 4px;
+    line-height: var(--phpmysqlgrid-line-height);
+}
+
+.phpmysqlgrid .add-button {
+    font-size: 1.3em;
+    color: green;
+    padding-right: 0.5em;
+}
+
+/* Pagination nav (replaces nested table) */
+nav.phpmysqlgrid-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    padding: 0.5em 1em;
+    flex-wrap: wrap;
+}
+
+ol.phpmysqlgrid-pagination-list {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+}
+
+.phpmysqlgrid-pagination-link,
+.phpmysqlgrid-pagination-prev,
+.phpmysqlgrid-pagination-next {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2em;
+    padding: 0.25em 0.5em;
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--phpmysqlgrid-footer-text);
+    font-weight: 500;
+    transition: background-color 0.15s;
+}
+
+.phpmysqlgrid-pagination-link:hover,
+.phpmysqlgrid-pagination-prev:not(.is-disabled):hover,
+.phpmysqlgrid-pagination-next:not(.is-disabled):hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.phpmysqlgrid-pagination-current {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2em;
+    padding: 0.25em 0.5em;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.25);
+    font-weight: 700;
+}
+
+.phpmysqlgrid-pagination-prev.is-disabled,
+.phpmysqlgrid-pagination-next.is-disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.phpmysqlgrid-pagination-ellipsis {
+    padding: 0.25em;
+    opacity: 0.6;
+}
+
+.phpmysqlgrid-pagination-prev,
+.phpmysqlgrid-pagination-next {
+    font-weight: 600;
+}
+

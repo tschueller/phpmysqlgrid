@@ -18,7 +18,7 @@ $grid->setDatabaseConnection($pdo, "pdo_sqlite");
 $grid->table = "users";
 $grid->primary = "id";
 $grid->name = "demo_users_grid";
-$grid->limit = 10;
+//$grid->style = "demo_users_grid";
 
 $grid->can_add = true;
 $grid->can_edit = true;
@@ -26,6 +26,10 @@ $grid->can_delete = true;
 $grid->can_filter = true;
 $grid->can_sort = true;
 $grid->can_navigate = true;
+
+$limit = isset($_GET["limit"]) ? (int) $_GET["limit"] : 5;
+$limit = max(1, min(10, $limit));
+$grid->limit = $limit;
 
 $grid->txtYes = "✅";
 $grid->txtNo = "❌";
@@ -115,7 +119,6 @@ $grid->columns = array(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MySQLGrid SQLite Demo</title>
     <link rel="stylesheet" href="../gridstyle.css">
-    <link rel="stylesheet" href="../gridstyle_icon_font.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
@@ -176,6 +179,36 @@ $grid->columns = array(
         .demo-actions a:hover {
             background: #d8e9fb;
         }
+
+        .demo-steps {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .demo-steps a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            text-decoration: none;
+            color: #0f4d8a;
+            background: #e6f0fb;
+            border: 1px solid #b7d1ef;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .demo-steps a:hover {
+            background: #d8e9fb;
+        }
+
+        .demo-steps a.is-active {
+            background: #0f4d8a;
+            color: #ffffff;
+            border-color: #0f4d8a;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -191,6 +224,18 @@ $grid->columns = array(
         </div>
         <div class="demo-actions">
             <a href="index.php?reset=1">Reset demo data</a>
+        </div>
+        <div class="demo-steps">
+            Rows per page:
+            <?php
+            $baseParams = array_filter($_GET, static fn($k) => $k !== "limit" && $k !== "reset", ARRAY_FILTER_USE_KEY);
+            for ($s = 1; $s <= 10; $s++):
+                $params = $baseParams;
+                $params["limit"] = $s;
+                $url = "index.php?" . http_build_query($params);
+            ?>
+            <a href="<?= htmlspecialchars($url) ?>" <?= $s === $limit ? "class=\"is-active\"" : "" ?>><?= $s ?></a>
+            <?php endfor; ?>
         </div>
     </div>
 

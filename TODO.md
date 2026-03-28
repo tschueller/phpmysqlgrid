@@ -36,6 +36,9 @@
   - [x] Review remaining read/filter SQL construction and add raw SQL fragment guard for `filter`/`lookup_filter` dangerous tokens
 - [ ] Investigate PSR coding standards
 - [ ] Document public properties and methods with doc blocks
+- [ ] Documentation in readme for grid configuration, styling, etc
+- [ ] Improve styling / default theme
+- [ ] Add aria instructions file and make accessibility improvements (e.g. ARIA attributes for table and controls)
 - [x] Update cspell word list for new identifiers and technical terms
 - [ ] Repository Standards
   - [x] Add GitHub Actions CI workflow for composer validate + lint
@@ -72,3 +75,6 @@
   - Prerequisite: level 9 is stably green
   - Effort: medium to high
   - Acceptance criteria: composer run lint is green
+
+## Accessibility
+- [ ] Add ARIA attributes for table + controls

@@ -38,13 +38,13 @@ final class DemoSqliteDatabase {
         $pdo->exec(
             "CREATE TABLE users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT NOT NULL UNIQUE,
-                display_name TEXT NOT NULL,
+                email TEXT NOT NULL DEFAULT '',
+                display_name TEXT NOT NULL DEFAULT '',
                 is_active INTEGER NOT NULL DEFAULT 1,
                 role TEXT NOT NULL DEFAULT 'user',
-                department_name TEXT NOT NULL,
+                department_name TEXT,
                 bio TEXT DEFAULT '',
-                password TEXT NOT NULL,
+                password TEXT NOT NULL DEFAULT '',
                 FOREIGN KEY (department_name) REFERENCES departments(name)
             )"
         );
@@ -98,6 +98,60 @@ final class DemoSqliteDatabase {
                 "department_name" => "Finance",
                 "bio" => "External consultant with read-only responsibilities (€ / £ reports).",
                 "password" => "dan-demo"
+            ),
+            array(
+                "email" => "eva@example.test",
+                "display_name" => "Eva Müller",
+                "is_active" => 1,
+                "role" => "editor",
+                "department_name" => "Engineering",
+                "bio" => "Backend developer focusing on data pipelines.",
+                "password" => "eva-demo"
+            ),
+            array(
+                "email" => "frank@example.test",
+                "display_name" => "Frank Becker",
+                "is_active" => 0,
+                "role" => "user",
+                "department_name" => "Finance",
+                "bio" => "Budget analyst, currently on leave.",
+                "password" => "frank-demo"
+            ),
+            array(
+                "email" => "grace@example.test",
+                "display_name" => "Grace Owusu",
+                "is_active" => 1,
+                "role" => "user",
+                "department_name" => "Support",
+                "bio" => "Customer success specialist, fluent in French and English.",
+                "password" => "grace-demo"
+            ),
+            array(
+                "email" => "hiro@example.test",
+                "display_name" => "Hiro Tanaka",
+                "is_active" => 1,
+                "role" => "editor",
+                "department_name" => "Marketing",
+                "bio" => "Content strategist and UX copywriter.",
+                "password" => "hiro-demo"
+            ),
+            array(
+                "email" => "iris@example.test",
+                "display_name" => "Iris Kowalski",
+                "is_active" => 1,
+                "role" => "admin",
+                "department_name" => "Engineering",
+                "bio" => "Senior engineer, owns the deployment pipeline.",
+                "password" => "iris-demo"
+            ),
+            array(
+                "email" => "jakob@example.test",
+                "display_name" => "Jakob Strauss",
+                "is_active" => 0,
+                "role" => "guest",
+                "department_name" => "Finance",
+                "bio" => "Temporary contractor, access expires end of quarter.",
+                "password" => "jakob-demo"
             )
         );
 

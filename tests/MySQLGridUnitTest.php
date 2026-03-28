@@ -338,4 +338,98 @@ final class MySQLGridUnitTest extends TestCase {
 
         $this->assertStringNotContainsString('class="add-button"', $output);
     }
+
+    public function testDrawNavigationUsesNavElementInsteadOfNestedTable(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "test_grid";
+        $grid->can_navigate = true;
+        $grid->columns = array(array("field" => "id"));
+        $grid->rows = 50;
+        $grid->page = 1;
+        $grid->limit = 10;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('class="phpmysqlgrid-pagination"', $output);
+        $this->assertStringNotContainsString('<table', $output);
+    }
+
+    public function testDrawNavigationPaginationPrevDisabledOnFirstPage(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "test_grid";
+        $grid->can_navigate = true;
+        $grid->columns = array(array("field" => "id"));
+        $grid->rows = 50;
+        $grid->page = 1;
+        $grid->limit = 10;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('phpmysqlgrid-pagination-prev is-disabled', $output);
+        $this->assertStringNotContainsString('phpmysqlgrid-pagination-next is-disabled', $output);
+    }
+
+    public function testDrawNavigationPaginationNextDisabledOnLastPage(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "test_grid";
+        $grid->can_navigate = true;
+        $grid->columns = array(array("field" => "id"));
+        $grid->rows = 50;
+        $grid->page = 5;
+        $grid->limit = 10;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('phpmysqlgrid-pagination-next is-disabled', $output);
+        $this->assertStringNotContainsString('phpmysqlgrid-pagination-prev is-disabled', $output);
+    }
+
+    public function testDrawNavigationCurrentPageHasAriaCurrentAttribute(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "test_grid";
+        $grid->can_navigate = true;
+        $grid->columns = array(array("field" => "id"));
+        $grid->rows = 50;
+        $grid->page = 3;
+        $grid->limit = 10;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('aria-current="page"', $output);
+        $this->assertStringContainsString('phpmysqlgrid-pagination-current', $output);
+    }
+
+    public function testDrawNavigationRendersEllipsisForLargePageCounts(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "test_grid";
+        $grid->can_navigate = true;
+        $grid->columns = array(array("field" => "id"));
+        $grid->rows = 200;
+        $grid->page = 10;
+        $grid->limit = 10;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('phpmysqlgrid-pagination-ellipsis', $output);
+    }
 }
