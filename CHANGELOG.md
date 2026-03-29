@@ -11,6 +11,11 @@ All notable changes to this project are documented in this file.
 - Add PHPUnit configuration and automated tests.
 
 ### Added
+- Add inline SVG icon support: nine new public properties (`svgIconEdit`, `svgIconDelete`, `svgIconConfirm`, `svgIconCancel`, `svgIconAdd`, `svgSortAscActive`, `svgSortAscInactive`, `svgSortDescActive`, `svgSortDescInactive`) default to Bootstrap Icons (MIT). Override any property to use custom SVGs.
+- Add `initSvgIcons()` internal method for SVG icon initialization.
+- Add `renderIcon()` private helper replacing `renderUnicodeControl()` for all action and sort controls.
+
+### Added
 - Add injected database connection support via `setDatabaseConnection(mixed $connection, string $driver)`.
 - Add support for injected PDO drivers (`pdo_mysql`, `pdo_sqlite`) while preserving default `mysqli` behavior.
 - Add internal DB helper methods for PDO/mysqli parity (query execution, result row fetching, numeric-row lookup queries).
@@ -23,11 +28,18 @@ All notable changes to this project are documented in this file.
 - Add Composer script `demo:start` to run the local demo server.
 
 ### Changed
+- Replace Unicode character glyphs and FontAwesome icon-font controls with inline SVG icons using `fill="currentColor"` — icon colors continue to be driven by CSS custom properties (`--phpmysqlgrid-icon-edit`, `--phpmysqlgrid-icon-delete`, `--phpmysqlgrid-icon-confirm`).
+- Remove `$use_icon_font` property and all FontAwesome markup generation (breaking change: the property is no longer recognised).
+- Update `gridstyle.css`: rename `.phpmysqlgrid-unicode-icon` selector family to `.phpmysqlgrid-icon`; add SVG sizing rules; remove `.fa-*` icon-font color selectors.
+- Remove empty `gridstyle_icon_font.css` file.
+- Remove FontAwesome CDN link from demo page.
 - Refactor DB write paths to support injected connections without breaking existing `mysqli` consumers.
 - Migrate former adapter-based DB tests to real `MySQLGrid` code-path integration tests.
 - Remove obsolete test adapter layer and adapter-specific integration test suite.
 - Route lookup query rendering in `drawEditControls()` through a DB-agnostic query helper.
 - Update `prepareData()` behavior for injected PDO mode to use consistent query/result handling.
+- Migrate renderer and theme usage to semantic grid class names (for example `phpmysqlgrid-header`, `phpmysqlgrid-action`, `phpmysqlgrid-cell`, and state modifiers).
+- Add deprecation guidance for legacy concatenated CSS class selectors and document semantic-class migration in README.
 
 ### Security
 - Replace mysqli string-built SQL in add/edit/delete write paths with prepared statements.

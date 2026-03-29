@@ -147,13 +147,13 @@ final class MySQLGridUnitTest extends TestCase {
     public function testInternationalizeSetsAllTextProperties(): void {
         $grid = new MySQLGrid();
 
-        $this->assertSame("Previous", $grid->txtPrevious);
-        $this->assertSame("Next", $grid->txtNext);
-        $this->assertSame("Delete", $grid->txtDelete);
-        $this->assertSame("Add", $grid->txtAdd);
-        $this->assertSame("Edit", $grid->txtEdit);
-        $this->assertSame("Confirm", $grid->txtConfirm);
-        $this->assertSame("Cancel", $grid->txtCancel);
+        $this->assertSame("Previous Page", $grid->txtPrevious);
+        $this->assertSame("Next Page", $grid->txtNext);
+        $this->assertSame("Delete Entry", $grid->txtDelete);
+        $this->assertSame("Add Entry", $grid->txtAdd);
+        $this->assertSame("Edit Entry", $grid->txtEdit);
+        $this->assertSame("Confirm Changes", $grid->txtConfirm);
+        $this->assertSame("Cancel Changes", $grid->txtCancel);
         $this->assertSame("Yes", $grid->txtYes);
         $this->assertSame("No", $grid->txtNo);
         $this->assertSame("File present", $grid->txtFileTrue);

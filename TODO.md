@@ -38,8 +38,10 @@
 - [ ] Document public properties and methods with doc blocks
 - [ ] Documentation in readme for grid configuration, styling, etc
 - [ ] Improve styling / default theme
+  - [x] Replace Unicode and icon-font controls with inline SVG icons (`svgIcon*` / `svgSort*` properties, Bootstrap Icons MIT)
 - [ ] Add aria instructions file and make accessibility improvements (e.g. ARIA attributes for table and controls)
 - [x] Update cspell word list for new identifiers and technical terms
+- [ ] Hover effects for action icons
 - [ ] Repository Standards
   - [x] Add GitHub Actions CI workflow for composer validate + lint
   - [x] Add Dependabot configuration for Composer and GitHub Actions

@@ -31,13 +31,6 @@ $limit = isset($_GET["limit"]) ? (int) $_GET["limit"] : 5;
 $limit = max(1, min(10, $limit));
 $grid->limit = $limit;
 
-$grid->txtYes = "✅";
-$grid->txtNo = "❌";
-$grid->txtPrevious = "<";
-$grid->txtNext = ">";
-
-$grid->use_icon_font = true;
-
 $grid->columns = array(
     array(
         "field" => "email",
@@ -119,7 +112,6 @@ $grid->columns = array(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MySQLGrid SQLite Demo</title>
     <link rel="stylesheet" href="../gridstyle.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;

@@ -74,8 +74,8 @@ class MySQLGrid {
         $this->db_connection = null;
         $this->db_driver = "mysqli";
         $this->db_is_injected = false;
-        $this->use_icon_font = false;
         $this->internationalize();
+        $this->initSvgIcons();
     }
 
     function MySQLGrid(): void {
@@ -329,13 +329,13 @@ class MySQLGrid {
     }
 
     private function internationalize(): void {
-        $this->txtPrevious = "Previous";
-        $this->txtNext = "Next";
-        $this->txtDelete = "Delete";
-        $this->txtAdd = "Add";
-        $this->txtEdit = "Edit";
-        $this->txtConfirm = "Confirm";
-        $this->txtCancel = "Cancel";
+        $this->txtPrevious = "Previous Page";
+        $this->txtNext = "Next Page";
+        $this->txtDelete = "Delete Entry";
+        $this->txtAdd = "Add Entry";
+        $this->txtEdit = "Edit Entry";
+        $this->txtConfirm = "Confirm Changes";
+        $this->txtCancel = "Cancel Changes";
         $this->txtYes = "Yes";
         $this->txtNo = "No";
         $this->txtFileTrue = "File present";
@@ -343,6 +343,39 @@ class MySQLGrid {
         $this->txtFile = "File";
         $this->txtURL = "URL";
         $this->txtPaginationLabel = "Pagination";
+
+        // Accessible labels for sort controls
+        // TODO we need column-specific labels like "Sort Email ascending" instead of just "Sort ascending"
+        $this->txtSortAsc = "Sort ascending";
+        $this->txtSortDesc = "Sort descending";
+    }
+
+    private function initSvgIcons(): void {
+        // Bootstrap Icons — Copyright (c) 2019-2024 The Bootstrap Authors — MIT License
+        // https://github.com/twbs/icons
+        // Override any of these public properties to use your own SVGs.
+        $this->svgIconEdit = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/></svg>';
+        $this->svgIconDelete = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/></svg>';
+        $this->svgIconConfirm = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/></svg>';
+        $this->svgIconCancel = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>';
+        $this->svgIconAdd = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>';
+        $this->svgSortAscActive = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/></svg>';
+        $this->svgSortAscInactive = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M3.204 11h9.592L8 5.519zm-.753-.659 4.796-5.48a1 1 0 0 1 1.506 0l4.796 5.48c.566.647.106 1.659-.753 1.659H3.204a1 1 0 0 1-.753-1.659"/></svg>';
+        $this->svgSortDescActive = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>';
+        $this->svgSortDescInactive = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M3.204 5h9.592L8 10.481zm-.753.659 4.796 5.48a1 1 0 0 0 1.506 0l4.796-5.48c.566-.647.106-1.659-.753-1.659H3.204a1 1 0 0 0-.753 1.659"/></svg>';
+        $this->svgNavPrev = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"/></svg>';
+        $this->svgNavNext = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/></svg>';
+        $this->svgBoolTrue = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>';
+        $this->svgBoolFalse = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" width="1em" height="1em"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 1 0-.708-.708L8 7.293z"/></svg>';
+    }
+
+    private function renderIcon(string $content, string $modifier = ""): string {
+        $class = $this->style . "-icon";
+        if ($modifier !== "") {
+            $class .= " " . $this->style . "-icon--" . $modifier;
+        }
+
+        return '<span class="' . $class . '" aria-hidden="true">' . $content . '</span>';
     }
 
     function connect(): void {
@@ -1119,13 +1152,10 @@ class MySQLGrid {
                 echo
                     '<a href="', $_SERVER["PHP_SELF"], '?',
                     $this->cmdSetSort, '=', $i, '&amp;',
-                    $this->cmdSetDir, '=0">',
-                        ($this->use_icon_font ?
-                        '<i class="fa fa-sort-asc '.(($this->sort == $i) && !$this->dir ? "active": "in-active").'" style="font-size:large;position: relative; top: -2px;"></i>'
-                        :
-                        '<img src="'. $this->imagedir. '/down'.
-                        (($this->sort == $i) && !$this->dir ? "active" : "").
-                        '.png" width="13" height="13" alt="v" title="" border="0" />'),
+                    $this->cmdSetDir, '=0"',
+                    ' aria-label="', $this->convertToHtmlEntities($this->txtSortAsc),
+                    '" title="', $this->convertToHtmlEntities($this->txtSortAsc), '">',
+                        $this->renderIcon((($this->sort == $i) && !$this->dir) ? $this->svgSortAscActive : $this->svgSortAscInactive, "sort-asc"),
                     '</a>&nbsp;';
             echo $this->convertToHtmlEntities($caption);
             if ($this->can_filter && $this->columns[$i]['can_filter']
@@ -1146,13 +1176,10 @@ class MySQLGrid {
                 echo
                     '&nbsp;<a href="', $_SERVER["PHP_SELF"], '?',
                     $this->cmdSetSort, '=', $i, '&amp;',
-                    $this->cmdSetDir, '=1">',
-                        ($this->use_icon_font ?
-                        '<i class="fa fa-sort-desc '.(($this->sort == $i) && $this->dir ? "active" : "in-active").'" style="font-size:large;position: relative; top: 5px;"></i>'
-                        :
-                        '<img src="'. $this->imagedir. '/up'.
-                        (($this->sort == $i) && $this->dir ? "active" : "").
-                        '.png" width="13" height="13" alt="^" title="" border="0" />'),
+                    $this->cmdSetDir, '=1"',
+                    ' aria-label="', $this->convertToHtmlEntities($this->txtSortDesc),
+                    '" title="', $this->convertToHtmlEntities($this->txtSortDesc), '">',
+                        $this->renderIcon((($this->sort == $i) && $this->dir) ? $this->svgSortDescActive : $this->svgSortDescInactive, "sort-desc"),
                     '</a>';
             echo '</th>';
         }
@@ -1185,52 +1212,36 @@ class MySQLGrid {
                 echo
                     '<a href="', $_SERVER["PHP_SELF"], '?',
                     $this->cmdConfirmDelete, '=1&amp;',
-                    $this->varDeleteID, '=', $data[0], '">',
-                        ($this->use_icon_font ?
-                        '<i class="fa fa-check" title="'.$this->convertToHtmlEntities($this->txtConfirm).'" style="padding-right: 0.75em;"></i>'
-                        :
-                        '<img hspace="1" src="'. $this->imagedir. '/confirm.png" alt="'.
-                        $this->convertToHtmlEntities($this->txtConfirm). '" title="'.
-                        $this->convertToHtmlEntities($this->txtConfirm).
-                        '" width="13" height="13" border="0" />'),
+                    $this->varDeleteID, '=', $data[0],
+                    '" aria-label="', $this->convertToHtmlEntities($this->txtConfirm),
+                    '" title="', $this->convertToHtmlEntities($this->txtConfirm), '">',
+                        $this->renderIcon($this->svgIconConfirm, "confirm"),
                     '</a>',
                     '<a href="', $_SERVER["PHP_SELF"], '?',
-                    $this->cmdCancel, '=1">',
-                        ($this->use_icon_font ?
-                        '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'" style="  red;"></i>'
-                        :
-                        '<img hspace="1" src="'. $this->imagedir. '/cancel.png" alt="'.
-                        $this->convertToHtmlEntities($this->txtCancel). '" title="'.
-                        $this->convertToHtmlEntities($this->txtCancel).
-                        '" width="13" height="13" border="0" />'),
+                    $this->cmdCancel, '=1"',
+                    ' aria-label="', $this->convertToHtmlEntities($this->txtCancel),
+                    '" title="', $this->convertToHtmlEntities($this->txtCancel), '">',
+                        $this->renderIcon($this->svgIconCancel, "delete"),
                     '</a>';
             } else {
                 if ($this->can_edit) {
                     echo
                         '<a href="', $_SERVER["PHP_SELF"], '?',
                         $this->cmdEdit, '=1&amp;', $this->varEditID,
-                        '=', $data[0], '">',
-                            ($this->use_icon_font ?
-                            '<i class="fa fa-pencil" title="'.$this->convertToHtmlEntities($this->txtEdit).'" style="padding-right: 0.75em"></i>'
-                            :
-                            '<img hspace="1" src="'. $this->imagedir. '/edit.png" alt="'.
-                            $this->convertToHtmlEntities($this->txtEdit). '" title="'.
-                            $this->convertToHtmlEntities($this->txtEdit).
-                            '" border="0" width="13" height="13" align="middle" />'),
+                        '=', $data[0],
+                        '" aria-label="', $this->convertToHtmlEntities($this->txtEdit),
+                        '" title="', $this->convertToHtmlEntities($this->txtEdit), '">',
+                            $this->renderIcon($this->svgIconEdit, "edit"),
                         '</a>';
                 }
                 if ($this->can_delete) {
                     echo
                         '<a href="', $_SERVER["PHP_SELF"], '?',
                         $this->cmdDelete, '=1&amp;', $this->varDeleteID,
-                        '=', $data[0], '">',
-                            ($this->use_icon_font ?
-                            '<i class="fa fa-minus" title="'.$this->convertToHtmlEntities($this->txtDelete).'"></i>'
-                            :
-                            '<img hspace="1" src="'. $this->imagedir. '/delete.png" alt="'.
-                            $this->convertToHtmlEntities($this->txtDelete). '" title="'.
-                            $this->convertToHtmlEntities($this->txtDelete).
-                            '" border="0" width="13" height="13" align="middle" />'),
+                        '=', $data[0],
+                        '" aria-label="', $this->convertToHtmlEntities($this->txtDelete),
+                        '" title="', $this->convertToHtmlEntities($this->txtDelete), '">',
+                            $this->renderIcon($this->svgIconDelete, "delete"),
                         '</a>';
                 }
                 foreach ($this->actions as $action) {
@@ -1288,7 +1299,9 @@ class MySQLGrid {
                 else {
                     switch ($this->columns[$i]["type"]) {
                         case PHPMYSQLGRID_BOOLEAN:
-                            $text = $text ? $this->txtYes : $this->txtNo;
+                            $text = $text
+                                ? $this->renderIcon($this->svgBoolTrue, "bool-true")
+                                : $this->renderIcon($this->svgBoolFalse, "bool-false");
                             break;
                         case PHPMYSQLGRID_SELECTION:
                             if (isset($this->columns[$i]["selection"][$text]))
@@ -1305,7 +1318,7 @@ class MySQLGrid {
                 echo '>';
 
                 // Trust converted output, otherwise htmlentity it.
-                if (isset($this->columns[$i]["convert_output"]))
+                if (isset($this->columns[$i]["convert_output"]) || $this->columns[$i]["type"] === PHPMYSQLGRID_BOOLEAN)
                     echo $text;
                 else {
                     if (isset($this->columns[$i]["size"])
@@ -1353,53 +1366,28 @@ class MySQLGrid {
             echo
                 '<input type="hidden" name="', $this->varEditID, '" value="',
                 $_REQUEST[$this->varEditID], '">',
-                ($this->use_icon_font ?
                 '<input type="hidden" name="' . $this->cmdConfirmEdit. '" value="true" />'.
-                '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;">'.
-                  '<i class="fa fa-check" style="padding-right: 0.75em;" title="' .
-                  $this->convertToHtmlEntities($this->txtConfirm) . '"></i>'.
-                '</a>'
-                :
-                '<input type="image" src="'.$this->imagedir.'/confirm.png" alt="'.
-                    $this->convertToHtmlEntities($this->txtConfirm). '" title="' .
-                    $this->convertToHtmlEntities($this->txtConfirm).
-                    '" style="width:13px;height:13px;margin:0px 1px" name="'.
-                    $this->cmdConfirmEdit. '[]">'),
+                '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
+                    $this->renderIcon($this->svgIconConfirm, "confirm").
+                '</a>',
                 '<a href="', $_SERVER["PHP_SELF"], "?",
-                $this->cmdCancel, '=1">',
-                    ($this->use_icon_font ?
-                    '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'"></i>'
-                    :
-                    '<img hspace="1" src="'. $this->imagedir. '/cancel.png" alt="'.
-                    $this->convertToHtmlEntities($this->txtCancel). '" title="'.
-                    $this->convertToHtmlEntities($this->txtCancel).
-                    '" width="13" height="13" border="0" />'),
+                $this->cmdCancel, '=1"',
+                ' aria-label="', $this->convertToHtmlEntities($this->txtCancel),
+                '" title="', $this->convertToHtmlEntities($this->txtCancel), '">',
+                    $this->renderIcon($this->svgIconCancel, "delete"),
                 '</a>',
                 '</td>';
         } else {
             echo
-                ($this->use_icon_font ?
                 '<input type="hidden" name="' . $this->cmdConfirmAdd. '" value="true" />'.
-                '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;">'.
-                  '<i class="fa fa-check" style="padding-right: 0.75em;" title="' .
-                  $this->convertToHtmlEntities($this->txtConfirm) . '"></i>'.
-                '</a>'
-                :
-                '<input type="image" src="'.  $this->imagedir.
-                    '/confirm.png" alt="'.
-                    $this->convertToHtmlEntities($this->txtConfirm). '" title="'.
-                    $this->convertToHtmlEntities($this->txtConfirm).
-                    '" style="width:13px;height:13px;margin:0px 1px" name="'.
-                    $this->cmdConfirmAdd. '[]">'),
+                '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
+                    $this->renderIcon($this->svgIconConfirm, "confirm").
+                '</a>',
                 '<a href="', $_SERVER["PHP_SELF"], "?",
-                $this->cmdCancel, '=1">',
-                    ($this->use_icon_font ?
-                    '<i class="fa fa-times" title="'.$this->convertToHtmlEntities($this->txtCancel).'"></i>'
-                    :
-                    '<img hspace="1" src="'. $this->imagedir. '/cancel.png" alt="'.
-                    $this->convertToHtmlEntities($this->txtCancel). '" title="'.
-                    $this->convertToHtmlEntities($this->txtCancel).
-                    '" width="13" height="13" border="0" />'),
+                $this->cmdCancel, '=1"',
+                ' aria-label="', $this->convertToHtmlEntities($this->txtCancel),
+                '" title="', $this->convertToHtmlEntities($this->txtCancel), '">',
+                    $this->renderIcon($this->svgIconCancel, "delete"),
                 '</a>';
         }
         for ($i = 0; $i < count($this->columns); $i++) {
@@ -1612,14 +1600,10 @@ class MySQLGrid {
         // Draw Add Button if wanted
         if ($this->can_add) {
             echo
-                '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdAdd, '=1#',$this->name,'_bottom" class="add-button">',
-                    ($this->use_icon_font ?
-                    '<i class="fa fa-plus" title="'.$this->convertToHtmlEntities($this->txtAdd).'"></i>'
-                    :
-                    '<img src="'. $this->imagedir. '/add.png" alt="'.
-                    $this->convertToHtmlEntities($this->txtAdd). '" title="'.
-                    $this->convertToHtmlEntities($this->txtAdd).
-                    '" width="13" height="13" border="0" />'),
+                '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdAdd, '=1#',$this->name,'_bottom" class="add-button"',
+                ' aria-label="', $this->convertToHtmlEntities($this->txtAdd),
+                '" title="', $this->convertToHtmlEntities($this->txtAdd), '">',
+                    $this->renderIcon($this->svgIconAdd, "add"),
                 '</a>';
         } else echo '&nbsp;';
         echo '</td>';
@@ -1632,11 +1616,13 @@ class MySQLGrid {
             // Prev button
             if ($this->page > 1) {
                 echo '<a class="phpmysqlgrid-pagination-prev" href="',
-                    $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $this->page - 1, '">',
-                    $this->convertToHtmlEntities($this->txtPrevious), '</a>';
+                    $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $this->page - 1,
+                    '" aria-label="', $this->convertToHtmlEntities($this->txtPrevious), '">',
+                    $this->renderIcon($this->svgNavPrev, "previous"), '</a>';
             } else {
-                echo '<span class="phpmysqlgrid-pagination-prev is-disabled" aria-disabled="true">',
-                    $this->convertToHtmlEntities($this->txtPrevious), '</span>';
+                echo '<span class="phpmysqlgrid-pagination-prev is-disabled" aria-disabled="true" aria-label="',
+                    $this->convertToHtmlEntities($this->txtPrevious), '">',
+                    $this->renderIcon($this->svgNavPrev, "previous"), '</span>';
             }
 
             echo '<ol class="phpmysqlgrid-pagination-list">';
@@ -1682,11 +1668,13 @@ class MySQLGrid {
             // Next button
             if ($this->page < $pages) {
                 echo '<a class="phpmysqlgrid-pagination-next" href="',
-                    $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $this->page + 1, '">',
-                    $this->convertToHtmlEntities($this->txtNext), '</a>';
+                    $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $this->page + 1,
+                    '" aria-label="', $this->convertToHtmlEntities($this->txtNext), '">',
+                    $this->renderIcon($this->svgNavNext, "next"), '</a>';
             } else {
-                echo '<span class="phpmysqlgrid-pagination-next is-disabled" aria-disabled="true">',
-                    $this->convertToHtmlEntities($this->txtNext), '</span>';
+                echo '<span class="phpmysqlgrid-pagination-next is-disabled" aria-disabled="true" aria-label="',
+                    $this->convertToHtmlEntities($this->txtNext), '">',
+                    $this->renderIcon($this->svgNavNext, "next"), '</span>';
             }
 
             echo '</nav>';
