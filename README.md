@@ -138,9 +138,9 @@ Notes:
 
 Notes:
 
-- In injected mode, `connect()` reuses the injected connection.
-- In injected mode, `disconnect()` is a no-op (the caller owns connection lifecycle).
-- Existing `mysqli` integrations remain supported.
+- In injected mode, the provided PDO connection is reused for all database operations.
+- In injected mode, the caller owns the connection lifecycle.
+- All database operations use PDO exclusively; mysqli is no longer supported.
 
 Include one of the CSS files in your page to style the grid:
 
@@ -154,10 +154,14 @@ Include one of the CSS files in your page to style the grid:
 - gridstyle.css: Default grid style
 - gridstyle_icon_font.css: Icon font style variant
 - phpstan.neon.dist: Static analysis configuration
-- TODO.md: Planned follow-up tasks
+- TODO.md: Planned follow-up tasks and features
 - CHANGELOG.md: Release history
-- .github/testing-instructions.md: Test architecture and conventions
-- docs/refactoring-notes-v0.6.md: Internal detailed refactoring notes (vs 0.5.11)
+- .github/copilot-instructions.md: Workspace development guidelines
+- .github/instructions/php-core.instructions.md: PHP coding and API stability rules
+- .github/instructions/testing.instructions.md: Test architecture and conventions
+- .github/instructions/styling.instructions.md: CSS theming and styling guidelines
+- .github/instructions/accessibility.instructions.md: Accessibility, ARIA, and keyboard navigation requirements
+- docs/refactoring-notes-v0.6.md: Internal detailed refactoring notes (v0.6 vs v0.5.11)
 
 ## Quality Checks
 
@@ -191,7 +195,12 @@ For contribution details, see CONTRIBUTING.md.
 ## Additional Documentation
 
 - Changelog and release history: CHANGELOG.md
-- Testing conventions and integration setup: .github/testing-instructions.md
+- Workspace development guidelines: .github/copilot-instructions.md
+- Development specializations:
+  - PHP core rules and API stability: .github/instructions/php-core.instructions.md
+  - Testing conventions and integration patterns: .github/instructions/testing.instructions.md
+  - Styling, CSS naming, and theming: .github/instructions/styling.instructions.md
+  - Accessibility, ARIA, and keyboard support: .github/instructions/accessibility.instructions.md
 - Internal detailed refactoring notes (v0.6 vs v0.5.11): docs/refactoring-notes-v0.6.md
 
 ## Security

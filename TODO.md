@@ -22,7 +22,7 @@
   - [x] add real-code-path integration test for lookup query rendering in drawEditControls via injected PDO connection
   - [x] add execute()-path integration tests for confirm add/edit/delete request handling via injected PDO connection
   - [x] add security tests for SQL injection and XSS vulnerabilities
-  - [x] update github copilot instructions with testing guidelines
+  - [x] update github copilot instructions with specialized instruction files (.github/instructions/)
   - [ ] More tests / check if this is already tested:
     - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
     - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
@@ -35,11 +35,14 @@
   - [x] Parameterize active filter values in PDO prepareData queries (count + data select)
   - [x] Review remaining read/filter SQL construction and add raw SQL fragment guard for `filter`/`lookup_filter` dangerous tokens
 - [ ] Investigate PSR coding standards
+  - [ ] Define target style profile (PSR-12 baseline + project-specific exceptions)
+  - [ ] Decide and document array syntax policy (`array(...)` vs `[]`) for new code
+  - [ ] Add phased migration plan for legacy style cleanup (touch-and-upgrade strategy)
+  - [ ] Align php-cs-fixer configuration with documented style policy
 - [ ] Document public properties and methods with doc blocks
 - [ ] Documentation in readme for grid configuration, styling, etc
 - [ ] Improve styling / default theme
   - [x] Replace Unicode and icon-font controls with inline SVG icons (`svgIcon*` / `svgSort*` properties, Bootstrap Icons MIT)
-- [ ] Add aria instructions file and make accessibility improvements (e.g. ARIA attributes for table and controls)
 - [x] Update cspell word list for new identifiers and technical terms
 - [ ] Hover effects for action icons
 - [ ] Repository Standards
@@ -80,4 +83,7 @@
   - Acceptance criteria: composer run lint is green
 
 ## Accessibility
-- [ ] Add ARIA attributes for table + controls
+- [ ] Implement ARIA attributes and semantic HTML in MySQLGrid.php (table, pagination, form controls)
+- [ ] Add keyboard navigation support (Tab order, focus indicators, escape handling)
+- [ ] Ensure WCAG 2.2 Level AA color contrast compliance in gridstyle.css
+- [ ] Add accessibility regression tests (ARIA presence, form labels, keyboard reachability)

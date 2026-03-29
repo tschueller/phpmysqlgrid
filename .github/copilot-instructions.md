@@ -37,7 +37,20 @@ $grid->columns, $grid->actions    // Field and action definitions
 - **gridstyle.css** - Main stylesheet for default theme
 - **gridstyle_icon_font.css** - Icon font variant
 - Uses class-based styling approach (customizable via `$grid->cssClass`)
-- For styling architecture, naming, migration phases, and accessibility goals, see `.github/styling-instructions.md`
+- For styling architecture, naming, migration phases, and accessibility goals, see `.github/instructions/styling.instructions.md`
+
+## Source of Truth Map
+
+Each topic has a primary source where guidance is authoritative. When working, consult the source for that topic:
+
+| Topic | Primary Source | Context/References |
+|-------|---|---|
+| **MySQLGrid.php: visibility, backward compatibility, @internal markers** | `.github/instructions/php-core.instructions.md` | See also: copilot-instructions.md (this file) |
+| **Tests: unit vs integration, SQLite fixtures, DB testing patterns** | `.github/instructions/testing.instructions.md` | See also: README.md (quick facts) |
+| **Styling: CSS naming, theme migration, semantic classes, contrast** | `.github/instructions/styling.instructions.md` | See also: gridstyle.css (inline comments) |
+| **Accessibility: ARIA, labels, keyboard navigation, semantic HTML** | `.github/instructions/accessibility.instructions.md` | See also: styling.instructions.md (contrast rules) |
+| **Current DB architecture: PDO, connections, why it changed** | `README.md` (Connection Modes section) | Historical context: `docs/refactoring-notes-v0.6.md` |
+| **What is being built next** | `TODO.md` | (product backlog only) |
 
 ## Development Conventions
 
@@ -73,7 +86,7 @@ $grid->columns, $grid->actions    // Field and action definitions
 
 ### Testing Conventions
 
-- For all testing conventions (unit + DB integration), see `.github/testing-instructions.md`
+- For all testing conventions (unit + DB integration), see `.github/instructions/testing.instructions.md`
 
 ### Repository Standards
 

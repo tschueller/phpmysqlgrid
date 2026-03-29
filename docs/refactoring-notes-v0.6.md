@@ -107,5 +107,5 @@ Behavioral risk areas to watch:
 
 - Core implementation: `MySQLGrid.php`
 - Public release notes: `CHANGELOG.md`
-- Testing conventions: `.github/testing-instructions.md`
+- Testing conventions: `.github/instructions/testing.instructions.md`
 - Task tracking: `TODO.md`

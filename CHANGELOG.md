@@ -23,7 +23,7 @@ All notable changes to this project are documented in this file.
 - Add real integration tests for DB methods using injected `pdo_sqlite`.
 - Add execute-path integration tests for confirm add/edit/delete request flows.
 - Add security regression tests for SQL injection payload handling and XSS encoding scenarios.
-- Add testing guidance in `.github/testing-instructions.md`.
+- Add testing guidance in `.github/instructions/testing.instructions.md`.
 - Add internal refactoring notes in `docs/refactoring-notes-v0.6.md`.
 - Add a manual SQLite demo page at `demo/index.php` with seeded user data for interactive grid testing.
 - Add Composer script `demo:start` to run the local demo server.

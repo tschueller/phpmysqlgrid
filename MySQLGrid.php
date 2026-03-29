@@ -40,7 +40,7 @@ class MySQLGrid {
     private \PDO | null $db_connection = null;
     private string $db_driver = "pdo_mysql";
 
-    function __construct() {
+    public function __construct() {
         $this->hostname = "localhost";
         $this->port = 3128;
         $this->username = "root";
@@ -78,7 +78,10 @@ class MySQLGrid {
         $this->initSvgIcons();
     }
 
-    function MySQLGrid(): void {
+    /**
+     * @deprecated Use __construct() instead.
+     */
+    public function MySQLGrid(): void {
         self::__construct();
     }
 
