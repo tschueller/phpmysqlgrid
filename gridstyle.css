@@ -93,20 +93,20 @@ table.phpmysqlgrid td[class*="-cell--odd"] {
     background-color: var(--phpmysqlgrid-row-odd);
 }
 
-table.phpmysqlgrid tr:hover td[class*="-cell"]:not([class*="-cell--edit"]):not([class*="-cell--delete"]) {
+table.phpmysqlgrid tr:hover td[class*="-cell"]:not([class*="--add"]):not([class*="--edit"]):not([class*="--delete"]) {
     background-color: var(--phpmysqlgrid-row-hover);
 }
 
 /* Action cells - must override row colors */
-table.phpmysqlgrid td[class*="-action"] {
+/* table.phpmysqlgrid td[class*="-action"] {
     background-color: var(--phpmysqlgrid-action-bg);
     color: var(--phpmysqlgrid-action-text);
-}
+} */
 
-table.phpmysqlgrid td[class*="-action"] a {
+/* table.phpmysqlgrid td[class*="-action"] a {
     color: inherit;
     text-decoration: none;
-}
+} */
 
 table.phpmysqlgrid [class*="-icon"] {
     display: inline-block;

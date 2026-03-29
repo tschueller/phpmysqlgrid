@@ -805,10 +805,10 @@ class MySQLGrid {
             $rowClass = $this->style . '-cell--' . (($this->row % 2) ? 'odd' : 'even');
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
                 && ($_REQUEST[$this->varDeleteID] == $data[0])) {
-                $headstyle = $this->style . '-action ' . $this->style . '-action--delete';
+                $headstyle = $this->style . '-action ' . $rowClass . ' ' . $this->style . '-action--delete';
                 $datastyle = $this->style . '-cell ' . $rowClass . ' ' . $this->style . '-cell--delete';
             } else {
-                $headstyle = $this->style . '-action';
+                $headstyle = $this->style . '-action ' . $rowClass;
                 $datastyle = $this->style . '-cell ' . $rowClass;
             }
             if (($this->mode == PHPMYSQLGRID_EDITMODE)
@@ -959,15 +959,15 @@ class MySQLGrid {
         $rowClass = $this->style . '-cell--' . (($this->row % 2) ? 'odd' : 'even');
         switch ($this->mode) {
             case PHPMYSQLGRID_EDITMODE:
-                $headstyle = $this->style . '-action ' . $this->style . '-action--edit';
+                $headstyle = $this->style . '-action ' . $rowClass . ' ' . $this->style . '-action--edit';
                 $datastyle = $this->style . '-cell ' . $rowClass . ' ' . $this->style . '-cell--edit';
                 break;
             case PHPMYSQLGRID_ADDMODE:
-                $headstyle = $this->style . '-action ' . $this->style . '-action--add';
+                $headstyle = $this->style . '-action ' . $rowClass . ' ' . $this->style . '-action--add';
                 $datastyle = $this->style . '-cell ' . $rowClass . ' ' . $this->style . '-cell--add';
                 break;
             default:
-                $headstyle = $this->style . '-action';
+                $headstyle = $this->style . '-action ' . $rowClass;
                 $datastyle = $this->style . '-cell ' . $rowClass;
         }
         echo
@@ -1003,7 +1003,7 @@ class MySQLGrid {
                 '</a>';
         }
         for ($i = 0; $i < count($this->columns); $i++) {
-            echo '<td class="', $datastyle, '-input"';
+            echo '<td class="', $datastyle, '"';
             if (isset($this->columns[$i]["align"]))
                 echo ' align="', $this->columns[$i]["align"], '"';
             echo '>';

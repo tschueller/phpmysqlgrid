@@ -17,7 +17,6 @@ phpMySQLGrid provides a reusable class to display and manage MySQL table data in
 
 - PHP 8.2 or newer
 - MySQL-compatible database
-- Optional for injected-connection mode and tests: PDO (`pdo_mysql` or `pdo_sqlite`)
 
 ## Installation
 
@@ -125,10 +124,6 @@ Start the demo server from the project root:
 Then open:
 
     http://127.0.0.1:8000/
-
-Alternative direct URL:
-
-    http://127.0.0.1:8000/demo/index.php
 
 Notes:
 

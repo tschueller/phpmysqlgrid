@@ -253,6 +253,22 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
         $this->assertStringContainsString('data-id="1"', $html);
     }
 
+    public function testExecuteRendersOddEvenModifierOnActionCells(): void {
+        $grid = $this->buildExecuteGrid();
+
+        ob_start();
+        $grid->execute();
+        $html = ob_get_clean();
+
+        $this->assertIsString($html);
+        if (!is_string($html)) {
+            $this->fail("Expected execute output string");
+        }
+
+        $this->assertStringContainsString('class="phpmysqlgrid-action phpmysqlgrid-cell--even"', $html);
+        $this->assertStringContainsString('class="phpmysqlgrid-action phpmysqlgrid-cell--odd"', $html);
+    }
+
     public function testExecuteProcessesConfirmAddRequestWithInjectedPdo(): void {
         $grid = $this->buildExecuteGrid();
 

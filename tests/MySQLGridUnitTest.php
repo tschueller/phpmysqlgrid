@@ -432,4 +432,22 @@ final class MySQLGridUnitTest extends TestCase {
 
         $this->assertStringContainsString('phpmysqlgrid-pagination-ellipsis', $output);
     }
+
+    public function testDrawEditControlsAddsOddEvenModifierToActionCell(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "test_grid";
+        $grid->mode = PHPMYSQLGRID_ADDMODE;
+        $grid->row = 0;
+        $grid->columns = array(
+            array("field" => "name", "type" => PHPMYSQLGRID_TEXT)
+        );
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawEditControls(false);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('class="phpmysqlgrid-action phpmysqlgrid-cell--even phpmysqlgrid-action--add"', $output);
+    }
 }
