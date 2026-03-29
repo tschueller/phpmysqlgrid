@@ -22,24 +22,24 @@ What changed:
 
 - Added injected connection entry point:
   - `setDatabaseConnection(mixed $connection, string $driver)`
-- Added driver-aware behavior:
-  - default remains `mysqli`
-  - injected mode supports `pdo_mysql` and `pdo_sqlite`
-- `connect()` in injected mode reuses provided connection.
+- Default (non-injected) mode now creates a `PDO` connection internally from `hostname`, `port`, `username`, `password`, `database` properties using `mysql:host=…;port=…;dbname=…;charset=utf8mb4`.
+- Injected mode supports `pdo_mysql` and `pdo_sqlite`.
+- `connect()` in injected mode reuses the provided connection.
 - `disconnect()` in injected mode is intentionally a no-op.
+- All internal `mysqli` code removed — `mysqli` is no longer a supported or used driver.
 
 Impact:
 
-- Existing integrations stay backward compatible.
+- Existing integrations stay backward compatible (hostname/username/password/database still work).
 - Tests can run real `MySQLGrid` DB methods against in-memory SQLite.
 
 ### 2) CRUD Execution Paths
 
 What changed:
 
-- PDO execution path implemented for real DB methods.
-- `addData`, `editData`, `deleteData` can execute through injected PDO.
-- Legacy mysqli write paths were hardened and migrated to prepared statements.
+- All CRUD methods (`addData`, `editData`, `deleteData`) use PDO exclusively.
+- Legacy mysqli CRUD code removed entirely.
+- All write paths use PDO prepared statements with named placeholders.
 
 Impact:
 
@@ -64,8 +64,8 @@ Impact:
 
 Implemented:
 
-- Prepared statements in mysqli write paths (`addData`, `editData`, `deleteData`).
-- Prepared/parameterized active filters in PDO `prepareData` path.
+- PDO prepared statements in all write paths (`addData`, `editData`, `deleteData`).
+- Prepared/parameterized active filters in `prepareData` path.
 - Raw fragment guard for dangerous tokens in configurable filter fragments.
 - Expanded XSS and SQL injection regression tests.
 
@@ -95,8 +95,8 @@ Result:
 
 Backward compatibility:
 
-- Default `mysqli` mode preserved.
-- Existing consumers setting host/user/password/database remain supported.
+- Default connection mode uses an internally-created PDO connection; existing consumers setting `hostname`/`username`/`password`/`database` properties remain fully supported.
+- `setDatabaseConnection()` no longer accepts `mysqli` as a driver — passing it triggers a `trigger_error`.
 
 Behavioral risk areas to watch:
 

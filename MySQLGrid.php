@@ -34,6 +34,12 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
 
 #[AllowDynamicProperties]
 class MySQLGrid {
+
+    private bool $db_is_injected = false;
+    private \PDO | null $db = null;
+    private \PDO | null $db_connection = null;
+    private string $db_driver = "pdo_mysql";
+
     function __construct() {
         $this->hostname = "localhost";
         $this->port = 3128;
@@ -49,7 +55,6 @@ class MySQLGrid {
         $this->limit = 10;
         $this->name = "phpmysqlgrid";
         $this->mode = PHPMYSQLGRID_VIEWMODE;
-        $this->imagedir = "images";
         $this->can_add = true;
         $this->can_delete = true;
         $this->can_edit = true;
@@ -69,11 +74,6 @@ class MySQLGrid {
         $this->edit_after = false;
         $this->lookups = array();
         $this->charset = "UTF-8";
-        $this->db_utf8 = false;
-        $this->db = null;
-        $this->db_connection = null;
-        $this->db_driver = "mysqli";
-        $this->db_is_injected = false;
         $this->internationalize();
         $this->initSvgIcons();
     }
@@ -82,8 +82,8 @@ class MySQLGrid {
         self::__construct();
     }
 
-    public function setDatabaseConnection(mixed $connection, string $driver = "mysqli"): void {
-        $allowedDrivers = array("mysqli", "pdo", "pdo_mysql", "pdo_sqlite");
+    public function setDatabaseConnection(mixed $connection, string $driver = "pdo_mysql"): void {
+        $allowedDrivers = array("pdo", "pdo_mysql", "pdo_sqlite");
         if (!in_array($driver, $allowedDrivers, true)) {
             trigger_error("Unsupported database driver: " . $driver, E_USER_ERROR);
         }
@@ -92,12 +92,6 @@ class MySQLGrid {
         $this->db = $connection;
         $this->db_driver = $driver;
         $this->db_is_injected = true;
-    }
-
-    private function usingPdoConnection(): bool {
-        return $this->db_is_injected
-            && str_starts_with((string)$this->db_driver, "pdo")
-            && ($this->db instanceof \PDO);
     }
 
     /**
@@ -122,53 +116,6 @@ class MySQLGrid {
         return $statement;
     }
 
-    /**
-     * @param array<int, mixed> $params
-     */
-    private function executeMysqliPrepared(string $sql, array $params = array()): \mysqli_stmt {
-        if (!($this->db instanceof \mysqli)) {
-            trigger_error("mysqli connection expected", E_USER_ERROR);
-        }
-
-        $statement = mysqli_prepare($this->db, $sql);
-        if ($statement === false) {
-            trigger_error(mysqli_error($this->db), E_USER_ERROR);
-        }
-
-        if ($params !== array()) {
-            $types = str_repeat("s", count($params));
-            $bindParams = array_merge(array($types), $params);
-            $references = array();
-            foreach ($bindParams as $index => $value) {
-                $references[$index] = &$bindParams[$index];
-            }
-
-            if (!call_user_func_array(array($statement, "bind_param"), $references)) {
-                trigger_error(mysqli_stmt_error($statement), E_USER_ERROR);
-            }
-        }
-
-        if (!mysqli_stmt_execute($statement)) {
-            trigger_error(mysqli_stmt_error($statement), E_USER_ERROR);
-        }
-
-        return $statement;
-    }
-
-    private function escapeStringForLike(string $value): string {
-        if ($this->usingPdoConnection() && ($this->db instanceof \PDO)) {
-            $quoted = $this->db->quote($value);
-
-            if (strlen($quoted) >= 2 && $quoted[0] === "'" && $quoted[strlen($quoted) - 1] === "'") {
-                return substr($quoted, 1, -1);
-            }
-
-            return $quoted;
-        }
-
-        return mysqli_escape_string($this->db, $value);
-    }
-
     private function assertSafeRawSqlFragment(string $fragment, string $context): void {
         if ($fragment === "") {
             return;
@@ -191,8 +138,7 @@ class MySQLGrid {
             return is_array($row) ? $row : false;
         }
 
-        $row = mysqli_fetch_row($this->result);
-        return is_array($row) ? $row : false;
+        return false;
     }
 
     private function prepareDataWithPdo(): void {
@@ -304,27 +250,8 @@ class MySQLGrid {
      * @return array<int, array<int, mixed>>
      */
     private function queryNumericRows(string $query): array {
-        if ($this->usingPdoConnection()) {
-            $statement = $this->executePdoStatement($query);
-            $rows = $statement->fetchAll(\PDO::FETCH_NUM);
-            return $rows;
-        }
-
-        if (!($result = mysqli_query($this->db, $query))) {
-            trigger_error(mysqli_error($this->db), E_USER_ERROR);
-        }
-        if ($result === true) {
-            trigger_error("Unexpected mysqli result type", E_USER_ERROR);
-        }
-
-        $rows = array();
-        while ($row = mysqli_fetch_row($result)) {
-            if (is_array($row)) {
-                $rows[] = $row;
-            }
-        }
-        mysqli_free_result($result);
-
+        $statement = $this->executePdoStatement($query);
+        $rows = $statement->fetchAll(\PDO::FETCH_NUM);
         return $rows;
     }
 
@@ -384,15 +311,18 @@ class MySQLGrid {
             return;
         }
 
-        $this->db = mysqli_connect($this->hostname, $this->username, $this->password);
-        if (!$this->db) die();
-        if (!mysqli_select_db($this->db, $this->database))
-            trigger_error(mysqli_error($this->db), E_USER_ERROR);
-
-        // Switch to utf-8
-        if ($this->db_utf8)
-            if(!mysqli_query($this->db, "set names 'utf8'"))
-                trigger_error(mysqli_error($this->db), E_USER_ERROR);
+        if ($this->hostname === "" || $this->port <= 0 || $this->database === "" || $this->username === "") {
+            trigger_error("Invalid database connection parameters", E_USER_ERROR);
+        }
+        $dsn = sprintf(
+            "mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4",
+            $this->hostname,
+            (int)$this->port,
+            $this->database
+        );
+        $this->db = new \PDO($dsn, $this->username, $this->password, [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        ]);
     }
 
     function disconnect(): void {
@@ -400,45 +330,28 @@ class MySQLGrid {
             return;
         }
 
-        mysqli_close($this->db);
+        $this->db = null;
     }
 
     function useAllColumns(): void {
-        if ($this->usingPdoConnection()) {
-            $this->columns = array();
+        $this->columns = array();
 
-            if ($this->db_driver === "pdo_sqlite") {
-                $statement = $this->executePdoStatement("PRAGMA table_info(" . $this->table . ")");
-            } else {
-                $statement = $this->executePdoStatement("SHOW COLUMNS FROM " . $this->table);
-            }
+        if ($this->db_driver === "pdo_sqlite") {
+            $statement = $this->executePdoStatement("PRAGMA table_info(" . $this->table . ")");
+        } else {
+            $statement = $this->executePdoStatement("SHOW COLUMNS FROM " . $this->table);
+        }
 
-            $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
-            if (!is_array($rows)) {
-                return;
-            }
-
-            foreach ($rows as $row) {
-                if (isset($row["name"])) {
-                    $this->columns[] = array("field" => (string)$row["name"]);
-                } else if (isset($row["Field"])) {
-                    $this->columns[] = array("field" => (string)$row["Field"]);
-                }
-            }
-
+        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        if (!is_array($rows)) {
             return;
         }
 
-        $this->columns = array();
-        if (!($fields = mysqli_query($this->db, "SHOW COLUMNS FROM $this->database.$this->table")))
-            trigger_error(mysqli_error($this->db), E_USER_ERROR);
-        if ($fields === true)
-            trigger_error("Unexpected mysqli result type", E_USER_ERROR);
-        if (mysqli_num_rows($fields) > 0) {
-            while ($row = mysqli_fetch_assoc($fields)) {
-                $this->columns[] = array(
-                    "field" => $row['Field']
-                );
+        foreach ($rows as $row) {
+            if (isset($row["name"])) {
+                $this->columns[] = array("field" => (string)$row["name"]);
+            } else if (isset($row["Field"])) {
+                $this->columns[] = array("field" => (string)$row["Field"]);
             }
         }
     }
@@ -451,122 +364,13 @@ class MySQLGrid {
     }
 
     function prepareData(): void {
-        if ($this->usingPdoConnection()) {
-            $this->prepareDataWithPdo();
-            return;
-        }
-
-        // Create query parameters
-        if (is_array($this->primary)) {
-            $fields = array();
-            foreach($this->primary as $primary)
-                $fields[] = $this->table . "." . $primary;
-        } else {
-            $fields = array($this->table . "." . $this->primary);
-        }
-        $joins = array();
-        $counter = 0;
-        for ($i = 0; $i < count($this->lookups); $i++) {
-            $joins[] = sprintf("INNER JOIN %s AS l%d ON %s.%s=%s.%s",
-                $this->lookups[$i]["lookup_table"],
-                $counter, "l$counter",
-                $this->lookups[$i]["lookup_primary"],
-                $this->table,
-                $this->primary
-            );
-            $counter++;
-        }
-        $counter = 0;
-        $filter = (string)$this->filter;
-        $this->assertSafeRawSqlFragment($filter, "filter");
-        for ($i = 0; $i < count($this->columns); $i++) {
-            switch($this->columns[$i]["type"]) {
-                case PHPMYSQLGRID_LOOKUP:
-                    $fields[] = "t$counter" . "."
-                        . $this->columns[$i]["lookup_field"];
-                    $joins[] = sprintf("INNER JOIN %s AS t%d ON %s.%s=%s.%s",
-                        $this->columns[$i]["lookup_table"],
-                        $counter, "t$counter",
-                        $this->columns[$i]["lookup_primary"],
-                        $this->table,
-                        $this->columns[$i]["field"]
-                    );
-                    if ($this->columns[$i]['active_filter']) {
-                        if ($filter) $filter .= ' AND ';
-                        $filter .= sprintf("t$counter.%s LIKE '%%%s%%'",
-                            $this->columns[$i]['lookup_field'],
-                            $this->escapeStringForLike((string)$this->columns[$i]['active_filter'])
-                        );
-                    }
-                    $counter++;
-                    break;
-                case PHPMYSQLGRID_FILE:
-                    if (isset($this->columns[$i]["convert_output"]))
-                        $fields[] = $this->table . '.' . $this->columns[$i]["field"];
-                    else
-                        $fields[] = 'LENGTH(' . $this->table . '.' .
-                             $this->columns[$i]["field"] . ')';
-                    break;
-                default:
-                    $fields[] = $this->table . '.' . $this->columns[$i]["field"];
-                    if ($this->columns[$i]['active_filter']) {
-                        if ($filter) $filter .= ' AND ';
-                        $filter .= sprintf("%s.%s LIKE '%%%s%%'",
-                            $this->table,
-                            $this->columns[$i]['field'],
-                            $this->escapeStringForLike((string)$this->columns[$i]['active_filter'])
-                        );
-                    }
-            }
-        }
-
-        // Retrieve maximum number of rows
-        $query = sprintf(
-            "SELECT COUNT(*) FROM %s %s %s",
-            $this->table, join(" ", $joins),
-            $filter ? "WHERE " . $filter : ""
-        );
-        $result = mysqli_query($this->db, $query);
-        if (!$result)
-            trigger_error(mysqli_error($this->db), E_USER_ERROR);
-        if ($result === true)
-            trigger_error("Unexpected mysqli result type", E_USER_ERROR);
-        $data = mysqli_fetch_row($result);
-        if (!is_array($data) || !array_key_exists(0, $data)) {
-            mysqli_free_result($result);
-            trigger_error("Failed to fetch row count", E_USER_ERROR);
-        }
-
-        mysqli_free_result($result);
-        $this->rows = $data[0];
-
-        // Check if result is visible. If not jump to page 1
-        if ($this->rows <= (($this->page - 1) * $this->limit)) {
-            $this->page = ceil($this->rows / $this->limit);
-            $_SESSION["phpMySQLGrid_" . $this->name]["page"] = $this->page;
-        }
-
-        // Open the query
-        $query = sprintf(
-            "SELECT %s FROM %s %s %s ORDER BY %s %s LIMIT %d,%d",
-            join(",", $fields), $this->table, join(" ", $joins),
-            $filter ? "WHERE " . $filter : "",
-            $fields[$this->sort + $this->countPrimaries()],
-            $this->dir ? "DESC" : "ASC",
-            ($this->page > 0 ? (($this->page - 1) * $this->limit) : 0), $this->limit
-        );
-        $this->result = mysqli_query( $this->db, $query);
-        if (!$this->result)
-            trigger_error(mysqli_error($this->db), E_USER_ERROR);
+        $this->prepareDataWithPdo();
     }
 
     function unprepareData(): void {
         if ($this->result instanceof \PDOStatement) {
             $this->result->closeCursor();
-            return;
         }
-
-        mysqli_free_result($this->result);
     }
 
     /** @internal */
@@ -798,235 +602,40 @@ class MySQLGrid {
     }
 
     function addData(mixed $data): void {
-        if ($this->usingPdoConnection()) {
-            if (!$this->can_add) return;
-
-            $hook = $this->add_before;
-            if (is_callable($hook))
-                if (!$hook($this, $data)) return;
-
-            $this->addDataWithPdo($data);
-            return;
-        }
-
         if (!$this->can_add) return;
-        $columns = array();
-        $placeholders = array();
-        $params = array();
 
-        // Call add_before hook if set
         $hook = $this->add_before;
         if (is_callable($hook))
             if (!$hook($this, $data)) return;
 
-        for ($i = 0; $i < count($this->columns); $i++) {
-            if ($this->columns[$i]["type"] == PHPMYSQLGRID_FILE) {
-                // Call input converter if there is one
-                if (isset($this->columns[$i]["convert_input"])) {
-                    $data[$i] = $this->columns[$i]["convert_input"]($this,
-                        $data[$i], $i + $this->countPrimaries(),
-                        array_merge((array)false, (array)$data));
-                    $columns[] = $this->columns[$i]["field"];
-                    $placeholders[] = "?";
-                    $params[] = $data[$i];
-                } else {
-                    // Ignore if data is empty
-                    if (!$data[$i]) continue;
-
-                    // If data is an array, process file upload
-                    if (is_array($data[$i])) {
-                        // Ignore empty or non-uploaded files
-                        if (!$data[$i]['size']) continue;
-                        $handle = fopen($data[$i]['tmp_name'], 'rb');
-                        if ($handle === false) continue;
-                        $content = fread($handle, $data[$i]['size']);
-                        if ($content === false) $content = '';
-                        fclose($handle);
-                        $columns[] = $this->columns[$i]["field"];
-                        $placeholders[] = "?";
-                        $params[] = $content;
-                    }
-                    // If it's not an array fetch the URL
-                    else {
-                        // Open URL and suppress messages
-                        @$handle = fopen($data[$i]  , 'rb');
-                        // Ignore invalid URLs;
-                        if (!$handle) continue;
-                        $content = '';
-                        while ($buffer = fread($handle, 8192))
-                            $content .= $buffer;
-                        fclose($handle);
-                        $columns[] = $this->columns[$i]["field"];
-                        $placeholders[] = "?";
-                        $params[] = $content;
-                    }
-                }
-                continue;
-            }
-
-            if ((($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD)
-                || ($data[$i] != PHPMYSQLGRID_PWDUMMY))
-                && ($this->columns[$i]["type"] != PHPMYSQLGRID_FILE)) {
-                if (isset($this->columns[$i]["convert_input"]))
-                    $data[$i] = $this->columns[$i]["convert_input"]($this,
-                        $data[$i], $i + $this->countPrimaries(),
-                        array_merge((array)false, (array)$data));
-                $columns[] = $this->columns[$i]["field"];
-                $placeholders[] = "?";
-                $params[] = (string)$data[$i];
-            }
-        }
-        foreach ($this->add_values as $key => $value) {
-            $columns[] = $key;
-            $placeholders[] = "?";
-            $params[] = $value;
-        }
-
-        $query = sprintf(
-            "INSERT INTO %s (%s) VALUES (%s)",
-            $this->table, join(",", $columns), join(",", $placeholders)
-        );
-        $statement = $this->executeMysqliPrepared($query, $params);
-        mysqli_stmt_close($statement);
-
-        // Call add_after hook if set
-        $hook = $this->add_after;
-        if (is_callable($hook)) {
-            $id = mysqli_insert_id($this->db);
-            if (!$hook($this, $id, $data)) return;
-        }
+        $this->addDataWithPdo($data);
     }
 
     function deleteData(mixed $id): void {
-        if ($this->usingPdoConnection()) {
-            if (!$this->can_delete) return;
-
-            $hook = $this->delete_before;
-            if (is_callable($hook))
-                if (!$hook($this, $id)) return;
-
-            $this->deleteDataWithPdo($id);
-
-            $hook = $this->delete_after;
-            if (is_callable($hook)) $hook($this, $id);
-            return;
-        }
-
         if (!$this->can_delete) return;
 
-        // Call delete hook if set
         $hook = $this->delete_before;
         if (is_callable($hook))
             if (!$hook($this, $id)) return;
 
-        $query = sprintf(
-            "DELETE FROM %s where %s=?",
-            $this->table, $this->primary
-        );
-        $statement = $this->executeMysqliPrepared($query, array($id));
-        mysqli_stmt_close($statement);
+        $this->deleteDataWithPdo($id);
 
-        // Call delete hook if set
         $hook = $this->delete_after;
         if (is_callable($hook)) $hook($this, $id);
     }
 
     function editData(mixed $id, mixed $data): void {
-        if ($this->usingPdoConnection()) {
-            if (!$this->can_edit) return;
-
-            $hook = $this->edit_before;
-            if (is_callable($hook))
-                if (!$hook($this, $id, $data)) return;
-
-            $this->editDataWithPdo($id, $data);
-
-            $hook = $this->edit_after;
-            if (is_callable($hook))
-                if (!$hook($this, $id, $data)) return;
-            return;
-        }
-
         if (!$this->can_edit) return;
 
-        // Call edit_before hook if set
         $hook = $this->edit_before;
         if (is_callable($hook))
             if (!$hook($this, $id, $data)) return;
 
-        $updates = array();
-        $params = array();
-        for ($i = 0; $i < count($this->columns); $i++) {
-            if ($this->columns[$i]["type"] == PHPMYSQLGRID_FILE) {
-                // Call input converter if there is one
-                if (isset($this->columns[$i]["convert_input"])) {
-                    $data[$i] = $this->columns[$i]["convert_input"]($this,
-                        $data[$i], $i + $this->countPrimaries(),
-                        array_merge((array)$id, (array)$data));
-                    if ($data[$i] !== false) {
-                        $updates[] = sprintf("%s=?", $this->columns[$i]["field"]);
-                        $params[] = $data[$i];
-                    }
-                } else {
+        $this->editDataWithPdo($id, $data);
 
-                    // Delete file blob if empty
-                    if (!$data[$i]) {
-                        $updates[] = sprintf("%s=?", $this->columns[$i]["field"]);
-                        $params[] = "";
-                    }
-
-                    // If data is an array, process file upload
-                    else if (is_array($data[$i])) {
-                        // Ignore empty or non-uploaded files
-                        if (!$data[$i]['size']) continue;
-                        $handle = fopen($data[$i]['tmp_name'], 'rb');
-                        if ($handle === false) continue;
-                        $content = fread($handle, $data[$i]['size']);
-                        if ($content === false) $content = '';
-                        fclose($handle);
-                        $updates[] = sprintf("%s=?", $this->columns[$i]["field"]);
-                        $params[] = $content;
-                    }
-                    // If it's not an array fetch the URL
-                    else {
-                        // Open URL and suppress messages
-                        @$handle = fopen($data[$i]  , 'rb');
-                        // Ignore invalid URLs;
-                        if (!$handle) continue;
-                        $content = '';
-                        while ($buffer = fread($handle, 8192))
-                            $content .= $buffer;
-                        fclose($handle);
-                        $updates[] = sprintf("%s=?", $this->columns[$i]["field"]);
-                        $params[] = $content;
-                    }
-                }
-                continue;
-            }
-
-            if (($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD)
-                || ($data[$i] != PHPMYSQLGRID_PWDUMMY)) {
-                if (isset($this->columns[$i]["convert_input"]))
-                    $data[$i] = $this->columns[$i]["convert_input"]($this,
-                        $data[$i], $i + $this->countPrimaries(),
-                        array_merge((array)$id, (array)$data));
-                $updates[] = sprintf("%s=?", $this->columns[$i]["field"]);
-                $params[] = $data[$i];
-            }
-        }
-        $params[] = $id;
-        $query = sprintf(
-            "UPDATE %s SET %s WHERE %s=?",
-            $this->table, join(",", $updates), $this->primary
-        );
-        $statement = $this->executeMysqliPrepared($query, $params);
-        mysqli_stmt_close($statement);
-
-        // Call edit_after hook if set
         $hook = $this->edit_after;
         if (is_callable($hook))
             if (!$hook($this, $id, $data)) return;
-
     }
 
     function processRequests(): void {

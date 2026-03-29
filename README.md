@@ -60,14 +60,14 @@ $grid->execute();
 
 ## Database Connection Modes
 
-phpMySQLGrid now supports two connection modes:
+phpMySQLGrid supports two connection modes:
 
-1. Default mode (legacy-compatible): internal `mysqli` connection via `hostname`, `username`, `password`, `database`.
-2. Injected connection mode: externally managed DB connection via `setDatabaseConnection()`.
+1. Default mode (legacy-compatible): internal PDO connection created automatically from `hostname`, `port`, `username`, `password`, `database` properties.
+2. Injected connection mode: externally managed PDO connection via `setDatabaseConnection()`.
 
-### 1) Default `mysqli` mode
+### 1) Default mode (internal PDO)
 
-This mode is fully backward compatible with existing integrations.
+Set the connection properties and call `execute()`. The class creates a `PDO` connection internally using `mysql:host=…;port=…;dbname=…;charset=utf8mb4`. This mode is fully backward compatible with existing integrations that set these properties.
 
 ```php
 $grid = new MySQLGrid();

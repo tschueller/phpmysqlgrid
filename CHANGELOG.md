@@ -17,8 +17,9 @@ All notable changes to this project are documented in this file.
 
 ### Added
 - Add injected database connection support via `setDatabaseConnection(mixed $connection, string $driver)`.
-- Add support for injected PDO drivers (`pdo_mysql`, `pdo_sqlite`) while preserving default `mysqli` behavior.
-- Add internal DB helper methods for PDO/mysqli parity (query execution, result row fetching, numeric-row lookup queries).
+- Add support for PDO drivers (`pdo_mysql`, `pdo_sqlite`) via `setDatabaseConnection()`.
+- Add internal DB helper methods for PDO query execution, result row fetching, and numeric-row lookup queries.
+- Replace internal `mysqli` connection with an internally-created `PDO` connection when using legacy hostname/username/password/database properties — fully backward-compatible.
 - Add real integration tests for DB methods using injected `pdo_sqlite`.
 - Add execute-path integration tests for confirm add/edit/delete request flows.
 - Add security regression tests for SQL injection payload handling and XSS encoding scenarios.
@@ -33,7 +34,7 @@ All notable changes to this project are documented in this file.
 - Update `gridstyle.css`: rename `.phpmysqlgrid-unicode-icon` selector family to `.phpmysqlgrid-icon`; add SVG sizing rules; remove `.fa-*` icon-font color selectors.
 - Remove empty `gridstyle_icon_font.css` file.
 - Remove FontAwesome CDN link from demo page.
-- Refactor DB write paths to support injected connections without breaking existing `mysqli` consumers.
+- Refactor DB write paths and query methods to PDO exclusively; remove all internal `mysqli` code.
 - Migrate former adapter-based DB tests to real `MySQLGrid` code-path integration tests.
 - Remove obsolete test adapter layer and adapter-specific integration test suite.
 - Route lookup query rendering in `drawEditControls()` through a DB-agnostic query helper.
@@ -42,7 +43,7 @@ All notable changes to this project are documented in this file.
 - Add deprecation guidance for legacy concatenated CSS class selectors and document semantic-class migration in README.
 
 ### Security
-- Replace mysqli string-built SQL in add/edit/delete write paths with prepared statements.
+- Replace mysqli string-built SQL in add/edit/delete write paths with PDO prepared statements.
 - Parameterize active filter values in PDO `prepareData()` queries (both count and data selects).
 - Add raw SQL fragment guard for dangerous token patterns in `filter` and `lookup_filter` (`;`, `--`, `/*`, `*/`, null byte).
 - Keep HTML output encoding test coverage for XSS payloads in `convertToHtmlEntities()`.

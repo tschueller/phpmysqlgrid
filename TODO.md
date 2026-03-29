@@ -58,6 +58,7 @@
 - [x] Make DB connection injectable in `MySQLGrid` (prerequisite for proper integration testing)
   - [x] Add non-breaking injection hook via `setDatabaseConnection()` + injected connection handling in `connect()`/`disconnect()`
   - [x] Route real `addData`/`editData`/`deleteData` through injected PDO path while preserving mysqli default behavior
+  - [x] Remove all internal `mysqli` code; `connect()` now creates a PDO connection internally from legacy hostname/username/password/database properties
   - [x] Route real `useAllColumns` through injected PDO path while preserving mysqli default behavior
   - [x] Route real `prepareData`/`unprepareData` result handling through injected PDO path while preserving mysqli default behavior
   - [x] Remove obsolete `tests/MySQLGridSqliteAdapter.php` and adapter-based integration test suite

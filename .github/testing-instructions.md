@@ -98,15 +98,8 @@ require_once __DIR__ . "/DatabaseTestCase.php";
 ## Current State of Real vs Adapter Coverage
 
 - Real `MySQLGrid` methods covered via injected PDO: `addData`, `editData`, `deleteData`, `useAllColumns`, `prepareData`, `unprepareData`.
-- Still not fully migrated: remaining DB-related `execute()`/render branches that may still rely on legacy `mysqli` assumptions under non-tested combinations.
+- All internal DB code is now PDO-only; there are no remaining `mysqli` branches to cover.
 
-The target is to migrate remaining DB methods to real-code-path tests and complete full execute()-path parity.
-
-### Migration Plan (Updated)
-
-1. Continue moving DB methods to injectable-connection-compatible code in `MySQLGrid`.
-2. Add or move tests to execute the real methods directly with injected `pdo_sqlite`.
-3. Expand real integration tests to remaining DB-dependent execute()/render branches.
 ## Security Tests Guidance
 
 When adding SQL injection and XSS tests:
