@@ -308,7 +308,8 @@ class MySQLGrid {
         return '<span class="' . $class . '" aria-hidden="true">' . $content . '</span>';
     }
 
-    function connect(): void {
+    /** @internal */
+    public function connect(): void {
         if ($this->db_is_injected) {
             $this->db = $this->db_connection;
             return;
@@ -328,7 +329,8 @@ class MySQLGrid {
         ]);
     }
 
-    function disconnect(): void {
+    /** @internal */
+    public function disconnect(): void {
         if ($this->db_is_injected) {
             return;
         }
@@ -336,7 +338,7 @@ class MySQLGrid {
         $this->db = null;
     }
 
-    function useAllColumns(): void {
+    public function useAllColumns(): void {
         $this->columns = array();
 
         if ($this->db_driver === "pdo_sqlite") {
@@ -359,25 +361,28 @@ class MySQLGrid {
         }
     }
 
-    function countPrimaries(): int {
+    /** @internal */
+    public function countPrimaries(): int {
         if (is_array($this->primary))
             return count($this->primary);
         else
             return 1;
     }
 
-    function prepareData(): void {
+    /** @internal */
+    public function prepareData(): void {
         $this->prepareDataWithPdo();
     }
 
-    function unprepareData(): void {
+    /** @internal */
+    public function unprepareData(): void {
         if ($this->result instanceof \PDOStatement) {
             $this->result->closeCursor();
         }
     }
 
     /** @internal */
-    function prepareQueryVars(): void {
+    public function prepareQueryVars(): void {
         $this->cmdSetPage = $this->name . "_setpage";
         $this->cmdSetSort = $this->name . "_setsort";
         $this->cmdSetDir = $this->name . "_setdir";
@@ -397,7 +402,7 @@ class MySQLGrid {
         $this->varEditID = $this->name . "_editid";
     }
 
-    function processSession(): void {
+    private function processSession(): void {
         if (!isset($this->page)) {
             if (isset($_SESSION["phpMySQLGrid_" . $this->name]["page"]))
                 $this->page = $_SESSION["phpMySQLGrid_" . $this->name]["page"];
@@ -604,7 +609,8 @@ class MySQLGrid {
         $this->executePdoStatement($query, $params);
     }
 
-    function addData(mixed $data): void {
+    /** @internal */
+    public function addData(mixed $data): void {
         if (!$this->can_add) return;
 
         $hook = $this->add_before;
@@ -614,7 +620,8 @@ class MySQLGrid {
         $this->addDataWithPdo($data);
     }
 
-    function deleteData(mixed $id): void {
+    /** @internal */
+    public function deleteData(mixed $id): void {
         if (!$this->can_delete) return;
 
         $hook = $this->delete_before;
@@ -627,7 +634,8 @@ class MySQLGrid {
         if (is_callable($hook)) $hook($this, $id);
     }
 
-    function editData(mixed $id, mixed $data): void {
+    /** @internal */
+    public function editData(mixed $id, mixed $data): void {
         if (!$this->can_edit) return;
 
         $hook = $this->edit_before;
@@ -641,7 +649,7 @@ class MySQLGrid {
             if (!$hook($this, $id, $data)) return;
     }
 
-    function processRequests(): void {
+    private function processRequests(): void {
         // Process SetPage command
         if (isset($_REQUEST[$this->cmdSetPage])) {
             $this->page = intval($_REQUEST[$this->cmdSetPage]);
@@ -724,7 +732,7 @@ class MySQLGrid {
     }
 
     /** @internal */
-    function drawHeader(): void {
+    public function drawHeader(): void {
         // Check if a file upload is present in this grid. This is
         // important to switch to multipart/form-data encoding.
         $upload = false;
@@ -742,14 +750,14 @@ class MySQLGrid {
     }
 
     /** @internal */
-    function drawFooter(): void {
+    public function drawFooter(): void {
         echo
             '</table>',
             '</form><a href="#" id="',$this->name,'_bottom"></a>';
     }
 
     /** @internal */
-    function drawCaptions(): void {
+    public function drawCaptions(): void {
         echo
             '<thead><tr>',
             '<th class="', $this->style, '-header">&nbsp;</th>';
@@ -798,7 +806,7 @@ class MySQLGrid {
         echo "</tr></thead>";
     }
 
-    function drawData(): void {
+    private function drawData(): void {
         echo '<tbody>';
         $this->row = 0;
         while (($data = $this->fetchResultRow()) !== false) {
@@ -953,9 +961,10 @@ class MySQLGrid {
     }
 
     /**
+     * @internal
      * @param array<int, mixed>|false $data
      */
-    function drawEditControls(array|false $data = false): void {
+    public function drawEditControls(array|false $data = false): void {
         $rowClass = $this->style . '-cell--' . (($this->row % 2) ? 'odd' : 'even');
         switch ($this->mode) {
             case PHPMYSQLGRID_EDITMODE:
@@ -1205,7 +1214,7 @@ class MySQLGrid {
     }
 
     /** @internal */
-    function drawNavigation(): void {
+    public function drawNavigation(): void {
         echo
             '<tfoot><tr>',
             '<td align="right" class="', $this->style, '-action">';
@@ -1297,7 +1306,7 @@ class MySQLGrid {
     }
 
     /** @internal */
-    function validateColumns(): void {
+    public function validateColumns(): void {
         for ($i = 0; $i < count($this->columns); $i++) {
             if (!isset($this->columns[$i]['type']))
                 $this->columns[$i]['type'] = PHPMYSQLGRID_TEXT;
@@ -1309,14 +1318,14 @@ class MySQLGrid {
     }
 
     /** @internal */
-    function validateActions(): void {
+    public function validateActions(): void {
         for ($i = 0; $i < count($this->actions); $i++) {
             if (!isset($this->actions[$i]["type"]))
                 $this->actions[$i]["type"] = PHPMYSQLGRID_TEXTBUTTON;
         }
     }
 
-    function execute(): void {
+    public function execute(): void {
         // Prepare some variables
         $this->prepareQueryVars();
 
@@ -1363,7 +1372,8 @@ class MySQLGrid {
         $this->disconnect();
     }
 
-    function convertToHtmlEntities(mixed $data): string {
+    /** @internal */
+    public function convertToHtmlEntities(mixed $data): string {
         return htmlentities($data ?? "", ENT_COMPAT, $this->charset);
     }
 }

@@ -6,7 +6,7 @@
 - [x] Require PHP >= 8.2
 - [x] Add Composer lint workflow (syntax/style/static) with PHPStan level 8
 - [x] Add README, CHANGELOG, and TODO documentation
-- [ ] update visibility of methods and properties (currently all public, but some should be private/protected)
+- [x] update visibility of methods and properties (currently all public, but some should be private/protected)
 - [ ] Add demo page
   - [x] Add demo page with a simple table with lookup table
   - [x] Add reset functionality to demo page to recreate schema and seed data
@@ -27,6 +27,7 @@
   - [x] add execute()-path integration tests for confirm add/edit/delete request handling via injected PDO connection
   - [x] add security tests for SQL injection and XSS vulnerabilities
   - [x] update github copilot instructions with specialized instruction files (.github/instructions/)
+  - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific subclassing)
   - [ ] More tests / check if this is already tested:
     - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
     - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
