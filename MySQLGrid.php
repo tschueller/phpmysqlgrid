@@ -32,6 +32,87 @@ define("PHPMYSQLGRID_IMAGEBUTTON", 1);
 
 define("PHPMYSQLGRID_PWDUMMY", "********");
 
+/**
+ * Renders a configurable database grid with built-in CRUD, filtering, sorting, and pagination.
+ *
+ * The class is designed as a reusable widget for PHP applications that need quick table-based
+ * data management. It can connect using internal connection settings or an injected PDO instance,
+ * supports multiple field types (text, lookup, selection, password, multiline text, file, boolean),
+ * and provides lifecycle hooks for custom add/edit/delete behavior.
+ *
+ * Output generation is handled by execute(), which orchestrates request processing, data loading,
+ * and HTML rendering (header, captions, rows, edit/add controls, and navigation footer).
+ *
+ * Public configuration is intentionally exposed via dynamic properties for backwards compatibility.
+ *
+ * @property string $hostname Database host used for internal connection creation. Default: "localhost".
+ * @property int $port Database port used for internal connection creation. Default: 3128.
+ * @property string $username Database user used for internal connection creation.
+ * @property string $password Database password used for internal connection creation.
+ * @property string $database Database name used for internal connection creation.
+ * @property string $table Database table name rendered by the grid.
+ *
+ * @property string|array<int, string> $primary Primary key column name or list for composite keys.
+ * @property string $style CSS class prefix used for generated markup. Default: "phpmysqlgrid".
+ * @property string $cssClass Additional custom CSS class appended to the table.
+ * @property array<int, array<string, mixed>> $columns Grid column configuration.
+ * @property array<int, array<string, mixed>> $actions Extra row action button definitions.
+ * @property int $limit Rows shown per page. Default: 10.
+ * @property string $name Grid instance name used for generated query/session keys. Default: "phpmysqlgrid".
+ *
+ * @property bool $can_add Enables add-row mode and controls. Default: true.
+ * @property bool $can_delete Enables delete controls. Default: true.
+ * @property bool $can_edit Enables edit controls. Default: true.
+ * @property bool $can_sort Enables sortable captions. Default: true.
+ * @property bool $can_navigate Enables footer pagination. Default: true.
+ * @property bool $can_filter Enables per-column filter inputs. Default: true.
+ *
+ * @property string $filter Optional raw SQL filter fragment for advanced filtering. Default: "".
+ * @property int $filter_size Default filter input size. Default: 8.
+ * @property int $default_sort_column Zero-based default sort column. Default: 0.
+ * @property int $default_sort_direction Default sort direction (0 asc, 1 desc). Default: 0.
+ * @property array<string, mixed> $add_values Additional values always inserted during add.
+ * @property array<int, array<string, mixed>> $lookups Lookup definitions used by columns.
+ * @property string $charset Charset used by HTML entity escaping. Default: "UTF-8".
+ *
+ * @property callable|false $delete_before Hook called before delete. Default: false.
+ * @property callable|false $delete_after Hook called after delete. Default: false.
+ * @property callable|false $add_before Hook called before add. Default: false.
+ * @property callable|false $add_after Hook called after add. Default: false.
+ * @property callable|false $edit_before Hook called before edit. Default: false.
+ * @property callable|false $edit_after Hook called after edit. Default: false.
+ *
+ * @property string $txtPrevious Label for previous-page navigation. Default: "Previous Page".
+ * @property string $txtNext Label for next-page navigation. Default: "Next Page".
+ * @property string $txtDelete Label for delete action. Default: "Delete Entry".
+ * @property string $txtAdd Label for add action. Default: "Add Entry".
+ * @property string $txtEdit Label for edit action. Default: "Edit Entry".
+ * @property string $txtConfirm Label for confirm action. Default: "Confirm Changes".
+ * @property string $txtCancel Label for cancel action. Default: "Cancel Changes".
+ * @property string $txtYes Label for boolean yes values. Default: "Yes".
+ * @property string $txtNo Label for boolean no values. Default: "No".
+ * @property string $txtFileTrue Label for present file values. Default: "File present".
+ * @property string $txtFileFalse Label for missing file values. Default: "No file present".
+ * @property string $txtFile Label for file upload control. Default: "File".
+ * @property string $txtURL Label for URL file source control. Default: "URL".
+ * @property string $txtPaginationLabel ARIA label for pagination navigation. Default: "Pagination".
+ * @property string $txtSortAsc ARIA/title label for ascending sort control. Default: "Sort ascending".
+ * @property string $txtSortDesc ARIA/title label for descending sort control. Default: "Sort descending".
+ *
+ * @property string $svgIconEdit Inline SVG markup for edit action icon.
+ * @property string $svgIconDelete Inline SVG markup for delete action icon.
+ * @property string $svgIconConfirm Inline SVG markup for confirm action icon.
+ * @property string $svgIconCancel Inline SVG markup for cancel action icon.
+ * @property string $svgIconAdd Inline SVG markup for add action icon.
+ * @property string $svgSortAscActive Inline SVG markup for active ascending sort icon.
+ * @property string $svgSortAscInactive Inline SVG markup for inactive ascending sort icon.
+ * @property string $svgSortDescActive Inline SVG markup for active descending sort icon.
+ * @property string $svgSortDescInactive Inline SVG markup for inactive descending sort icon.
+ * @property string $svgNavPrev Inline SVG markup for previous-page icon.
+ * @property string $svgNavNext Inline SVG markup for next-page icon.
+ * @property string $svgBoolTrue Inline SVG markup for true boolean cell icon.
+ * @property string $svgBoolFalse Inline SVG markup for false boolean cell icon.
+ */
 #[AllowDynamicProperties]
 class MySQLGrid {
 
@@ -39,22 +120,26 @@ class MySQLGrid {
     private \PDO | null $db = null;
     private \PDO | null $db_connection = null;
     private string $db_driver = "pdo_mysql";
+    /** @internal @ignore */
+    public int $mode = PHPMYSQLGRID_VIEWMODE;
 
+    /**
+     * Creates a grid instance with default configuration values.
+     */
     public function __construct() {
         $this->hostname = "localhost";
         $this->port = 3128;
         $this->username = "root";
         $this->password = "";
-        $this->database = "mysql";
-        $this->table = "user";
-        $this->primary = array("host", "user");
+        $this->database = "";
+        $this->table = "";
+        $this->primary = "";
         $this->style = "phpmysqlgrid";
         $this->cssClass = "";
         $this->columns = array();
         $this->actions = array();
         $this->limit = 10;
         $this->name = "phpmysqlgrid";
-        $this->mode = PHPMYSQLGRID_VIEWMODE;
         $this->can_add = true;
         $this->can_delete = true;
         $this->can_edit = true;
@@ -85,6 +170,11 @@ class MySQLGrid {
         self::__construct();
     }
 
+    /**
+     * Injects an existing database connection.
+     *
+     * Supported drivers are pdo, pdo_mysql, and pdo_sqlite.
+     */
     public function setDatabaseConnection(mixed $connection, string $driver = "pdo_mysql"): void {
         $allowedDrivers = array("pdo", "pdo_mysql", "pdo_sqlite");
         if (!in_array($driver, $allowedDrivers, true)) {
@@ -132,6 +222,14 @@ class MySQLGrid {
         }
     }
 
+    private function getPrimaryColumnForSingleColumnContext(): string {
+        if (is_array($this->primary)) {
+            return isset($this->primary[0]) ? (string)$this->primary[0] : "";
+        }
+
+        return (string)$this->primary;
+    }
+
     /**
      * @return array<int, mixed>|false
      */
@@ -165,7 +263,7 @@ class MySQLGrid {
                 $counter, "l$counter",
                 $this->lookups[$i]["lookup_primary"],
                 $this->table,
-                $this->primary
+                $this->getPrimaryColumnForSingleColumnContext()
             );
             $counter++;
         }
@@ -232,7 +330,7 @@ class MySQLGrid {
         $this->rows = $count !== false ? $count : 0;
 
         if ($this->rows <= (($this->page - 1) * $this->limit)) {
-            $this->page = (int)ceil($this->rows / $this->limit);
+            $this->page = (int)ceil((int)$this->rows / $this->limit);
             $_SESSION["phpMySQLGrid_" . $this->name]["page"] = $this->page;
         }
 
@@ -308,7 +406,10 @@ class MySQLGrid {
         return '<span class="' . $class . '" aria-hidden="true">' . $content . '</span>';
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function connect(): void {
         if ($this->db_is_injected) {
             $this->db = $this->db_connection;
@@ -329,7 +430,10 @@ class MySQLGrid {
         ]);
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function disconnect(): void {
         if ($this->db_is_injected) {
             return;
@@ -338,6 +442,9 @@ class MySQLGrid {
         $this->db = null;
     }
 
+    /**
+     * Auto-populates grid columns from the configured table metadata.
+     */
     public function useAllColumns(): void {
         $this->columns = array();
 
@@ -361,7 +468,10 @@ class MySQLGrid {
         }
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function countPrimaries(): int {
         if (is_array($this->primary))
             return count($this->primary);
@@ -369,19 +479,28 @@ class MySQLGrid {
             return 1;
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function prepareData(): void {
         $this->prepareDataWithPdo();
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function unprepareData(): void {
         if ($this->result instanceof \PDOStatement) {
             $this->result->closeCursor();
         }
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function prepareQueryVars(): void {
         $this->cmdSetPage = $this->name . "_setpage";
         $this->cmdSetSort = $this->name . "_setsort";
@@ -531,7 +650,7 @@ class MySQLGrid {
         $query = sprintf(
             "DELETE FROM %s where %s=:id",
             $this->table,
-            $this->primary
+            $this->getPrimaryColumnForSingleColumnContext()
         );
 
         $this->executePdoStatement($query, array(":id" => $id));
@@ -603,13 +722,16 @@ class MySQLGrid {
             "UPDATE %s SET %s WHERE %s=:id",
             $this->table,
             join(",", $updates),
-            $this->primary
+            $this->getPrimaryColumnForSingleColumnContext()
         );
 
         $this->executePdoStatement($query, $params);
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function addData(mixed $data): void {
         if (!$this->can_add) return;
 
@@ -620,7 +742,10 @@ class MySQLGrid {
         $this->addDataWithPdo($data);
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function deleteData(mixed $id): void {
         if (!$this->can_delete) return;
 
@@ -634,7 +759,10 @@ class MySQLGrid {
         if (is_callable($hook)) $hook($this, $id);
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function editData(mixed $id, mixed $data): void {
         if (!$this->can_edit) return;
 
@@ -731,7 +859,10 @@ class MySQLGrid {
         }
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function drawHeader(): void {
         // Check if a file upload is present in this grid. This is
         // important to switch to multipart/form-data encoding.
@@ -749,14 +880,20 @@ class MySQLGrid {
             '<table class="', $this->style, ' ' , $this->cssClass ,'" border="0" cellspacing="1">';
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function drawFooter(): void {
         echo
             '</table>',
             '</form><a href="#" id="',$this->name,'_bottom"></a>';
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function drawCaptions(): void {
         echo
             '<thead><tr>',
@@ -961,8 +1098,9 @@ class MySQLGrid {
     }
 
     /**
-     * @internal
      * @param array<int, mixed>|false $data
+     * @internal
+     * @ignore
      */
     public function drawEditControls(array|false $data = false): void {
         $rowClass = $this->style . '-cell--' . (($this->row % 2) ? 'odd' : 'even');
@@ -1213,7 +1351,10 @@ class MySQLGrid {
             '</tr>';
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function drawNavigation(): void {
         echo
             '<tfoot><tr>',
@@ -1231,7 +1372,7 @@ class MySQLGrid {
 
         echo '<td class="', $this->style, '-navigation" colspan="', count($this->columns), '">';
         if ($this->can_navigate) {
-            $pages = ceil($this->rows / $this->limit);
+            $pages = ceil((int)$this->rows / $this->limit);
             echo '<nav class="phpmysqlgrid-pagination" aria-label="', $this->convertToHtmlEntities($this->txtPaginationLabel), '">';
 
             // Prev button
@@ -1305,7 +1446,10 @@ class MySQLGrid {
             '</tr></tfoot>';
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function validateColumns(): void {
         for ($i = 0; $i < count($this->columns); $i++) {
             if (!isset($this->columns[$i]['type']))
@@ -1317,7 +1461,10 @@ class MySQLGrid {
         }
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function validateActions(): void {
         for ($i = 0; $i < count($this->actions); $i++) {
             if (!isset($this->actions[$i]["type"]))
@@ -1325,6 +1472,9 @@ class MySQLGrid {
         }
     }
 
+    /**
+     * Executes one full grid request lifecycle and renders the grid HTML.
+     */
     public function execute(): void {
         // Prepare some variables
         $this->prepareQueryVars();
@@ -1372,7 +1522,10 @@ class MySQLGrid {
         $this->disconnect();
     }
 
-    /** @internal */
+    /**
+     * @internal
+     * @ignore
+     */
     public function convertToHtmlEntities(mixed $data): string {
         return htmlentities($data ?? "", ENT_COMPAT, $this->charset);
     }

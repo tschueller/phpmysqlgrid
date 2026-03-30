@@ -73,6 +73,29 @@ The `MySQLGrid` class uses `#[AllowDynamicProperties]` (line 48) for PHP 8.2+ co
 - Do not add properties that could be made static to the dynamic pool—be intentional.
 - When adding a dynamic property in normal code paths (not tests), document it in a command-style doc block if it affects public behavior.
 
+## Class-Level API Documentation (Required)
+
+For `MySQLGrid`, keep a class-level doc block that explains the class as an API entry point.
+
+Required content:
+
+- A short purpose summary (what the class does).
+- A compact capability overview (rendering, CRUD, filtering, sorting, pagination, hooks).
+- A short note about runtime model (internal connection vs injected PDO, execute lifecycle).
+
+Keep this section concise but informative so IDE hover and generated API docs provide useful context without reading implementation details.
+
+## `@property` Documentation for Dynamic Public Configuration (Required)
+
+Because public runtime configuration is exposed via dynamic properties, keep `@property` annotations in the class doc block up to date.
+
+Rules:
+
+- Document relevant public dynamic properties with type and purpose.
+- Include default values when they are set by constructor or initialization methods and relevant for users.
+- Keep defaults accurate when constructor/internationalize defaults change.
+- Mark test-only public internals with `@internal` and `@ignore` on methods; do not expose them as public API properties.
+
 ## @internal Marker for Internal Implementation Methods
 
 Methods that must be `public` for unit-testability (because PHPUnit needs reflection access) but are not part of the public API should be marked `/** @internal */`:

@@ -29,6 +29,13 @@ All notable changes to this project are documented in this file.
 - Add Composer script `demo:start` to run the local demo server.
 
 ### Changed
+- Expand `MySQLGrid` class-level PHPDoc with a clearer API overview and comprehensive `@property` documentation for dynamic public configuration.
+- Document relevant default values for public dynamic properties and internationalized text labels in class PHPDoc.
+- Mark public test-only internals with `@internal` + `@ignore` to keep generated public API docs focused on supported surface.
+- Move class PHPDoc placement so IDE hover/help reliably resolves `@property` metadata.
+- Add `getPrimaryColumnForSingleColumnContext()` helper and narrow single-column SQL identifier usage for clearer static analysis typing.
+- Add a new README section describing the `MySQLGrid` class responsibilities and `execute()` lifecycle at a glance.
+- Update PHP core instruction rules to require class-level API overview docs and `@property` defaults for dynamic public configuration.
 - Replace Unicode character glyphs and FontAwesome icon-font controls with inline SVG icons using `fill="currentColor"` — icon colors continue to be driven by CSS custom properties (`--phpmysqlgrid-icon-edit`, `--phpmysqlgrid-icon-delete`, `--phpmysqlgrid-icon-confirm`).
 - Remove `$use_icon_font` property and all FontAwesome markup generation (breaking change: the property is no longer recognised).
 - Update `gridstyle.css`: rename `.phpmysqlgrid-unicode-icon` selector family to `.phpmysqlgrid-icon`; add SVG sizing rules; remove `.fa-*` icon-font color selectors.

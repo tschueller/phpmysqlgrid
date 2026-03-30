@@ -129,8 +129,8 @@ final class MySQLGridUnitTest extends TestCase {
         $this->assertSame(3128, $grid->port);
         $this->assertSame("root", $grid->username);
         $this->assertSame("", $grid->password);
-        $this->assertSame("mysql", $grid->database);
-        $this->assertSame("user", $grid->table);
+        $this->assertSame("", $grid->database);
+        $this->assertSame("", $grid->table);
 
         $this->assertTrue($grid->can_add);
         $this->assertTrue($grid->can_edit);

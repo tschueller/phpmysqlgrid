@@ -39,7 +39,7 @@
   - [x] Parameterize active filter values in PDO prepareData queries (count + data select)
   - [x] Review remaining read/filter SQL construction and add raw SQL fragment guard for `filter`/`lookup_filter` dangerous tokens
 - [ ] Documentation
-  - [ ] Document public properties and methods with doc blocks
+  - [x] Document public properties and methods with doc blocks (ignore internal methods which are only public for testing purposes, but should not be part of the public API (@ignore))
   - [ ] Documentation in readme for grid configuration, styling, etc
   - [ ] Add Screenshots to README
 - [ ] Improve styling / default theme
