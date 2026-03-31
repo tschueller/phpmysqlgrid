@@ -4,6 +4,8 @@ A flexible MySQL data grid library for PHP.
 
 phpMySQLGrid provides a reusable class to display and manage MySQL table data in a grid with filtering, sorting, pagination, and CRUD actions.
 
+![Example Grid](docs/images/grid1.png)
+
 ## Features
 
 - Table rendering with customizable columns

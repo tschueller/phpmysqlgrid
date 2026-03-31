@@ -1,4 +1,5 @@
 parameters:
+    phpVersion: 80400 # PHP 8.4
     level: 8
     paths:
         - MySQLGrid.php

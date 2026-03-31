@@ -32,10 +32,10 @@
   - [x] add security tests for SQL injection and XSS vulnerabilities
   - [x] update github copilot instructions with specialized instruction files (.github/instructions/)
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific subclassing)
-  - [ ] More tests / check if this is already tested:
-    - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
-    - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
-    - [ ] test filter/sort/pagination behavior
+  - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
+  - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
+  - [ ] test filter/sort/pagination behavior
+  - [ ] test file upload handling and security
 - [x] Change license to MIT
 - [x] Check for security issues (SQL injection, XSS) and add mitigations if needed
   - [x] Harden mysqli write/query paths by replacing raw addslashes/id interpolation with connection-aware escaping helper
@@ -45,7 +45,7 @@
   - [ ] check security from fileupload
 - [ ] Documentation
   - [x] Document public properties and methods with doc blocks (ignore internal methods which are only public for testing purposes, but should not be part of the public API (@ignore))
-  - [ ] Documentation in readme for grid configuration, styling, columns types, etc.
+  - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
   - [ ] Add Screenshots to README
 - [ ] Improve styling / default theme
   - [x] Replace Unicode and icon-font controls with inline SVG icons (`svgIcon*` / `svgSort*` properties, Bootstrap Icons MIT)
@@ -62,6 +62,7 @@
   - [x] Add PHPUnit config and first automated test suite
   - [ ] Add release checklist document for tags and publishing
   - [ ] Add README badges (CI, license, latest release)
+  - [ ] update phpstan to v2
 
 ## Publish
 - [ ] move repository to Github
@@ -71,6 +72,7 @@
   - [ ] add the first the old v0.5.11 version to the new repository and then add the v0.6 changes on top of it, so that the
   - [ ] tag versions
 - Publish to [packagist.org/](https://packagist.org/)
+
 
 ## Refactoring for v0.6
 - [x] Make DB connection injectable in `MySQLGrid` (prerequisite for proper integration testing)
@@ -86,9 +88,9 @@
   - Breaking change: Existing consumers using `$grid->hostname` etc. are unaffected as long as the default behavior (auto-connect via mysqli) is preserved.
   - Acceptance criteria: Integration tests exercise real `MySQLGrid` DB methods directly with injected PDO connections. (done)
 
+
 ## Tooling / Quality
-- [ ] Raise PHPStan to level 9 (Reason: stricter type checks for mixed data paths in MySQLGrid.php)
-- [ ] Evaluate PHPStan level 10
+- [ ] Raise PHPStan to level 9 or 10 (Reason: stricter type checks for mixed data paths in MySQLGrid.php)
 - [ ] Investigate PSR coding standards
   - [ ] Define target style profile (PSR-12 baseline + project-specific exceptions)
   - [ ] Decide and document array syntax policy (`array(...)` vs `[]`) for new code
