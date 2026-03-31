@@ -60,7 +60,7 @@ $grid->columns = array(
         ),
         "default" => "user",
         "can_sort" => true,
-        "can_filter" => true,
+        "can_filter" => false,
         "width" => 140
     ),
     array(
@@ -110,103 +110,15 @@ $grid->columns = array(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySQLGrid SQLite Demo</title>
+    <title>First Demo - User Grid</title>
     <link rel="stylesheet" href="../gridstyle.css">
-    <style>
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            margin: 24px;
-            background: #f4f6f8;
-            color: #1b2733;
-        }
-
-        .demo-shell {
-            max-width: 1280px;
-            margin: 0 auto;
-            background: #ffffff;
-            border: 1px solid #d7dee6;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 8px 20px rgba(13, 38, 59, 0.08);
-        }
-
-        .demo-header {
-            margin-bottom: 16px;
-        }
-
-        .demo-header h1 {
-            margin: 0 0 8px;
-            font-size: 24px;
-        }
-
-        .demo-header p {
-            margin: 0;
-            line-height: 1.45;
-        }
-
-        .demo-note {
-            margin-top: 12px;
-            padding: 10px 12px;
-            border-radius: 6px;
-            background: #edf4ff;
-            border: 1px solid #c6daf7;
-            font-size: 14px;
-        }
-
-        .demo-actions {
-            margin-top: 12px;
-        }
-
-        .demo-actions a {
-            display: inline-block;
-            text-decoration: none;
-            color: #0f4d8a;
-            background: #e6f0fb;
-            border: 1px solid #b7d1ef;
-            border-radius: 6px;
-            padding: 7px 12px;
-            font-size: 14px;
-        }
-
-        .demo-actions a:hover {
-            background: #d8e9fb;
-        }
-
-        .demo-steps {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .demo-steps a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            text-decoration: none;
-            color: #0f4d8a;
-            background: #e6f0fb;
-            border: 1px solid #b7d1ef;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-
-        .demo-steps a:hover {
-            background: #d8e9fb;
-        }
-
-        .demo-steps a.is-active {
-            background: #0f4d8a;
-            color: #ffffff;
-            border-color: #0f4d8a;
-            font-weight: 600;
-        }
-    </style>
+    <link rel="stylesheet" href="/demo/demo.css">
 </head>
 <body>
 <div class="demo-shell">
     <div class="demo-header">
-        <h1>MySQLGrid Manual Demo (SQLite Persistent)</h1>
+        <h1>First Demo</h1>
+        <div class="subtitle">Simple User Grid</div>
         <p>
             This page uses a persistent SQLite demo database and renders a user grid for manual testing.
             You can test add, edit, delete, filter, and sorting behavior with predefined sample rows.
@@ -215,10 +127,11 @@ $grid->columns = array(
             Data is kept between page loads. Use reset when you want the original seed data again.
         </div>
         <div class="demo-actions">
-            <a href="index.php?reset=1">Reset demo data</a>
+            <a href="index.php?reset=1" class="reset">🔄 Reset demo data</a>
+            <a href="index2.php">→ Second Demo (Products)</a>
         </div>
         <div class="demo-steps">
-            Rows per page:
+            <span>Rows per page:</span>
             <?php
             $baseParams = array_filter($_GET, static fn($k) => $k !== "limit" && $k !== "reset", ARRAY_FILTER_USE_KEY);
             for ($s = 1; $s <= 10; $s++):
@@ -231,7 +144,13 @@ $grid->columns = array(
         </div>
     </div>
 
-    <?php $grid->execute(); ?>
+    <div class="grid-section">
+        <?php $grid->execute(); ?>
+    </div>
+
+    <div class="navigation">
+        <a href="index2.php">Second Demo (Products) →</a>
+    </div>
 </div>
 </body>
 </html>

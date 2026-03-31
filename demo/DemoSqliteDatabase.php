@@ -48,6 +48,29 @@ final class DemoSqliteDatabase {
                 FOREIGN KEY (department_name) REFERENCES departments(name)
             )"
         );
+
+        $pdo->exec(
+            "CREATE TABLE categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE
+            )"
+        );
+
+        $pdo->exec(
+            "CREATE TABLE products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL DEFAULT '',
+                category_id INTEGER NOT NULL,
+                price REAL NOT NULL DEFAULT 0.00,
+                quantity_in_stock INTEGER NOT NULL DEFAULT 0,
+                description TEXT DEFAULT '',
+                is_featured INTEGER NOT NULL DEFAULT 0,
+                status TEXT NOT NULL DEFAULT 'active',
+                released_date TEXT DEFAULT NULL,
+                thumbnail BLOB DEFAULT NULL,
+                FOREIGN KEY (category_id) REFERENCES categories(id)
+            )"
+        );
     }
 
     private static function seedData(PDO $pdo): void {
@@ -157,6 +180,126 @@ final class DemoSqliteDatabase {
 
         foreach ($rows as $row) {
             $userStatement->execute($row);
+        }
+
+        // Seed categories
+        $categoryStatement = $pdo->prepare("INSERT INTO categories (name) VALUES (:name)");
+        $categories = array("Electronics", "Software", "Books", "Office Supplies", "Services");
+        foreach ($categories as $category) {
+            $categoryStatement->execute(array("name" => $category));
+        }
+
+        // Seed products
+        $productStatement = $pdo->prepare(
+            "INSERT INTO products (name, category_id, price, quantity_in_stock, description, is_featured, status, released_date)
+             VALUES (:name, :category_id, :price, :quantity_in_stock, :description, :is_featured, :status, :released_date)"
+        );
+
+        $products = array(
+            array(
+                "name" => "Premium Wireless Headphones",
+                "category_id" => 1,
+                "price" => 129.99,
+                "quantity_in_stock" => 45,
+                "description" => "High-quality wireless headphones with noise cancellation.\nBattery life: 30 hours\nBluetooth 5.0",
+                "is_featured" => 1,
+                "status" => "active",
+                "released_date" => "2024-01-15"
+            ),
+            array(
+                "name" => "USB-C Hub Multi-Port",
+                "category_id" => 1,
+                "price" => 49.99,
+                "quantity_in_stock" => 120,
+                "description" => "7-in-1 USB-C hub with HDMI, USB 3.0, and SD card reader\nSupports up to 100W power delivery",
+                "is_featured" => 1,
+                "status" => "active",
+                "released_date" => "2023-08-22"
+            ),
+            array(
+                "name" => "Cloud Sync Professional",
+                "category_id" => 2,
+                "price" => 299.00,
+                "quantity_in_stock" => 0,
+                "description" => "Enterprise-grade file synchronization software\nUnlimited file versions, 24/7 support, API access",
+                "is_featured" => 0,
+                "status" => "discontinued",
+                "released_date" => "2022-06-10"
+            ),
+            array(
+                "name" => "Advanced Networking eBook",
+                "category_id" => 3,
+                "price" => 39.99,
+                "quantity_in_stock" => 1000,
+                "description" => "Comprehensive guide to modern networking protocols\n750+ pages, includes labs and examples",
+                "is_featured" => 0,
+                "status" => "active",
+                "released_date" => "2023-03-05"
+            ),
+            array(
+                "name" => "Ergonomic Mechanical Keyboard",
+                "category_id" => 1,
+                "price" => 189.99,
+                "quantity_in_stock" => 32,
+                "description" => "Premium mechanical keyboard with RGB backlighting\nCustomizable switches, hot-swappable",
+                "is_featured" => 1,
+                "status" => "active",
+                "released_date" => "2024-02-28"
+            ),
+            array(
+                "name" => "4K Monitor 32 Inch",
+                "category_id" => 1,
+                "price" => 599.99,
+                "quantity_in_stock" => 8,
+                "description" => "Ultra-HD 4K IPS display\n99% Adobe RGB, support for USB-C input and daisy-chaining",
+                "is_featured" => 0,
+                "status" => "active",
+                "released_date" => "2023-11-12"
+            ),
+            array(
+                "name" => "Database Design Fundamentals",
+                "category_id" => 3,
+                "price" => 45.00,
+                "quantity_in_stock" => 500,
+                "description" => "Learn database design, normalization, and best practices.\nIncludes SQL and NoSQL examples",
+                "is_featured" => 0,
+                "status" => "active",
+                "released_date" => "2024-03-01"
+            ),
+            array(
+                "name" => "Desk Organizer Set",
+                "category_id" => 4,
+                "price" => 24.99,
+                "quantity_in_stock" => 250,
+                "description" => "3-piece desk organizer with drawers and file holder\nMade from sustainable bamboo",
+                "is_featured" => 0,
+                "status" => "active",
+                "released_date" => "2024-01-09"
+            ),
+            array(
+                "name" => "Website Redesign Service",
+                "category_id" => 5,
+                "price" => 2500.00,
+                "quantity_in_stock" => 1,
+                "description" => "Complete website redesign including UX/UI consulting\nProject-based engagement, 4-6 weeks delivery",
+                "is_featured" => 0,
+                "status" => "active",
+                "released_date" => "2023-12-15"
+            ),
+            array(
+                "name" => "Portable SSD 2TB",
+                "category_id" => 1,
+                "price" => 249.99,
+                "quantity_in_stock" => 18,
+                "description" => "Ultra-fast external SSD with USB 3.2\nRead speeds: 1050 MB/s, write speeds: 1000 MB/s",
+                "is_featured" => 1,
+                "status" => "active",
+                "released_date" => "2024-02-14"
+            )
+        );
+
+        foreach ($products as $product) {
+            $productStatement->execute($product);
         }
     }
 }

@@ -22,6 +22,14 @@ if ($path === "/" || $path === "/index.php" || $path === "/demo" || $path === "/
     return true;
 }
 
+if (
+    $path === "/index2.php" ||
+    $path === "/demo/index2.php"
+) {
+    require __DIR__ . "/index2.php";
+    return true;
+}
+
 http_response_code(404);
 echo "Not Found";
 return true;

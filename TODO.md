@@ -11,7 +11,11 @@
   - [x] Add demo page with a simple table with lookup table
   - [x] Add reset functionality to demo page to recreate schema and seed data
   - [x] add rows/page selector to demo page
-  - [ ] Add more complex demo page with more column types (fileupload, select, ...) and features (only for internal testing/demo purposes, not necessarily for public documentation)
+  - [x] Add more complex demo page with more column types (fileupload, select, ...) and features (only for internal testing/demo purposes, not necessarily for public documentation)
+  - [x] Add more convert_input/convert_output column type examples (e.g. date, datetime, numeric)
+  - [x] restyle demo pages for better modern look
+  - [ ] add custom themeing example to demo page
+  - [ ] fix styling for tables with only a few columns
 - [ ] Add unit tests
   - [x] add first simple tests
   - [x] add tests for all non-DB methods in MySQLGrid.php
@@ -38,9 +42,10 @@
   - [x] Replace mysqli string-built SQL in add/edit/delete write paths with prepared statements
   - [x] Parameterize active filter values in PDO prepareData queries (count + data select)
   - [x] Review remaining read/filter SQL construction and add raw SQL fragment guard for `filter`/`lookup_filter` dangerous tokens
+  - [ ] check security from fileupload
 - [ ] Documentation
   - [x] Document public properties and methods with doc blocks (ignore internal methods which are only public for testing purposes, but should not be part of the public API (@ignore))
-  - [ ] Documentation in readme for grid configuration, styling, etc
+  - [ ] Documentation in readme for grid configuration, styling, columns types, etc.
   - [ ] Add Screenshots to README
 - [ ] Improve styling / default theme
   - [x] Replace Unicode and icon-font controls with inline SVG icons (`svgIcon*` / `svgSort*` properties, Bootstrap Icons MIT)
