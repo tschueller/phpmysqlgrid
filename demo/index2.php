@@ -6,6 +6,8 @@ require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/DemoSqliteDatabase.php";
 require_once __DIR__ . "/DemoAsset.php";
 
+use PhpMySQLGrid\MySQLGrid;
+
 session_start();
 
 $databaseFilePath = __DIR__ . "/demo.sqlite";
@@ -13,7 +15,7 @@ $resetDatabase = isset($_GET["reset"]) && $_GET["reset"] === "1";
 
 $pdo = \DemoSqliteDatabase::createConnection($databaseFilePath, $resetDatabase);
 
-$grid = new \MySQLGrid();
+$grid = new MySQLGrid();
 $grid->setDatabaseConnection($pdo, "pdo_sqlite");
 $grid->table = "products";
 $grid->primary = "id";
@@ -66,7 +68,7 @@ $grid->columns = array(
         "can_sort" => true,
         "can_filter" => false,
         "width" => 140,
-        "convert_input" => function (\MySQLGrid $grid, mixed $value, int $colIndex): string {
+        "convert_input" => function (MySQLGrid $grid, mixed $value, int $colIndex): string {
             if (empty($value)) {
                 return "";
             }
@@ -82,7 +84,7 @@ $grid->columns = array(
 
             return date_format($parsedDate, "Y-m-d");
         },
-        "convert_output" => function (\MySQLGrid $grid, mixed $value, int $colIndex, mixed $row, bool $isEditMode): string {
+        "convert_output" => function (MySQLGrid $grid, mixed $value, int $colIndex, mixed $row, bool $isEditMode): string {
             if (!$value) {
                 return $isEditMode ? "" : '<span class="demo-muted">-</span>';
             }
@@ -107,7 +109,7 @@ $grid->columns = array(
         "can_sort" => false,
         "can_filter" => false,
         "width" => 180,
-        "convert_output" => function (\MySQLGrid $grid, mixed $value, int $colIndex, mixed $row, bool $isEditMode): string {
+        "convert_output" => function (MySQLGrid $grid, mixed $value, int $colIndex, mixed $row, bool $isEditMode): string {
             if (!$isEditMode) {
                 if (!$value) {
                     return '<span class="demo-muted-small">No image</span>';

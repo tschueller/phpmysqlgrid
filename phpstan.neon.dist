@@ -4,4 +4,4 @@ parameters:
     paths:
         - src/MySQLGrid.php
     universalObjectCratesClasses:
-        - MySQLGrid
+        - PhpMySQLGrid\MySQLGrid

@@ -67,11 +67,21 @@ Rules:
 
 ## Dynamic Properties
 
-The `MySQLGrid` class uses `#[AllowDynamicProperties]` (line 48) for PHP 8.2+ compatibility. This is intentional and expected due to the library's age and backward compatibility needs.
+The `MySQLGrid` class is namespaced as `PhpMySQLGrid\MySQLGrid` and uses `#[\AllowDynamicProperties]` for PHP 8.2+ compatibility. This is intentional and expected due to the library's age and backward compatibility needs.
 
 - Do not remove or disable this attribute.
 - Do not add properties that could be made static to the dynamic pool—be intentional.
 - When adding a dynamic property in normal code paths (not tests), document it in a command-style doc block if it affects public behavior.
+
+## Namespace and Type Hint Rules
+
+- Classes under `src/` are in namespace `PhpMySQLGrid`.
+- In namespaced files, prefer unqualified internal class references (`MySQLGridAssets`, `MySQLGridAssetPublisher`) over global-prefixed forms.
+- In non-namespaced files (for example demo scripts), prefer explicit imports:
+  - `use PhpMySQLGrid\MySQLGrid;`
+  - `use PhpMySQLGrid\MySQLGridAssets;`
+  - `use PhpMySQLGrid\MySQLGridAssetPublisher;`
+- When type-hinting the grid in callbacks, use `MySQLGrid` (imported) or `PhpMySQLGrid\MySQLGrid`, not `\MySQLGrid`.
 
 ## Class-Level API Documentation (Required)
 

@@ -14,6 +14,8 @@
 // | - Thorsten Schüller <thorsten@schueller.me>                          |
 // +----------------------------------------------------------------------+
 
+namespace PhpMySQLGrid;
+
 define("PHPMYSQLGRID_TEXT", 0);
 define("PHPMYSQLGRID_BOOLEAN", 1);
 define("PHPMYSQLGRID_LOOKUP", 2);
@@ -113,7 +115,7 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  * @property string $svgBoolTrue Inline SVG markup for true boolean cell icon.
  * @property string $svgBoolFalse Inline SVG markup for false boolean cell icon.
  */
-#[AllowDynamicProperties]
+#[\AllowDynamicProperties]
 class MySQLGrid {
 
     private bool $db_is_injected = false;

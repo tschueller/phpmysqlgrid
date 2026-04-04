@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MySQLGridTests;
 
 require_once __DIR__ . "/DatabaseTestCase.php";
-use MySQLGrid;
+use PhpMySQLGrid\MySQLGrid;
 
 /**
  * SQL injection behavior tests via real MySQLGrid methods using injected PDO.

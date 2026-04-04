@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . "/../src/MySQLGridAssets.php";
+use PhpMySQLGrid\MySQLGridAssets;
 
 /**
  * Resolves demo stylesheet and script tags for local development and published-asset simulation.
@@ -18,7 +18,7 @@ final class DemoAsset {
 
         if ($assetMode === "published") {
             $publishedBasePath = getenv("PHPMYSQLGRID_DEMO_ASSET_BASE") ?: "/assets/phpmysqlgrid";
-            return \MySQLGridAssets::cssTag($publishedBasePath, "mysqlgrid.css");
+            return MySQLGridAssets::cssTag($publishedBasePath, "mysqlgrid.css");
         }
 
         $cacheToken = self::fileMTimeToken(__DIR__ . "/../assets/css/mysqlgrid.css");
@@ -35,7 +35,7 @@ final class DemoAsset {
 
         if ($assetMode === "published") {
             $publishedBasePath = getenv("PHPMYSQLGRID_DEMO_ASSET_BASE") ?: "/assets/phpmysqlgrid";
-            return \MySQLGridAssets::jsTag($publishedBasePath, "mysqlgrid.js", null, $defer);
+            return MySQLGridAssets::jsTag($publishedBasePath, "mysqlgrid.js", null, $defer);
         }
 
         $scriptPath = __DIR__ . "/../assets/js/mysqlgrid.js";

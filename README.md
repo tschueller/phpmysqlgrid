@@ -36,6 +36,8 @@ For development in this repository:
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
+use PhpMySQLGrid\MySQLGrid;
+
 session_start();
 
 $grid = new MySQLGrid();
@@ -70,7 +72,7 @@ phpMySQLGrid supports two connection modes:
 Set the connection properties and call `execute()`. The class creates a `PDO` connection internally using `mysql:host=…;port=…;dbname=…;charset=utf8mb4`. This mode is fully backward compatible with existing integrations that set these properties.
 
 ```php
-$grid = new MySQLGrid();
+$grid = new PhpMySQLGrid\MySQLGrid();
 $grid->hostname = "127.0.0.1";
 $grid->username = "root";
 $grid->password = "";
@@ -88,7 +90,7 @@ Use this mode when you already manage your DB connection externally or when you 
 $pdo = new PDO("mysql:host=127.0.0.1;dbname=test_db;charset=utf8mb4", "root", "");
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$grid = new MySQLGrid();
+$grid = new PhpMySQLGrid\MySQLGrid();
 $grid->setDatabaseConnection($pdo, "pdo_mysql");
 $grid->table = "users";
 $grid->primary = "id";
@@ -101,7 +103,7 @@ $grid->execute();
 $pdo = new PDO("sqlite::memory:");
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$grid = new MySQLGrid();
+$grid = new PhpMySQLGrid\MySQLGrid();
 $grid->setDatabaseConnection($pdo, "pdo_sqlite");
 ```
 
@@ -213,6 +215,8 @@ Published assets store their hash once in a manifest during `assets:publish`.
 The helper reads that manifest first, falls back to a direct content hash when no manifest is available, and finally falls back to package version.
 
 ```php
+use PhpMySQLGrid\MySQLGridAssets;
+
 echo MySQLGridAssets::cssTag('/assets/phpmysqlgrid');
 // or:
 $href = MySQLGridAssets::cssUrl('/assets/phpmysqlgrid');
@@ -222,6 +226,8 @@ echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-
 JavaScript assets are supported as well when you add files under `assets/js`:
 
 ```php
+use PhpMySQLGrid\MySQLGridAssets;
+
 echo MySQLGridAssets::jsTag('/assets/phpmysqlgrid');
 // or:
 $src = MySQLGridAssets::jsUrl('/assets/phpmysqlgrid', 'mysqlgrid.js');

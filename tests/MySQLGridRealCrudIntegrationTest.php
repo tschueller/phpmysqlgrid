@@ -6,7 +6,7 @@ namespace MySQLGridTests;
 
 require_once __DIR__ . "/DatabaseTestCase.php";
 
-use MySQLGrid;
+use PhpMySQLGrid\MySQLGrid;
 
 final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
     private MySQLGrid $grid;

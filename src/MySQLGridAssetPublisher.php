@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace PhpMySQLGrid;
+
 /**
  * Publishes package assets into a host project's web-accessible directory.
  */
@@ -20,12 +22,12 @@ final class MySQLGridAssetPublisher {
     public static function publish(string $packageRoot, string $targetPath): array {
         $assetsRoot = rtrim($packageRoot, "\\/") . DIRECTORY_SEPARATOR . "assets";
         if (!is_dir($assetsRoot)) {
-            throw new RuntimeException("Assets directory not found: " . $assetsRoot);
+            throw new \RuntimeException("Assets directory not found: " . $assetsRoot);
         }
 
         $resolvedTargetPath = self::resolveFilesystemTargetPath($targetPath);
         if (!is_dir($resolvedTargetPath) && !mkdir($resolvedTargetPath, 0775, true) && !is_dir($resolvedTargetPath)) {
-            throw new RuntimeException("Unable to create target directory: " . $resolvedTargetPath);
+            throw new \RuntimeException("Unable to create target directory: " . $resolvedTargetPath);
         }
 
         $publishedFiles = array();
@@ -44,7 +46,7 @@ final class MySQLGridAssetPublisher {
                 $fileName = basename($sourceFilePath);
                 $destinationPath = $resolvedTargetPath . DIRECTORY_SEPARATOR . $fileName;
                 if (!copy($sourceFilePath, $destinationPath)) {
-                    throw new RuntimeException("Failed to copy asset file: " . $fileName);
+                    throw new \RuntimeException("Failed to copy asset file: " . $fileName);
                 }
 
                 $fileHash = sha1_file($destinationPath);
@@ -96,7 +98,7 @@ final class MySQLGridAssetPublisher {
     private static function resolveFilesystemTargetPath(string $targetPath): string {
         $trimmedTargetPath = trim($targetPath);
         if ($trimmedTargetPath === "") {
-            throw new InvalidArgumentException("Target path must not be empty.");
+            throw new \InvalidArgumentException("Target path must not be empty.");
         }
 
         if (self::isAbsolutePath($trimmedTargetPath)) {
@@ -105,7 +107,7 @@ final class MySQLGridAssetPublisher {
 
         $currentWorkingDirectory = getcwd();
         if (!is_string($currentWorkingDirectory) || $currentWorkingDirectory === "") {
-            throw new RuntimeException("Unable to resolve current working directory.");
+            throw new \RuntimeException("Unable to resolve current working directory.");
         }
 
         return rtrim($currentWorkingDirectory, "\\/") . DIRECTORY_SEPARATOR . str_replace(array("/", "\\"), DIRECTORY_SEPARATOR, $trimmedTargetPath);
@@ -133,12 +135,12 @@ final class MySQLGridAssetPublisher {
 
         $manifestJson = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         if (!is_string($manifestJson) || $manifestJson === "") {
-            throw new RuntimeException("Failed to encode asset manifest.");
+            throw new \RuntimeException("Failed to encode asset manifest.");
         }
 
         $manifestPath = $targetPath . DIRECTORY_SEPARATOR . self::MANIFEST_FILE;
         if (file_put_contents($manifestPath, $manifestJson . PHP_EOL) === false) {
-            throw new RuntimeException("Failed to write asset manifest.");
+            throw new \RuntimeException("Failed to write asset manifest.");
         }
     }
 }

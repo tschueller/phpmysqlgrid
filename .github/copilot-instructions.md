@@ -9,11 +9,21 @@
 - **Main Files**: `src/MySQLGrid.php` (core class), `assets/css/mysqlgrid.css` (default theme)
 - **Package Type**: PHP library (Composer-managed)
 
+### Namespace and Autoloading
+
+- Source classes in `src/` use the namespace `PhpMySQLGrid`.
+- Composer autoload uses PSR-4 mapping: `"PhpMySQLGrid\\" => "src/"`.
+- Preferred usage in consumers and demos:
+  - `use PhpMySQLGrid\MySQLGrid;`
+  - `use PhpMySQLGrid\MySQLGridAssets;`
+  - `use PhpMySQLGrid\MySQLGridAssetPublisher;`
+- Legacy constants remain global (for backward compatibility), for example `PHPMYSQLGRID_TEXT`.
+
 ## Architecture & Key Components
 
 ### Core Class: `MySQLGrid`
 
-The main class (`MySQLGrid`) is a flexible data grid widget that:
+The main class (`PhpMySQLGrid\MySQLGrid`) is a flexible data grid widget that:
 - Connects to MySQL databases and displays table data
 - Supports multiple modes: `VIEWMODE`, `ADDMODE`, `EDITMODE`, `DELETEMODE`
 - Provides field types: TEXT, BOOLEAN, LOOKUP, PASSWORD, SELECTION, MULTILINETEXT, FILE

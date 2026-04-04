@@ -6,6 +6,8 @@ require_once __DIR__ . "/../vendor/autoload.php";
 require_once __DIR__ . "/DemoSqliteDatabase.php";
 require_once __DIR__ . "/DemoAsset.php";
 
+use PhpMySQLGrid\MySQLGrid;
+
 session_start();
 
 $databaseFilePath = __DIR__ . "/demo.sqlite";
@@ -13,7 +15,7 @@ $resetDatabase = isset($_GET["reset"]) && $_GET["reset"] === "1";
 
 $pdo = \DemoSqliteDatabase::createConnection($databaseFilePath, $resetDatabase);
 
-$grid = new \MySQLGrid();
+$grid = new MySQLGrid();
 $grid->setDatabaseConnection($pdo, "pdo_sqlite");
 $grid->table = "users";
 $grid->primary = "id";

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace PhpMySQLGrid;
+
 /**
  * Utility helpers for publishing-aware asset URLs and HTML tags.
  */
@@ -118,7 +120,7 @@ final class MySQLGridAssets {
 
     private static function resolveManifestHash(string $publicPath, string $documentRoot): string {
         $filesystemPath = self::resolveFilesystemPath($publicPath, $documentRoot);
-        $manifestPath = dirname($filesystemPath) . DIRECTORY_SEPARATOR . \MySQLGridAssetPublisher::MANIFEST_FILE;
+        $manifestPath = dirname($filesystemPath) . DIRECTORY_SEPARATOR . MySQLGridAssetPublisher::MANIFEST_FILE;
         if (!is_file($manifestPath)) {
             return "";
         }

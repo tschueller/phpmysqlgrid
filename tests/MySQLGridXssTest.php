@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MySQLGridTests;
 
-use MySQLGrid;
+use PhpMySQLGrid\MySQLGrid;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 

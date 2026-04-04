@@ -3,16 +3,18 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . "/../src/MySQLGridAssetPublisher.php";
+require_once __DIR__ . "/../vendor/autoload.php";
+
+use PhpMySQLGrid\MySQLGridAssetPublisher;
 
 try {
-    $targetPath = \MySQLGridAssetPublisher::resolveTargetPathFromInput(
+    $targetPath = MySQLGridAssetPublisher::resolveTargetPathFromInput(
         $argv,
         getenv("PHPMYSQLGRID_ASSET_TARGET") ?: null,
         "assets/phpmysqlgrid"
     );
 
-    $result = \MySQLGridAssetPublisher::publish(dirname(__DIR__), $targetPath);
+    $result = MySQLGridAssetPublisher::publish(dirname(__DIR__), $targetPath);
 
     echo "📦 Published assets to: " . $result["target"] . PHP_EOL;
     foreach ($result["files"] as $file) {

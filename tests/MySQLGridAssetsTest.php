@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MySQLGridTests;
 
+use PhpMySQLGrid\MySQLGridAssetPublisher;
+use PhpMySQLGrid\MySQLGridAssets;
 use PHPUnit\Framework\TestCase;
 
 final class MySQLGridAssetsTest extends TestCase {
@@ -20,8 +22,8 @@ final class MySQLGridAssetsTest extends TestCase {
 
         chdir($hostRoot);
         try {
-            $result = \MySQLGridAssetPublisher::publish($packageRoot, "assets/phpmysqlgrid");
-            $url = \MySQLGridAssets::cssUrl("/assets/phpmysqlgrid", "mysqlgrid.css", $hostRoot);
+            $result = MySQLGridAssetPublisher::publish($packageRoot, "assets/phpmysqlgrid");
+            $url = MySQLGridAssets::cssUrl("/assets/phpmysqlgrid", "mysqlgrid.css", $hostRoot);
 
             $this->assertSame(
                 "/assets/phpmysqlgrid/mysqlgrid.css?v=" . $result["files"][0]["hash"],
@@ -51,9 +53,9 @@ final class MySQLGridAssetsTest extends TestCase {
 
         chdir($hostRoot);
         try {
-            $result = \MySQLGridAssetPublisher::publish($packageRoot, "assets/phpmysqlgrid");
+            $result = MySQLGridAssetPublisher::publish($packageRoot, "assets/phpmysqlgrid");
             $jsHash = $this->findPublishedHash($result["files"], "mysqlgrid.js");
-            $url = \MySQLGridAssets::jsUrl("/assets/phpmysqlgrid", "mysqlgrid.js", $hostRoot);
+            $url = MySQLGridAssets::jsUrl("/assets/phpmysqlgrid", "mysqlgrid.js", $hostRoot);
 
             $this->assertSame(
                 "/assets/phpmysqlgrid/mysqlgrid.js?v=" . $jsHash,
@@ -73,20 +75,20 @@ final class MySQLGridAssetsTest extends TestCase {
         mkdir($assetDirectory, 0775, true);
         file_put_contents($assetDirectory . DIRECTORY_SEPARATOR . "mysqlgrid.css", "body { color: #111; }");
 
-        $url = \MySQLGridAssets::cssUrl("/assets/phpmysqlgrid", "mysqlgrid.css", $documentRoot);
+        $url = MySQLGridAssets::cssUrl("/assets/phpmysqlgrid", "mysqlgrid.css", $documentRoot);
 
         $this->assertMatchesRegularExpression('/^\/assets\/phpmysqlgrid\/mysqlgrid\.css\?v=[A-Za-z0-9._-]{12}$/', $url);
     }
 
     public function testCssTagCreatesStylesheetLink(): void {
-        $tag = \MySQLGridAssets::cssTag("/assets/phpmysqlgrid", "mysqlgrid.css", "C:/does-not-exist");
+        $tag = MySQLGridAssets::cssTag("/assets/phpmysqlgrid", "mysqlgrid.css", "C:/does-not-exist");
 
         $this->assertStringStartsWith('<link rel="stylesheet" href="/assets/phpmysqlgrid/mysqlgrid.css', $tag);
         $this->assertStringEndsWith('">', $tag);
     }
 
     public function testJsTagCreatesScriptElement(): void {
-        $tag = \MySQLGridAssets::jsTag("/assets/phpmysqlgrid", "mysqlgrid.js", "C:/does-not-exist");
+        $tag = MySQLGridAssets::jsTag("/assets/phpmysqlgrid", "mysqlgrid.js", "C:/does-not-exist");
 
         $this->assertStringStartsWith('<script src="/assets/phpmysqlgrid/mysqlgrid.js', $tag);
         $this->assertStringContainsString(' defer="defer"', $tag);
@@ -109,11 +111,11 @@ final class MySQLGridAssetsTest extends TestCase {
 
         chdir($hostRoot);
         try {
-            $result = \MySQLGridAssetPublisher::publish($packageRoot, "assets/phpmysqlgrid");
+            $result = MySQLGridAssetPublisher::publish($packageRoot, "assets/phpmysqlgrid");
 
             $publishedFilePath = $hostRoot . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "phpmysqlgrid" . DIRECTORY_SEPARATOR . "mysqlgrid.css";
             $publishedJsFilePath = $hostRoot . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "phpmysqlgrid" . DIRECTORY_SEPARATOR . "mysqlgrid.js";
-            $manifestPath = $hostRoot . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "phpmysqlgrid" . DIRECTORY_SEPARATOR . \MySQLGridAssetPublisher::MANIFEST_FILE;
+            $manifestPath = $hostRoot . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "phpmysqlgrid" . DIRECTORY_SEPARATOR . MySQLGridAssetPublisher::MANIFEST_FILE;
 
             $this->assertSame($hostRoot . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "phpmysqlgrid", $result["target"]);
             $this->assertFileExists($publishedFilePath);

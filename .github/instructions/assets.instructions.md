@@ -26,8 +26,8 @@ Package-side assets:
 - `assets/js/*.js` (optional JavaScript assets)
 
 Runtime/publish components:
-- `src/MySQLGridAssets.php` (runtime URL/tag helper)
-- `src/MySQLGridAssetPublisher.php` (publisher + manifest writer)
+- `src/MySQLGridAssets.php` (`PhpMySQLGrid\\MySQLGridAssets`, runtime URL/tag helper)
+- `src/MySQLGridAssetPublisher.php` (`PhpMySQLGrid\\MySQLGridAssetPublisher`, publisher + manifest writer)
 - `bin/phpmysqlgrid-assets` (CLI entrypoint)
 
 ## Publishing Contract
@@ -83,7 +83,7 @@ Runtime helper rules:
 
 `demo/DemoAsset.php` supports two modes:
 - `repo` (default): direct repository assets, filemtime-based tokens
-- `published`: use `MySQLGridAssets` helper with published base path
+- `published`: use `PhpMySQLGrid\\MySQLGridAssets` helper with published base path
 
 Mode resolution:
 1. `asset_mode` query parameter (`repo` / `published`)
