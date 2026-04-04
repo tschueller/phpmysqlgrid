@@ -1,6 +1,6 @@
 # TODO
 
-## v0.6
+## v0.6 (next major version, currently in development)
 
 - [x] Convert code style to 1TBS (one true brace style)
 - [x] Require PHP >= 8.2
@@ -14,9 +14,8 @@
   - [x] Add more complex demo page with more column types (fileupload, select, ...) and features (only for internal testing/demo purposes, not necessarily for public documentation)
   - [x] Add more convert_input/convert_output column type examples (e.g. date, datetime, numeric)
   - [x] restyle demo pages for better modern look
-  - [ ] add custom themeing example to demo page
-  - [ ] fix styling for tables with only a few columns
-- [ ] Add unit tests
+  - [ ] use more friendly colors for grid header and footer (currently dark gray, but maybe a softer color would be better for readability and aesthetics)
+- [x] Add unit tests
   - [x] add first simple tests
   - [x] add tests for all non-DB methods in MySQLGrid.php
   - [x] fix test wich are testing wrong behavior (current buggy behavior)
@@ -31,25 +30,19 @@
   - [x] add execute()-path integration tests for confirm add/edit/delete request handling via injected PDO connection
   - [x] add security tests for SQL injection and XSS vulnerabilities
   - [x] update github copilot instructions with specialized instruction files (.github/instructions/)
-  - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific subclassing)
-  - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
-  - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
-  - [ ] test filter/sort/pagination behavior
-  - [ ] test file upload handling and security
 - [x] Change license to MIT
 - [x] Check for security issues (SQL injection, XSS) and add mitigations if needed
   - [x] Harden mysqli write/query paths by replacing raw addslashes/id interpolation with connection-aware escaping helper
   - [x] Replace mysqli string-built SQL in add/edit/delete write paths with prepared statements
   - [x] Parameterize active filter values in PDO prepareData queries (count + data select)
   - [x] Review remaining read/filter SQL construction and add raw SQL fragment guard for `filter`/`lookup_filter` dangerous tokens
-  - [ ] check security from fileupload
 - [ ] Documentation
   - [x] Document public properties and methods with doc blocks (ignore internal methods which are only public for testing purposes, but should not be part of the public API (@ignore))
-  - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
-  - [ ] Add Screenshots to README
+  - [x] Add Screenshots to README
+  - [ ] add upgrade guide for v0.5 to v0.6 breaking changes
 - [ ] Improve styling / default theme
   - [x] Replace Unicode and icon-font controls with inline SVG icons (`svgIcon*` / `svgSort*` properties, Bootstrap Icons MIT)
-  - [ ] update readme: how to include the default styles from vendor path, how to customize via CSS variables, how to override icons with custom SVGs, how tu use a custom theme via `$grid->cssClass`
+  - [ ] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
 - [x] Update cspell word list for new identifiers and technical terms
 - [ ] Repository Standards
   - [x] Add GitHub Actions CI workflow for composer validate + lint
@@ -60,14 +53,36 @@
   - [x] Add issue and PR templates
   - [x] Add .editorconfig
   - [x] Add PHPUnit config and first automated test suite
+  - [x] change directory structure to src/ and assets/
+
+## v0.7 (no timeline yet)
+- [ ] Repository features
   - [ ] Add release checklist document for tags and publishing
   - [ ] Add README badges (CI, license, latest release)
   - [ ] update phpstan to v2
-  - [ ] Change branch naming to main if needed
-  - [x] change directory structure to src/ and assets/
 
-## Publish
+- [ ] Demo page improvements
+  - [ ] add custom themeing example to demo page
+  - [ ] fix styling for tables with only a few columns (eg. remove 100% table width)
+  - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
+- [ ] Security improvements
+  - [ ] secure fileupload handling (e.g. file type/size checks, )
+- [ ] Testing improvements
+  - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific subclassing)
+  - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
+  - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
+  - [ ] test filter/sort/pagination behavior
+  - [ ] test file upload handling and security
+- [ ] Documentation improvements
+    - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
+    - [ ] update readme: how to include custom styles/themes, how to customize via CSS variables, how to override icons with custom SVGs, how to use a custom theme via `$grid->cssClass`
+
+
+## Open Issues / Features / Future Work
+
+### Publishing
 - [ ] move repository to Github
+  - [ ] Change branch naming to main if needed
   - [ ] check if the name `MySQLGrid` is available and not trademarked
   - [ ] Switch to main branch naming if needed
   - [ ] evaluate: Set up a GitHub Pages for demo and documentation hosting
@@ -76,22 +91,7 @@
 - Publish to [packagist.org/](https://packagist.org/)
 
 
-## Refactoring for v0.6
-- [x] Make DB connection injectable in `MySQLGrid` (prerequisite for proper integration testing)
-  - [x] Add non-breaking injection hook via `setDatabaseConnection()` + injected connection handling in `connect()`/`disconnect()`
-  - [x] Route real `addData`/`editData`/`deleteData` through injected PDO path while preserving mysqli default behavior
-  - [x] Remove all internal `mysqli` code; `connect()` now creates a PDO connection internally from legacy hostname/username/password/database properties
-  - [x] Route real `useAllColumns` through injected PDO path while preserving mysqli default behavior
-  - [x] Route real `prepareData`/`unprepareData` result handling through injected PDO path while preserving mysqli default behavior
-  - [x] Remove obsolete `tests/MySQLGridSqliteAdapter.php` and adapter-based integration test suite
-  - [x] Route lookup query path in `drawEditControls` through DB-agnostic query helper (PDO/mysqli compatible)
-  - Reason: Historically, DB methods hardcoded `mysqli_*` calls, and tests exercised a parallel adapter implementation instead of real code paths.
-  - Approach: Accept an optional `$db` parameter in `connect()` or constructor, or introduce a thin wrapper interface around the DB calls.
-  - Breaking change: Existing consumers using `$grid->hostname` etc. are unaffected as long as the default behavior (auto-connect via mysqli) is preserved.
-  - Acceptance criteria: Integration tests exercise real `MySQLGrid` DB methods directly with injected PDO connections. (done)
-
-
-## Tooling / Quality
+### Tooling / Quality
 - [ ] Raise PHPStan to level 9 or 10 (Reason: stricter type checks for mixed data paths in MySQLGrid.php)
 - [ ] Investigate PSR coding standards
   - [ ] Define target style profile (PSR-12 baseline + project-specific exceptions)
@@ -100,7 +100,7 @@
   - [ ] Align php-cs-fixer configuration with documented style policy
 
 
-## Accessibility
+### Accessibility
 - [ ] Implement ARIA attributes and semantic HTML in MySQLGrid.php (table, pagination, form controls)
 - [ ] Add keyboard navigation support (Tab order, focus indicators, escape handling)
 - [ ] Ensure WCAG 2.2 Level AA color contrast compliance in gridstyle.css
