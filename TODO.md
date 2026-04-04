@@ -11,7 +11,7 @@
   - [x] Add demo page with a simple table with lookup table
   - [x] Add reset functionality to demo page to recreate schema and seed data
   - [x] add rows/page selector to demo page
-  - [x] Add more complex demo page with more column types (fileupload, select, ...) and features (only for internal testing/demo purposes, not necessarily for public documentation)
+  - [x] Add more complex demo page with more column types (file-upload, select, ...) and features (only for internal testing/demo purposes, not necessarily for public documentation)
   - [x] Add more convert_input/convert_output column type examples (e.g. date, datetime, numeric)
   - [x] restyle demo pages for better modern look
   - [x] use more friendly colors for grid header and footer (currently dark gray, but maybe a softer color would be better for readability and aesthetics)
@@ -36,14 +36,14 @@
   - [x] Replace mysqli string-built SQL in add/edit/delete write paths with prepared statements
   - [x] Parameterize active filter values in PDO prepareData queries (count + data select)
   - [x] Review remaining read/filter SQL construction and add raw SQL fragment guard for `filter`/`lookup_filter` dangerous tokens
-- [ ] Documentation
+- [x] Documentation
   - [x] Document public properties and methods with doc blocks (ignore internal methods which are only public for testing purposes, but should not be part of the public API (@ignore))
   - [x] Add Screenshots to README
   - [x] add upgrade guide for v0.5 to v0.6 breaking changes
 - [x] Improve styling / default theme
   - [x] Replace Unicode and icon-font controls with inline SVG icons (`svgIcon*` / `svgSort*` properties, Bootstrap Icons MIT)
 - [x] Update cspell word list for new identifiers and technical terms
-- [ ] Repository Standards
+- [x] Repository Standards
   - [x] Add GitHub Actions CI workflow for composer validate + lint
   - [x] Add Dependabot configuration for Composer and GitHub Actions
   - [x] Add CONTRIBUTING.md
@@ -53,10 +53,11 @@
   - [x] Add .editorconfig
   - [x] Add PHPUnit config and first automated test suite
   - [x] change directory structure to src/ and assets/
-  - [ ] Cleanup Changelog.md (use only relevant entries, maybe remove old v0.5.11 history which is not relevant for new repository)
+  - [x] Cleanup Changelog.md (use only relevant entries)
 
 ## v0.7 (no timeline yet)
 - [ ] Repository features
+  - [ ] switch version to 1.0.0 for v0.7 release and use correct semantic versioning from there on
   - [ ] Add release checklist document for tags and publishing
   - [ ] Add README badges (CI, license, latest release)
   - [ ] update phpstan to v2
@@ -69,13 +70,13 @@
   - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
 
 - [ ] Demo page improvements
-  - [ ] add custom themeing example to demo page
+  - [ ] add custom theming example to demo page
 
 - [ ] Security improvements
-  - [ ] secure fileupload handling (e.g. file type/size checks, )
+  - [ ] secure file-upload handling (e.g. file type/size checks, )
 
 - [ ] Testing improvements
-  - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific subclassing)
+  - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)
   - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
   - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
   - [ ] test filter/sort/pagination behavior
@@ -92,7 +93,6 @@
 - [ ] move repository to Github
   - [ ] Change branch naming to main if needed
   - [ ] check if the name `MySQLGrid` is available and not trademarked
-  - [ ] Switch to main branch naming if needed
   - [ ] evaluate: Set up a GitHub Pages for demo and documentation hosting
   - [ ] add the first the old v0.5.11 version to the new repository and then add the v0.6 changes on top of it, so that the
   - [ ] tag versions

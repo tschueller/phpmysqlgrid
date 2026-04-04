@@ -201,17 +201,17 @@ final class DemoSqliteDatabase {
                 "category_id" => 1,
                 "price" => 129.99,
                 "quantity_in_stock" => 45,
-                "description" => "High-quality wireless headphones with noise cancellation.\nBattery life: 30 hours\nBluetooth 5.0",
+                "description" => "High-quality wireless headphones with noise cancellation.\nBattery life: 30 hours\nWireless protocol v5.0",
                 "is_featured" => 1,
                 "status" => "active",
                 "released_date" => "2024-01-15"
             ),
             array(
-                "name" => "USB-C Hub Multi-Port",
+                "name" => "Multi-Port Adapter",
                 "category_id" => 1,
                 "price" => 49.99,
                 "quantity_in_stock" => 120,
-                "description" => "7-in-1 USB-C hub with HDMI, USB 3.0, and SD card reader\nSupports up to 100W power delivery",
+                "description" => "7-in-1 multi-port adapter with video output, high-speed data ports, and SD card reader\nSupports up to 100W power delivery",
                 "is_featured" => 1,
                 "status" => "active",
                 "released_date" => "2023-08-22"
@@ -241,7 +241,7 @@ final class DemoSqliteDatabase {
                 "category_id" => 1,
                 "price" => 189.99,
                 "quantity_in_stock" => 32,
-                "description" => "Premium mechanical keyboard with RGB backlighting\nCustomizable switches, hot-swappable",
+                "description" => "Premium mechanical keyboard with multi-color backlighting\nCustomizable switches, hot-swappable",
                 "is_featured" => 1,
                 "status" => "active",
                 "released_date" => "2024-02-28"
@@ -251,7 +251,7 @@ final class DemoSqliteDatabase {
                 "category_id" => 1,
                 "price" => 599.99,
                 "quantity_in_stock" => 8,
-                "description" => "Ultra-HD 4K IPS display\n99% Adobe RGB, support for USB-C input and daisy-chaining",
+                "description" => "Ultra-HD 4K IPS display\nWide color gamut, support for single-cable input and daisy-chaining",
                 "is_featured" => 0,
                 "status" => "active",
                 "released_date" => "2023-11-12"
@@ -291,7 +291,7 @@ final class DemoSqliteDatabase {
                 "category_id" => 1,
                 "price" => 249.99,
                 "quantity_in_stock" => 18,
-                "description" => "Ultra-fast external SSD with USB 3.2\nRead speeds: 1050 MB/s, write speeds: 1000 MB/s",
+                "description" => "Ultra-fast external solid-state drive with high-speed data interface\nRead speeds: 1050 MB/s, write speeds: 1000 MB/s",
                 "is_featured" => 1,
                 "status" => "active",
                 "released_date" => "2024-02-14"

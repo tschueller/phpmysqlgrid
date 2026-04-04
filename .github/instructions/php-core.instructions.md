@@ -1,10 +1,7 @@
 ---
 name: php-core
 description: "Use when: working on src/MySQLGrid.php, adding methods, fixing properties, or writing unit tests (MySQLGridUnitTest, MySQLGridXssTest). For visibility rules, backward compatibility, @internal markers, and dynamic properties guidance."
-applyTo:
-  - "src/MySQLGrid.php"
-  - "tests/MySQLGridUnitTest.php"
-  - "tests/MySQLGridXssTest.php"
+applyTo: "{src/MySQLGrid.php,tests/MySQLGridUnitTest.php,tests/MySQLGridXssTest.php}"
 ---
 
 # PHP Core Instructions for MySQLGrid
@@ -169,18 +166,7 @@ Current level is **8**. When adding or modifying code:
 
 ## Internationalization Properties
 
-All user-visible text (labels, button text, ARIA labels, tooltips) must be backed by public properties initialized in `internationalize()`:
-
-```php
-public $txtAdd = "Add";
-public $txtEdit = "Edit";
-public $txtDelete = "Delete";
-
-// In internationalize():
-$this->txtAdd = $customizedLabel ?? $this->txtAdd;
-```
-
-Never hardcode visible text or accessibility strings directly in HTML output. This allows users to customize without forking.
+Never hardcode visible text in HTML output — use `txt*` properties initialized in `internationalize()`. See [accessibility.instructions.md](./accessibility.instructions.md) for details.
 
 ## Code Style and Comments
 

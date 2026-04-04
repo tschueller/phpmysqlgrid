@@ -4,6 +4,7 @@
         "actiondelete",
         "actionedit",
         "ADDMODE",
+        "addslashes",
         "analyse",
         "autoload",
         "autoloading",
@@ -28,8 +29,10 @@
         "IMAGEBUTTON",
         "imagedir",
         "MULTILINETEXT",
+        "mysqlgrid",
         "mysqli",
         "NEWTYPE",
+        "packagist",
         "phpmysqlgrid",
         "phpstan",
         "phpunit",
@@ -52,7 +55,8 @@
         "theming",
         "tschueller",
         "unprepare",
-        "VIEWMODE"
+        "VIEWMODE",
+        "WCAG"
     ],
     "chat.tools.terminal.autoApprove": {
         "composer": true

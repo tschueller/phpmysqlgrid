@@ -126,6 +126,7 @@ Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list).
 - Test with PHP 8.2+ for compatibility warnings (see v0.5.9+ fixes)
 - When fixing issues, add entry to CHANGELOG.md with date and description
 - Keep README examples in sync with real project behavior
+- After refactorings or new features, review `.github/instructions/*.instructions.md` and update any affected instruction files in the same change.
 - Track deferred work items (for example future PHPStan level increases) in `TODO.md`
 
 ## When Working on MySQLGrid

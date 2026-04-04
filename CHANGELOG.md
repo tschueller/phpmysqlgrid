@@ -2,81 +2,22 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
-- Convert code style to 1TBS.
-- Require PHP >= 8.2.
-- Add Composer lint workflow (syntax/style/static) with PHPStan level 8.
-- Add README and TODO documentation.
-- Change license from BSD-3-Clause to MIT.
-- Add PHPUnit configuration and automated tests.
+## [0.6.0 - Unreleased]
+- Require PHP >= 8.2; change license from BSD-3-Clause to MIT.
+- tidy up repository structure; update `composer.json`, add `README.md`, and other useful documentation files; .
+- Convert code style to 1TBS; add Composer lint workflow with PHPStan level 8.
+- Add PHPUnit test suite covering unit, CRUD integration, SQL injection, and XSS scenarios.
+- Expand class-level PHPDoc with API overview and `@property` documentation; add visibility modifiers to all properties and methods; add type hints and return types;.
+- Move core library to `src/MySQLGrid.php`; move stylesheet to `assets/css/mysqlgrid.css`.
+- Replace internal `mysqli` with PDO; add `setDatabaseConnection()` for injected PDO connections (`pdo_mysql`, `pdo_sqlite`); backward-compatible with legacy hostname/username/password properties.
+- Replace all SQL string building with PDO prepared statements; parameterize filter values; add raw SQL fragment guard for dangerous token patterns in `filter` and `lookup_filter`.
+- Replace Unicode/FontAwesome icon controls with inline SVG icons; remove `$use_icon_font` property (breaking change).
+- Add `MySQLGridAssets` helper for stylesheet/JS URLs with cache busting; add `MySQLGridAssetPublisher` and `phpmysqlgrid-assets` CLI for publishing assets into host projects.
+- use namespace `PhpMySQLGrid` for all public classes; add PSR-4 autoloading support for host projects.
+- Migrate CSS class names to semantic CSS class names.
+- Add demo pages with a focus on the basic features.
+- add copilot instructions for future contributors.
 
-### Added
-- Add `MySQLGridAssets` static helper for stylesheet URL and `<link>` generation with cache-busting query parameter.
-- Add `jsUrl()` / `jsTag()` helpers and asset publishing support for future JavaScript files in `assets/js`.
-- Add `MySQLGridAssetPublisher` and CLI command `phpmysqlgrid-assets` for publishing package CSS into host project paths.
-- Add demo asset resolver with `repo`/`published` mode toggle via query (`asset_mode`) or environment variable (`PHPMYSQLGRID_DEMO_ASSET_MODE`).
-
-### Changed
-- Move core library file from `MySQLGrid.php` to `src/MySQLGrid.php`.
-- Use more friendly colors for grid header, footer, and action elements (changed from dark gray #545e67 to modern blue #5B8FBE with WCAG AA contrast compliance for better readability and aesthetics).
-- Add icon color uses separate variable `--phpmysqlgrid-icon-add` (amber #F59E0B) instead of confirm color for better contrast and visual distinction on blue background.
-- Move default stylesheet from `gridstyle.css` to `assets/css/mysqlgrid.css`.
-- Update Composer autoload and tooling paths for `src/` layout.
-- Update demo pages to use hash-based stylesheet URLs for cache busting.
-
-### Migration
-- Replace direct includes of `MySQLGrid.php` with Composer autoload usage.
-- Replace old stylesheet path references with published asset path (for example `/assets/phpmysqlgrid/mysqlgrid.css`).
-
-### Added
-- Add inline SVG icon support: nine new public properties (`svgIconEdit`, `svgIconDelete`, `svgIconConfirm`, `svgIconCancel`, `svgIconAdd`, `svgSortAscActive`, `svgSortAscInactive`, `svgSortDescActive`, `svgSortDescInactive`) default to Bootstrap Icons (MIT). Override any property to use custom SVGs.
-- Add `initSvgIcons()` internal method for SVG icon initialization.
-- Add `renderIcon()` private helper replacing `renderUnicodeControl()` for all action and sort controls.
-
-### Added
-- Add injected database connection support via `setDatabaseConnection(mixed $connection, string $driver)`.
-- Add support for PDO drivers (`pdo_mysql`, `pdo_sqlite`) via `setDatabaseConnection()`.
-- Add internal DB helper methods for PDO query execution, result row fetching, and numeric-row lookup queries.
-- Replace internal `mysqli` connection with an internally-created `PDO` connection when using legacy hostname/username/password/database properties — fully backward-compatible.
-- Add real integration tests for DB methods using injected `pdo_sqlite`.
-- Add execute-path integration tests for confirm add/edit/delete request flows.
-- Add security regression tests for SQL injection payload handling and XSS encoding scenarios.
-- Add testing guidance in `.github/instructions/testing.instructions.md`.
-- Add internal refactoring notes in `docs/refactoring-notes-v0.6.md`.
-- Add a manual SQLite demo page at `demo/index.php` with seeded user data for interactive grid testing.
-- Add Composer script `demo:start` to run the local demo server.
-
-### Changed
-- Expand `MySQLGrid` class-level PHPDoc with a clearer API overview and comprehensive `@property` documentation for dynamic public configuration.
-- Document relevant default values for public dynamic properties and internationalized text labels in class PHPDoc.
-- Mark public test-only internals with `@internal` + `@ignore` to keep generated public API docs focused on supported surface.
-- Move class PHPDoc placement so IDE hover/help reliably resolves `@property` metadata.
-- Add `getPrimaryColumnForSingleColumnContext()` helper and narrow single-column SQL identifier usage for clearer static analysis typing.
-- Add a new README section describing the `MySQLGrid` class responsibilities and `execute()` lifecycle at a glance.
-- Update PHP core instruction rules to require class-level API overview docs and `@property` defaults for dynamic public configuration.
-- Replace Unicode character glyphs and FontAwesome icon-font controls with inline SVG icons using `fill="currentColor"` — icon colors continue to be driven by CSS custom properties (`--phpmysqlgrid-icon-edit`, `--phpmysqlgrid-icon-delete`, `--phpmysqlgrid-icon-confirm`).
-- Remove `$use_icon_font` property and all FontAwesome markup generation (breaking change: the property is no longer recognised).
-- Update `gridstyle.css`: rename `.phpmysqlgrid-unicode-icon` selector family to `.phpmysqlgrid-icon`; add SVG sizing rules; remove `.fa-*` icon-font color selectors.
-- Remove empty `gridstyle_icon_font.css` file.
-- Remove FontAwesome CDN link from demo page.
-- Refactor DB write paths and query methods to PDO exclusively; remove all internal `mysqli` code.
-- Migrate former adapter-based DB tests to real `MySQLGrid` code-path integration tests.
-- Remove obsolete test adapter layer and adapter-specific integration test suite.
-- Route lookup query rendering in `drawEditControls()` through a DB-agnostic query helper.
-- Update `prepareData()` behavior for injected PDO mode to use consistent query/result handling.
-- Migrate renderer and theme usage to semantic grid class names (for example `phpmysqlgrid-header`, `phpmysqlgrid-action`, `phpmysqlgrid-cell`, and state modifiers).
-- Add deprecation guidance for legacy concatenated CSS class selectors and document semantic-class migration in README.
-
-### Security
-- Replace mysqli string-built SQL in add/edit/delete write paths with PDO prepared statements.
-- Parameterize active filter values in PDO `prepareData()` queries (both count and data selects).
-- Add raw SQL fragment guard for dangerous token patterns in `filter` and `lookup_filter` (`;`, `--`, `/*`, `*/`, null byte).
-- Keep HTML output encoding test coverage for XSS payloads in `convertToHtmlEntities()`.
-
-### Testing
-- Cover real DB method execution paths for: `addData`, `editData`, `deleteData`, `useAllColumns`, `prepareData`, `unprepareData`.
-- Cover lookup rendering query path in `drawEditControls()`.
-- Cover execute/render/request integration path against injected PDO connection.
 
 
 ## [0.5.11] - 2024-03-04

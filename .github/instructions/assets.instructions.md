@@ -1,12 +1,7 @@
 ---
 name: assets
 description: "Use when: changing asset publishing, cache busting, helper URLs/tags, or demo asset loading modes. Applies to publisher/helper runtime code and related docs."
-applyTo:
-  - "src/MySQLGridAssets.php"
-  - "src/MySQLGridAssetPublisher.php"
-  - "bin/phpmysqlgrid-assets"
-  - "demo/DemoAsset.php"
-  - "README.md"
+applyTo: "{src/MySQLGridAssets.php,src/MySQLGridAssetPublisher.php,bin/phpmysqlgrid-assets,demo/DemoAsset.php,README.md}"
 ---
 
 # Asset Instructions for MySQLGrid

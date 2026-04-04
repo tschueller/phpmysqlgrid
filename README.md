@@ -6,6 +6,7 @@ phpMySQLGrid provides a reusable class to display and manage MySQL table data in
 
 ![Example Grid](docs/images/grid1.png)
 
+
 ## Features
 
 - Table rendering with customizable columns
@@ -15,10 +16,12 @@ phpMySQLGrid provides a reusable class to display and manage MySQL table data in
 - Hook callbacks for add, edit, and delete workflows
 - CSS-based styling with included themes
 
+
 ## Requirements
 
 - PHP 8.2 or newer
 - MySQL-compatible database
+
 
 ## Installation
 
@@ -26,13 +29,20 @@ Install with Composer:
 
     composer require tschueller/phpmysqlgrid
 
+Assets (CSS/JS) are not automatically published. Use the provided CLI command from your host project (see [Asset Publishing](#asset-publishing-for-host-projects) below) to copy them into your web root.:
+
+    php vendor/bin/phpmysqlgrid-assets
+
+
 For development in this repository:
 
     composer install
 
+
 ## Upgrade Guide (v0.5 to v0.6)
 
 See the dedicated upgrade guide in [docs/upgrade-guide.md](docs/upgrade-guide.md#v05---v06).
+
 
 ## Simple Example
 
@@ -47,7 +57,7 @@ session_start();
 $grid = new MySQLGrid();
 $grid->hostname = '127.0.0.1';
 $grid->username = 'root';
-$grid->password = '';
+$grid->password = 'secret-password';
 $grid->database = 'test_db';
 $grid->table = 'users';
 $grid->primary = 'id';
@@ -64,6 +74,7 @@ $grid->columns = array(
 $grid->execute();
 ```
 
+
 ## Database Connection Modes
 
 phpMySQLGrid supports two connection modes:
@@ -79,7 +90,7 @@ Set the connection properties and call `execute()`. The class creates a `PDO` co
 $grid = new PhpMySQLGrid\MySQLGrid();
 $grid->hostname = "127.0.0.1";
 $grid->username = "root";
-$grid->password = "";
+$grid->password = "secret-password";
 $grid->database = "test_db";
 $grid->table = "users";
 $grid->primary = "id";
@@ -91,7 +102,7 @@ $grid->execute();
 Use this mode when you already manage your DB connection externally or when you want to run integration tests against SQLite.
 
 ```php
-$pdo = new PDO("mysql:host=127.0.0.1;dbname=test_db;charset=utf8mb4", "root", "");
+$pdo = new PDO("mysql:host=127.0.0.1;dbname=test_db;charset=utf8mb4", "root", "secret-password");
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $grid = new PhpMySQLGrid\MySQLGrid();
@@ -101,28 +112,16 @@ $grid->primary = "id";
 $grid->execute();
 ```
 
-### SQLite example (tests/local tooling)
+Notes:
 
-```php
-$pdo = new PDO("sqlite::memory:");
-$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+- In injected mode, the provided PDO connection is reused for all database operations.
+- In injected mode, the caller owns the connection lifecycle.
+- All database operations use PDO exclusively; mysqli is no longer supported.
 
-$grid = new PhpMySQLGrid\MySQLGrid();
-$grid->setDatabaseConnection($pdo, "pdo_sqlite");
-```
 
-## Manual Demo Page (SQLite)
+## Demo Page
 
 This repository includes a manual demo page with seeded user data and a persistent SQLite database file.
-
-The demo covers these field types:
-
-- text
-- boolean
-- selection
-- lookup
-- multiline text
-- password
 
 Start the demo server from the project root:
 
@@ -138,11 +137,6 @@ Notes:
 - Use `http://127.0.0.1:8000/demo/index.php?reset=1` to recreate schema and seed data.
 - Add/edit/delete/filter/sort can be tested directly in the browser.
 
-Notes:
-
-- In injected mode, the provided PDO connection is reused for all database operations.
-- In injected mode, the caller owns the connection lifecycle.
-- All database operations use PDO exclusively; mysqli is no longer supported.
 
 ## Asset Publishing for Host Projects
 
@@ -155,36 +149,21 @@ Default target is:
 
     assets/phpmysqlgrid
 
-Override target path with either an argument or an environment variable:
+Override target path with either an argument
 
     php vendor/bin/phpmysqlgrid-assets --target public/assets/phpmysqlgrid
 
-Bash:
+or an environment variable:
 
+    # Bash
     PHPMYSQLGRID_ASSET_TARGET=public/assets/phpmysqlgrid php vendor/bin/phpmysqlgrid-assets
 
-PowerShell:
-
+    # PowerShell:
     $env:PHPMYSQLGRID_ASSET_TARGET="public/assets/phpmysqlgrid"; php vendor/bin/phpmysqlgrid-assets
 
 ### Automatic Publishing in a Host Project
 
 In your host project's `composer.json`, you can run asset publishing automatically after install/update:
-
-```json
-{
-    "scripts": {
-        "post-install-cmd": [
-            "php vendor/bin/phpmysqlgrid-assets --target public/assets/phpmysqlgrid"
-        ],
-        "post-update-cmd": [
-            "php vendor/bin/phpmysqlgrid-assets --target public/assets/phpmysqlgrid"
-        ]
-    }
-}
-```
-
-You can also route through environment variables:
 
 ```json
 {
@@ -196,23 +175,14 @@ You can also route through environment variables:
             "@grid-assets:publish"
         ],
         "grid-assets:publish": [
-            "php vendor/bin/phpmysqlgrid-assets"
+            "php vendor/bin/phpmysqlgrid-assets --target public/assets/phpmysqlgrid"
         ]
     }
 }
 ```
 
-With that variant, set the target path per shell before running Composer:
 
-Bash:
-
-        export PHPMYSQLGRID_ASSET_TARGET=public/assets/phpmysqlgrid
-
-PowerShell:
-
-        $env:PHPMYSQLGRID_ASSET_TARGET="public/assets/phpmysqlgrid"
-
-## Include CSS with Cache Busting
+## Include CSS
 
 Use the static helper to generate a stylesheet URL with cache busting.
 Published assets store their hash once in a manifest during `assets:publish`.
@@ -227,6 +197,14 @@ $href = MySQLGridAssets::cssUrl('/assets/phpmysqlgrid');
 echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">';
 ```
 
+Manual include (without helper):
+
+```html
+<link rel="stylesheet" href="/assets/phpmysqlgrid/mysqlgrid.css">
+```
+
+<!-- TODO: add JS include example when we have JS assets
+
 JavaScript assets are supported as well when you add files under `assets/js`:
 
 ```php
@@ -237,35 +215,12 @@ echo MySQLGridAssets::jsTag('/assets/phpmysqlgrid');
 $src = MySQLGridAssets::jsUrl('/assets/phpmysqlgrid', 'mysqlgrid.js');
 echo '<script src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '" defer="defer"></script>';
 ```
+-->
 
-Manual include (without helper):
 
-```html
-<link rel="stylesheet" href="/assets/phpmysqlgrid/mysqlgrid.css">
-```
+## Code Quality Checks / Unit Tests
 
-## Project Files
-
-- src/MySQLGrid.php: Main library class
-- src/MySQLGridAssets.php: Asset URL/tag helper with cache busting
-- src/MySQLGridAssetPublisher.php: Asset publish implementation
-- assets/css/mysqlgrid.css: Default grid style
-- assets/js/: Optional JavaScript assets published alongside CSS
-- bin/phpmysqlgrid-assets: CLI command for publishing assets
-- phpstan.neon.dist: Static analysis configuration
-- TODO.md: Planned follow-up tasks and features
-- CHANGELOG.md: Release history
-- .github/copilot-instructions.md: Workspace development guidelines
-- .github/instructions/php-core.instructions.md: PHP coding and API stability rules
-- .github/instructions/testing.instructions.md: Test architecture and conventions
-- .github/instructions/styling.instructions.md: CSS theming and styling guidelines
-- .github/instructions/accessibility.instructions.md: Accessibility, ARIA, and keyboard navigation requirements
-- docs/upgrade-guide.md: Cumulative upgrade guide with version-specific sections
-- docs/refactoring-notes-v0.6.md: Internal detailed refactoring notes (v0.6 vs v0.5.11)
-
-## Quality Checks
-
-Run all checks:
+Run all quality checks:
 
     composer run lint
 
@@ -279,40 +234,19 @@ Run unit tests:
 
     composer run test
 
-## Current Static Analysis Level
-
-The project currently uses PHPStan level 8.
 
 ## Contributing
 
-1. Keep changes backward compatible when possible.
-2. Follow the existing coding style in the repository.
-3. Run lint checks before submitting changes.
-4. Update CHANGELOG.md for user-visible fixes and improvements.
 
-For contribution details, see CONTRIBUTING.md.
+For contribution details, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Additional Documentation
 
-- Changelog and release history: CHANGELOG.md
-- Workspace development guidelines: .github/copilot-instructions.md
-- Development specializations:
-  - PHP core rules and API stability: .github/instructions/php-core.instructions.md
-  - Testing conventions and integration patterns: .github/instructions/testing.instructions.md
-  - Styling, CSS naming, and theming: .github/instructions/styling.instructions.md
-  - Accessibility, ARIA, and keyboard support: .github/instructions/accessibility.instructions.md
-- Upgrade guide (v0.5 to v0.6): docs/upgrade-guide.md#v05---v06
-- Internal detailed refactoring notes (v0.6 vs v0.5.11): docs/refactoring-notes-v0.6.md
 
 ## Security
 
-Please report vulnerabilities according to SECURITY.md.
+Please report vulnerabilities according to [SECURITY.md](SECURITY.md).
 
-## Code of Conduct (Optional)
-
-For now, this project does not enforce a dedicated code of conduct file due to its small scope.
-If the contributor base grows, CODE_OF_CONDUCT.md can be added again.
 
 ## License
 
-MIT
+[MIT](LICENSE)

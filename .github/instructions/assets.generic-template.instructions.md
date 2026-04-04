@@ -1,11 +1,6 @@
 ---
-name: assets
-description: "Template: use when changing asset publishing, cache busting, runtime asset URLs/tags, or demo/dev asset loading modes."
-applyTo:
-  - "src/Asset*.php"
-  - "bin/*assets*"
-  - "demo/*"
-  - "README.md"
+name: assets-template
+description: "Documentation template only — not an active instruction. Reference when creating asset instructions for a new project based on this pattern."
 ---
 
 # Asset Instructions Template

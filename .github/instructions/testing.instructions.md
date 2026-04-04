@@ -1,8 +1,7 @@
 ---
 name: testing
 description: "Use when: creating or modifying test files, especially integration tests (MySQLGridRealCrudIntegrationTest, MySQLGridSqlInjectionTest, DatabaseTestCase). For test conventions, SQLite setup, DB mocking, fixture patterns, and test organization."
-applyTo:
-  - "tests/**/*.php"
+applyTo: "tests/**/*.php"
 ---
 
 # Testing Instructions for MySQLGrid

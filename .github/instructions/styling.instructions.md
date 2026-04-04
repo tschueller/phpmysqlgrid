@@ -1,9 +1,7 @@
 ---
 name: styling
 description: "Use when: modifying CSS in assets/css/mysqlgrid.css, changing HTML class output from src/MySQLGrid.php for styling, or implementing styling-related refactors. For class naming migration, theme tokens, compatibility layers, and SVG/Unicode control guidelines."
-applyTo:
-  - "assets/css/*.css"
-  - "src/MySQLGrid.php"
+applyTo: "{assets/css/*.css,src/MySQLGrid.php}"
 ---
 
 # Styling Instructions for MySQLGrid
@@ -150,7 +148,7 @@ $grid->svgIconAdd = '<i class="fa fa-plus"></i>';  // Font Awesome
 Selectors then use these variables:
 
 ```css
-.phpmysqlgrid-header { background: var(--phpmysqlgrid-color-header-bg); }
+.phpmysqlgrid-header { background: var(--phpmysqlgrid-header-bg); }
 ```
 
 Users customize by overriding `:root` variables:
