@@ -128,7 +128,7 @@ class MySQLGrid {
      */
     public function __construct() {
         $this->hostname = "localhost";
-        $this->port = 3128;
+        $this->port = 3306;
         $this->username = "root";
         $this->password = "";
         $this->database = "";
