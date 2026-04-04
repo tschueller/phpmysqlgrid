@@ -2,9 +2,9 @@
 
 :root {
     /* Surface colors */
-    --phpmysqlgrid-header-bg: #545e67;
-    --phpmysqlgrid-action-bg: #545e67;
-    --phpmysqlgrid-footer-bg: #545e67;
+    --phpmysqlgrid-header-bg: #5B8FBE;
+    --phpmysqlgrid-action-bg: #5B8FBE;
+    --phpmysqlgrid-footer-bg: #5B8FBE;
     --phpmysqlgrid-row-even: #f8f9fa;
     --phpmysqlgrid-row-odd: #ffffff;
     --phpmysqlgrid-row-hover: #e9ecef;
@@ -33,6 +33,7 @@
     /* Icon accents */
     --phpmysqlgrid-icon-edit: #0b7285;
     --phpmysqlgrid-icon-delete: #c92a2a;
+    --phpmysqlgrid-icon-add: #F59E0B;
     --phpmysqlgrid-icon-confirm: #2b8a3e;
     --phpmysqlgrid-icon-bool-true: #2b8a3e;
     --phpmysqlgrid-icon-bool-false: #c92a2a;
@@ -134,6 +135,7 @@ table.phpmysqlgrid td[class*="-action"] [class*="-icon"] {
 
 table.phpmysqlgrid td[class*="-action"] [class*="-icon--confirm"] {
     font-size: 1.3em;
+    color: var(--phpmysqlgrid-icon-confirm);
 }
 
 table.phpmysqlgrid td[class*="-action"] [class*="-icon--edit"] {
@@ -145,9 +147,8 @@ table.phpmysqlgrid td[class*="-action"] [class*="-icon--delete"] {
     color: var(--phpmysqlgrid-icon-delete);
 }
 
-table.phpmysqlgrid td[class*="-action"] [class*="-icon--confirm"],
 table.phpmysqlgrid td[class*="-action"] [class*="-icon--add"] {
-    color: var(--phpmysqlgrid-icon-confirm);
+    color: var(--phpmysqlgrid-icon-add);
 }
 
 table.phpmysqlgrid [class*="-icon--bool-true"] {
@@ -211,7 +212,7 @@ table.phpmysqlgrid .add-button {
     min-width: 1.5em;
     text-decoration: none;
     color: var(--phpmysqlgrid-footer-text);
-    font-size: 16px;
+    font-size: 18px;
     padding: 5px;
     border-radius: 4px;
     transition: background-color 0.15s;

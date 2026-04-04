@@ -14,7 +14,7 @@
   - [x] Add more complex demo page with more column types (fileupload, select, ...) and features (only for internal testing/demo purposes, not necessarily for public documentation)
   - [x] Add more convert_input/convert_output column type examples (e.g. date, datetime, numeric)
   - [x] restyle demo pages for better modern look
-  - [ ] use more friendly colors for grid header and footer (currently dark gray, but maybe a softer color would be better for readability and aesthetics)
+  - [x] use more friendly colors for grid header and footer (currently dark gray, but maybe a softer color would be better for readability and aesthetics)
 - [x] Add unit tests
   - [x] add first simple tests
   - [x] add tests for all non-DB methods in MySQLGrid.php
@@ -54,6 +54,7 @@
   - [x] Add .editorconfig
   - [x] Add PHPUnit config and first automated test suite
   - [x] change directory structure to src/ and assets/
+  - [ ] Cleanup Changelog.md (use only relevant entries, maybe remove old v0.5.11 history which is not relevant for new repository)
 
 ## v0.7 (no timeline yet)
 - [ ] Repository features
@@ -61,18 +62,25 @@
   - [ ] Add README badges (CI, license, latest release)
   - [ ] update phpstan to v2
 
-- [ ] Demo page improvements
-  - [ ] add custom themeing example to demo page
+- [ ] Styling improvements
+  - [ ] Improve or add hover styles for action icons
+  - [ ] Add a second themes (TBD) to demonstrate theming capabilities
   - [ ] fix styling for tables with only a few columns (eg. remove 100% table width)
   - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
+
+- [ ] Demo page improvements
+  - [ ] add custom themeing example to demo page
+
 - [ ] Security improvements
   - [ ] secure fileupload handling (e.g. file type/size checks, )
+
 - [ ] Testing improvements
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific subclassing)
   - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
   - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
   - [ ] test filter/sort/pagination behavior
   - [ ] test file upload handling and security
+
 - [ ] Documentation improvements
     - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
     - [ ] update readme: how to include custom styles/themes, how to customize via CSS variables, how to override icons with custom SVGs, how to use a custom theme via `$grid->cssClass`

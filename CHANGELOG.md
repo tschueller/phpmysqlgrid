@@ -18,6 +18,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 - Move core library file from `MySQLGrid.php` to `src/MySQLGrid.php`.
+- Use more friendly colors for grid header, footer, and action elements (changed from dark gray #545e67 to modern blue #5B8FBE with WCAG AA contrast compliance for better readability and aesthetics).
+- Add icon color uses separate variable `--phpmysqlgrid-icon-add` (amber #F59E0B) instead of confirm color for better contrast and visual distinction on blue background.
 - Move default stylesheet from `gridstyle.css` to `assets/css/mysqlgrid.css`.
 - Update Composer autoload and tooling paths for `src/` layout.
 - Update demo pages to use hash-based stylesheet URLs for cache busting.
