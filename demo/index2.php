@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . "/../vendor/autoload.php";
-require_once __DIR__ . "/../MySQLGrid.php";
 require_once __DIR__ . "/DemoSqliteDatabase.php";
+require_once __DIR__ . "/DemoAsset.php";
 
 session_start();
 
@@ -132,8 +132,8 @@ $grid->columns = array(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Second Demo - Product Grid</title>
-    <link rel="stylesheet" href="../gridstyle.css">
-    <link rel="stylesheet" href="/demo/demo.css">
+    <?= \DemoAsset::gridStylesheetTag($_GET) ?>
+    <?= \DemoAsset::demoStylesheetTag() ?>
 </head>
 <body>
 <div class="demo-shell">
@@ -141,7 +141,7 @@ $grid->columns = array(
         <h1>Second Demo</h1>
         <div class="subtitle">Advanced Product Catalog Grid</div>
         <p>
-            This advanced demo showcases MySQLGrid with multiple column types, advanced features, and complex data relationships.
+            This advanced demo showcases the grid library with multiple column types, advanced features, and complex data relationships.
             Use this for internal testing of different field types and grid interactions.
         </p>
         <div class="demo-actions">

@@ -22,15 +22,25 @@
         "phpstan/phpstan": "^1.0",
         "phpunit/phpunit": "^11.5"
     },
+    "bin": [
+        "bin/phpmysqlgrid-assets"
+    ],
     "autoload": {
-        "classmap": ["MySQLGrid.php"]
+        "classmap": ["src/"]
     },
     "scripts": {
-        "lint:syntax": "php -l MySQLGrid.php",
+        "lint:syntax": [
+            "php -l src/MySQLGrid.php",
+            "php -l src/MySQLGridAssets.php",
+            "php -l src/MySQLGridAssetPublisher.php",
+            "php -l demo/DemoAsset.php",
+            "php -l bin/phpmysqlgrid-assets"
+        ],
         "lint:style": "php-cs-fixer fix --dry-run --diff",
         "fix:style": "php-cs-fixer fix",
         "lint:static": "phpstan analyse",
         "test": "phpunit",
+        "assets:publish": "php bin/phpmysqlgrid-assets",
         "demo:start": [
             "Composer\\Config::disableProcessTimeout",
             "php -S 127.0.0.1:8000 -t . demo/router.php"

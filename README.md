@@ -35,7 +35,6 @@ For development in this repository:
 ```php
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/MySQLGrid.php';
 
 session_start();
 
@@ -139,17 +138,110 @@ Notes:
 - In injected mode, the caller owns the connection lifecycle.
 - All database operations use PDO exclusively; mysqli is no longer supported.
 
-Include one of the CSS files in your page to style the grid:
+## Asset Publishing for Host Projects
+
+By default, package assets are not automatically copied into your web root.
+Publish them from your host project with:
+
+    php vendor/bin/phpmysqlgrid-assets
+
+Default target is:
+
+    assets/phpmysqlgrid
+
+Override target path with either an argument or an environment variable:
+
+    php vendor/bin/phpmysqlgrid-assets --target public/assets/phpmysqlgrid
+
+Bash:
+
+    PHPMYSQLGRID_ASSET_TARGET=public/assets/phpmysqlgrid php vendor/bin/phpmysqlgrid-assets
+
+PowerShell:
+
+    $env:PHPMYSQLGRID_ASSET_TARGET="public/assets/phpmysqlgrid"; php vendor/bin/phpmysqlgrid-assets
+
+### Automatic Publishing in a Host Project
+
+In your host project's `composer.json`, you can run asset publishing automatically after install/update:
+
+```json
+{
+    "scripts": {
+        "post-install-cmd": [
+            "php vendor/bin/phpmysqlgrid-assets --target public/assets/phpmysqlgrid"
+        ],
+        "post-update-cmd": [
+            "php vendor/bin/phpmysqlgrid-assets --target public/assets/phpmysqlgrid"
+        ]
+    }
+}
+```
+
+You can also route through environment variables:
+
+```json
+{
+    "scripts": {
+        "post-install-cmd": [
+            "@grid-assets:publish"
+        ],
+        "post-update-cmd": [
+            "@grid-assets:publish"
+        ],
+        "grid-assets:publish": [
+            "php vendor/bin/phpmysqlgrid-assets"
+        ]
+    }
+}
+```
+
+With that variant, set the target path per shell before running Composer:
+
+Bash:
+
+        export PHPMYSQLGRID_ASSET_TARGET=public/assets/phpmysqlgrid
+
+PowerShell:
+
+        $env:PHPMYSQLGRID_ASSET_TARGET="public/assets/phpmysqlgrid"
+
+## Include CSS with Cache Busting
+
+Use the static helper to generate a stylesheet URL with cache busting.
+Published assets store their hash once in a manifest during `assets:publish`.
+The helper reads that manifest first, falls back to a direct content hash when no manifest is available, and finally falls back to package version.
+
+```php
+echo MySQLGridAssets::cssTag('/assets/phpmysqlgrid');
+// or:
+$href = MySQLGridAssets::cssUrl('/assets/phpmysqlgrid');
+echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">';
+```
+
+JavaScript assets are supported as well when you add files under `assets/js`:
+
+```php
+echo MySQLGridAssets::jsTag('/assets/phpmysqlgrid');
+// or:
+$src = MySQLGridAssets::jsUrl('/assets/phpmysqlgrid', 'mysqlgrid.js');
+echo '<script src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '" defer="defer"></script>';
+```
+
+Manual include (without helper):
 
 ```html
-<link rel="stylesheet" href="gridstyle.css">
+<link rel="stylesheet" href="/assets/phpmysqlgrid/mysqlgrid.css">
 ```
 
 ## Project Files
 
-- MySQLGrid.php: Main library class
-- gridstyle.css: Default grid style
-- gridstyle_icon_font.css: Icon font style variant
+- src/MySQLGrid.php: Main library class
+- src/MySQLGridAssets.php: Asset URL/tag helper with cache busting
+- src/MySQLGridAssetPublisher.php: Asset publish implementation
+- assets/css/mysqlgrid.css: Default grid style
+- assets/js/: Optional JavaScript assets published alongside CSS
+- bin/phpmysqlgrid-assets: CLI command for publishing assets
 - phpstan.neon.dist: Static analysis configuration
 - TODO.md: Planned follow-up tasks and features
 - CHANGELOG.md: Release history

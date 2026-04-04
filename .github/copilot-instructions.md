@@ -6,7 +6,7 @@
 
 - **Current Version**: See `../CHANGELOG.md` for the latest release entry
 - **PHP Requirement**: >= 8.2
-- **Main Files**: `MySQLGrid.php` (core class), CSS stylesheets for theming
+- **Main Files**: `src/MySQLGrid.php` (core class), `assets/css/mysqlgrid.css` (default theme)
 - **Package Type**: PHP library (Composer-managed)
 
 ## Architecture & Key Components
@@ -34,8 +34,11 @@ $grid->columns, $grid->actions    // Field and action definitions
 
 ### Styling & Themes
 
-- **gridstyle.css** - Main stylesheet for default theme
-- **gridstyle_icon_font.css** - Icon font variant
+- **assets/css/mysqlgrid.css** - Main stylesheet for default theme
+- **assets/js/** - Optional JavaScript assets (published together with CSS)
+- **src/MySQLGridAssets.php** - Runtime asset URL/tag helpers with cache busting
+- **src/MySQLGridAssetPublisher.php** - Publish-time asset copier and manifest writer
+- **bin/phpmysqlgrid-assets** - CLI entrypoint used by host projects (`vendor/bin/phpmysqlgrid-assets`)
 - Uses class-based styling approach (customizable via `$grid->cssClass`)
 - For styling architecture, naming, migration phases, and accessibility goals, see `.github/instructions/styling.instructions.md`
 
@@ -45,18 +48,19 @@ Each topic has a primary source where guidance is authoritative. When working, c
 
 | Topic | Primary Source | Context/References |
 |-------|---|---|
-| **MySQLGrid.php: visibility, backward compatibility, @internal markers** | `.github/instructions/php-core.instructions.md` | See also: copilot-instructions.md (this file) |
+| **src/MySQLGrid.php: visibility, backward compatibility, @internal markers** | `.github/instructions/php-core.instructions.md` | See also: copilot-instructions.md (this file) |
 | **Tests: unit vs integration, SQLite fixtures, DB testing patterns** | `.github/instructions/testing.instructions.md` | See also: README.md (quick facts) |
-| **Styling: CSS naming, theme migration, semantic classes, contrast** | `.github/instructions/styling.instructions.md` | See also: gridstyle.css (inline comments) |
+| **Styling: CSS naming, theme migration, semantic classes, contrast** | `.github/instructions/styling.instructions.md` | See also: assets/css/mysqlgrid.css |
 | **Accessibility: ARIA, labels, keyboard navigation, semantic HTML** | `.github/instructions/accessibility.instructions.md` | See also: styling.instructions.md (contrast rules) |
 | **Current DB architecture: PDO, connections, why it changed** | `README.md` (Connection Modes section) | Historical context: `docs/refactoring-notes-v0.6.md` |
+| **Asset publishing and cache busting (manifest + helpers)** | `.github/instructions/assets.instructions.md` | Runtime helper: `src/MySQLGridAssets.php`; publish command: `bin/phpmysqlgrid-assets`; usage examples: README.md |
 | **What is being built next** | `TODO.md` | (product backlog only) |
 
 ## Development Conventions
 
 ### PHP & Code Style
 
-- Uses `#[AllowDynamicProperties]` attribute for PHP 8.2+ compatibility (line 48 of MySQLGrid.php)
+- Uses `#[AllowDynamicProperties]` attribute for PHP 8.2+ compatibility in `src/MySQLGrid.php`
 - Dynamic property usage is intentional and expected (due to project's age and backward compatibility needs)
 - Class constructor initializes all public properties with sensible defaults
 - **All new methods and properties must declare explicit visibility** (`public`, `protected`, or `private`). Never rely on the implicit `public` default.
@@ -67,7 +71,7 @@ Each topic has a primary source where guidance is authoritative. When working, c
   /** @internal */
   public function validateColumns(): void { ... }
   ```
-- Follow existing code style in MySQLGrid.php for consistency
+- Follow existing code style in `src/MySQLGrid.php` for consistency
 - Write English comments and doc blocks where necessary, especially for new methods or complex logic
 - Write new documentation files in English (for example `README.md` and `TODO.md`)
 
@@ -127,8 +131,9 @@ Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list).
 
 1. **Adding Field Types**: Add new constant (e.g., `PHPMYSQLGRID_NEWTYPE`), implement rendering/input logic in class methods
 2. **Fixing PHP Warnings**: Look for deprecated functions (e.g., `get_magic_quotes_gpc` removed in PHP 8.1)
-3. **CSS Adjustments**: Modify `gridstyle.css` or `gridstyle_icon_font.css` while maintaining theme consistency
-4. **Database Operations**: Ensure primary key handling is correct—it can be composite (array of columns)
+3. **CSS Adjustments**: Modify `assets/css/mysqlgrid.css` while maintaining theme consistency
+4. **Asset Publishing**: Keep `src/MySQLGridAssetPublisher.php` and `src/MySQLGridAssets.php` in sync when changing filenames/paths (CSS and optional JS)
+5. **Database Operations**: Ensure primary key handling is correct—it can be composite (array of columns)
 
 ### Important Caveats
 

@@ -11,6 +11,22 @@ All notable changes to this project are documented in this file.
 - Add PHPUnit configuration and automated tests.
 
 ### Added
+- Add `MySQLGridAssets` static helper for stylesheet URL and `<link>` generation with cache-busting query parameter.
+- Add `jsUrl()` / `jsTag()` helpers and asset publishing support for future JavaScript files in `assets/js`.
+- Add `MySQLGridAssetPublisher` and CLI command `phpmysqlgrid-assets` for publishing package CSS into host project paths.
+- Add demo asset resolver with `repo`/`published` mode toggle via query (`asset_mode`) or environment variable (`PHPMYSQLGRID_DEMO_ASSET_MODE`).
+
+### Changed
+- Move core library file from `MySQLGrid.php` to `src/MySQLGrid.php`.
+- Move default stylesheet from `gridstyle.css` to `assets/css/mysqlgrid.css`.
+- Update Composer autoload and tooling paths for `src/` layout.
+- Update demo pages to use hash-based stylesheet URLs for cache busting.
+
+### Migration
+- Replace direct includes of `MySQLGrid.php` with Composer autoload usage.
+- Replace old stylesheet path references with published asset path (for example `/assets/phpmysqlgrid/mysqlgrid.css`).
+
+### Added
 - Add inline SVG icon support: nine new public properties (`svgIconEdit`, `svgIconDelete`, `svgIconConfirm`, `svgIconCancel`, `svgIconAdd`, `svgSortAscActive`, `svgSortAscInactive`, `svgSortDescActive`, `svgSortDescInactive`) default to Bootstrap Icons (MIT). Override any property to use custom SVGs.
 - Add `initSvgIcons()` internal method for SVG icon initialization.
 - Add `renderIcon()` private helper replacing `renderUnicodeControl()` for all action and sort controls.

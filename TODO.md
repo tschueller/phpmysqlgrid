@@ -63,6 +63,8 @@
   - [ ] Add release checklist document for tags and publishing
   - [ ] Add README badges (CI, license, latest release)
   - [ ] update phpstan to v2
+  - [ ] Change branch naming to main if needed
+  - [x] change directory structure to src/ and assets/
 
 ## Publish
 - [ ] move repository to Github

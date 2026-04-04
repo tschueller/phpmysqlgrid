@@ -1,8 +1,8 @@
 ---
 name: php-core
-description: "Use when: working on MySQLGrid.php, adding methods, fixing properties, or writing unit tests (MySQLGridUnitTest, MySQLGridXssTest). For visibility rules, backward compatibility, @internal markers, and dynamic properties guidance."
+description: "Use when: working on src/MySQLGrid.php, adding methods, fixing properties, or writing unit tests (MySQLGridUnitTest, MySQLGridXssTest). For visibility rules, backward compatibility, @internal markers, and dynamic properties guidance."
 applyTo:
-  - "MySQLGrid.php"
+  - "src/MySQLGrid.php"
   - "tests/MySQLGridUnitTest.php"
   - "tests/MySQLGridXssTest.php"
 ---
@@ -117,7 +117,7 @@ This signals to consumers and static analysis that the method is subject to chan
 
 ## String Literals and Quoting
 
-Prefer double quotes for string literals in MySQLGrid.php when practical:
+Prefer double quotes for string literals in src/MySQLGrid.php when practical:
 
 ```php
 // ✅ PREFER
@@ -174,7 +174,7 @@ Never hardcode visible text or accessibility strings directly in HTML output. Th
 
 ## Code Style and Comments
 
-- Follow the existing code style in MySQLGrid.php.
+- Follow the existing code style in src/MySQLGrid.php.
 - Use English comments and doc blocks for new methods or complex logic.
 - Keep comments concise; prefer clear naming and type hints over verbose explanations.
 - Add comments only for non-obvious behavior or known-bug documentation.

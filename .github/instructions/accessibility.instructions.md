@@ -1,9 +1,9 @@
 ---
 name: accessibility
-description: "Use when: adding or modifying ARIA attributes, labels, keyboard navigation, focus indicators, semantic HTML, or testing accessibility. Applies to MySQLGrid output generation, gridstyle.css, and accessibility-specific tests."
+description: "Use when: adding or modifying ARIA attributes, labels, keyboard navigation, focus indicators, semantic HTML, or testing accessibility. Applies to MySQLGrid output generation, assets/css/mysqlgrid.css, and accessibility-specific tests."
 applyTo:
-  - "MySQLGrid.php"
-  - "gridstyle*.css"
+  - "src/MySQLGrid.php"
+  - "assets/css/*.css"
   - "tests/*XssTest.php"
   - "tests/*CrudIntegrationTest.php"
 ---
@@ -305,7 +305,7 @@ All foreground/background color pairs must meet **WCAG 2.2 AA**:
 
 **Before moving css changes:** Use WebAIM Contrast Checker or Browser DevTools to verify.
 
-Example in `gridstyle.css`:
+Example in `assets/css/mysqlgrid.css`:
 
 ```css
 /* ✅ GOOD: #000 on #FFF = 21:1 */
