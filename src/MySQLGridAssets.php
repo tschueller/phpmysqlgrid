@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PhpMySQLGrid;
 
+use PhpMySQLGrid\MySQLGridAssetPublisher;
+
 /**
  * Utility helpers for publishing-aware asset URLs and HTML tags.
  */

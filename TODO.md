@@ -7,7 +7,7 @@
 - [x] Add Composer lint workflow (syntax/style/static) with PHPStan level 8
 - [x] Add README, CHANGELOG, and TODO documentation
 - [x] update visibility of methods and properties (currently all public, but some should be private/protected)
-- [ ] Add demo page
+- [x] Add demo page
   - [x] Add demo page with a simple table with lookup table
   - [x] Add reset functionality to demo page to recreate schema and seed data
   - [x] add rows/page selector to demo page
@@ -39,10 +39,9 @@
 - [ ] Documentation
   - [x] Document public properties and methods with doc blocks (ignore internal methods which are only public for testing purposes, but should not be part of the public API (@ignore))
   - [x] Add Screenshots to README
-  - [ ] add upgrade guide for v0.5 to v0.6 breaking changes
-- [ ] Improve styling / default theme
+  - [x] add upgrade guide for v0.5 to v0.6 breaking changes
+- [x] Improve styling / default theme
   - [x] Replace Unicode and icon-font controls with inline SVG icons (`svgIcon*` / `svgSort*` properties, Bootstrap Icons MIT)
-  - [ ] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
 - [x] Update cspell word list for new identifiers and technical terms
 - [ ] Repository Standards
   - [x] Add GitHub Actions CI workflow for composer validate + lint
@@ -63,6 +62,7 @@
   - [ ] update phpstan to v2
 
 - [ ] Styling improvements
+  - [ ] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
   - [ ] Improve or add hover styles for action icons
   - [ ] Add a second themes (TBD) to demonstrate theming capabilities
   - [ ] fix styling for tables with only a few columns (eg. remove 100% table width)

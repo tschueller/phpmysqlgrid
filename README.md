@@ -30,6 +30,10 @@ For development in this repository:
 
     composer install
 
+## Upgrade Guide (v0.5 to v0.6)
+
+See the dedicated upgrade guide in [docs/upgrade-guide.md](docs/upgrade-guide.md#v05---v06).
+
 ## Simple Example
 
 ```php
@@ -256,6 +260,7 @@ Manual include (without helper):
 - .github/instructions/testing.instructions.md: Test architecture and conventions
 - .github/instructions/styling.instructions.md: CSS theming and styling guidelines
 - .github/instructions/accessibility.instructions.md: Accessibility, ARIA, and keyboard navigation requirements
+- docs/upgrade-guide.md: Cumulative upgrade guide with version-specific sections
 - docs/refactoring-notes-v0.6.md: Internal detailed refactoring notes (v0.6 vs v0.5.11)
 
 ## Quality Checks
@@ -296,6 +301,7 @@ For contribution details, see CONTRIBUTING.md.
   - Testing conventions and integration patterns: .github/instructions/testing.instructions.md
   - Styling, CSS naming, and theming: .github/instructions/styling.instructions.md
   - Accessibility, ARIA, and keyboard support: .github/instructions/accessibility.instructions.md
+- Upgrade guide (v0.5 to v0.6): docs/upgrade-guide.md#v05---v06
 - Internal detailed refactoring notes (v0.6 vs v0.5.11): docs/refactoring-notes-v0.6.md
 
 ## Security
