@@ -60,7 +60,7 @@
   - [ ] switch version to 1.0.0 for v0.7 release and use correct semantic versioning from there on
   - [ ] Add release checklist document for tags and publishing
   - [ ] Add README badges (CI, license, latest release)
-  - [ ] update phpstan to v2
+  - [ ] update phpstan to v2 ?
 
 - [ ] Styling improvements
   - [ ] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
@@ -92,10 +92,10 @@
 ### Publishing
 - [ ] move repository to Github
   - [ ] Change branch naming to main if needed
-  - [ ] check if the name `MySQLGrid` is available and not trademarked
+  - [x] check if the name `PhpMySQLGrid` is available and not trademarked
   - [ ] evaluate: Set up a GitHub Pages for demo and documentation hosting
   - [ ] add the first the old v0.5.11 version to the new repository and then add the v0.6 changes on top of it, so that the
-  - [ ] tag versions
+  - [x] tag versions
 - Publish to [packagist.org/](https://packagist.org/)
 
 

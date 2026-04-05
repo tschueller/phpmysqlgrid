@@ -13,6 +13,7 @@ phpMySQLGrid provides a reusable class to display and manage MySQL table data in
 - CRUD modes: view, add, edit, delete
 - Field types: text, boolean, lookup, password, selection, multiline text, file
 - Sorting, filtering, and pagination
+- PDO-based database access (MySQL, MariaDB, SQLite)
 - Hook callbacks for add, edit, and delete workflows
 - CSS-based styling with included themes
 
