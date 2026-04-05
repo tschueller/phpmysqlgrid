@@ -1,0 +1,44 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+$dirs = [
+    __DIR__ . '/../src',
+    __DIR__ . '/../demo',
+    __DIR__ . '/../tests',
+    __DIR__ . '/../bin',
+];
+
+$files = [];
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) {
+        continue;
+    }
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+    foreach ($iterator as $file) {
+        if ($dir === __DIR__ . '/../bin') {
+            // bin directory: check all regular files
+            if ($file->isFile()) {
+                $files[] = $file;
+            }
+        } else {
+            // In other directories: only .php files
+            if ($file->getExtension() === 'php') {
+                $files[] = $file;
+            }
+        }
+    }
+}
+
+$hasError = false;
+
+foreach ($files as $file) {
+    echo "Checking {$file}\n";
+    passthru('php -l ' . escapeshellarg($file->getPathname()), $result);
+    if ($result !== 0) {
+        $hasError = true;
+    }
+}
+
+exit($hasError ? 1 : 0);
