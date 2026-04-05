@@ -66,9 +66,12 @@ final class MySQLGridAssetPublisher {
         );
     }
 
+    /**
+     * @param array<int, string> $argv
+     */
     public static function resolveTargetPathFromInput(array $argv, ?string $environmentTarget = null, string $defaultTarget = "assets/phpmysqlgrid"): string {
         $argumentTarget = self::readTargetArgument($argv);
-        if ($argumentTarget !== null && $argumentTarget !== "") {
+        if ($argumentTarget !== null) {
             return $argumentTarget;
         }
 
@@ -79,6 +82,9 @@ final class MySQLGridAssetPublisher {
         return $defaultTarget;
     }
 
+    /**
+     * @param array<int, string> $argv
+     */
     private static function readTargetArgument(array $argv): ?string {
         $count = count($argv);
         for ($index = 1; $index < $count; $index++) {
@@ -106,7 +112,7 @@ final class MySQLGridAssetPublisher {
         }
 
         $currentWorkingDirectory = getcwd();
-        if (!is_string($currentWorkingDirectory) || $currentWorkingDirectory === "") {
+        if (!is_string($currentWorkingDirectory)) {
             throw new \RuntimeException("Unable to resolve current working directory.");
         }
 
@@ -134,7 +140,7 @@ final class MySQLGridAssetPublisher {
         );
 
         $manifestJson = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        if (!is_string($manifestJson) || $manifestJson === "") {
+        if (!is_string($manifestJson)) {
             throw new \RuntimeException("Failed to encode asset manifest.");
         }
 

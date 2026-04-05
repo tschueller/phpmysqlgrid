@@ -34,7 +34,7 @@ foreach ($dirs as $dir) {
 $hasError = false;
 
 foreach ($files as $file) {
-    echo "Checking {$file}\n";
+    // echo "Checking {$file}\n";
     passthru('php -l ' . escapeshellarg($file->getPathname()), $result);
     if ($result !== 0) {
         $hasError = true;
