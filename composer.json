@@ -30,6 +30,11 @@
             "PhpMySQLGrid\\": "src/"
         }
     },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        }
+    },
     "scripts": {
         "lint:syntax": "php bin/lint-syntax",
         "lint:style": "php-cs-fixer fix --dry-run --diff",
