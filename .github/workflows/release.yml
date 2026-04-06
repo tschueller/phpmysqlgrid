@@ -43,15 +43,45 @@ jobs:
       - name: Run tests
         run: composer run test
 
-      - name: Generate changelog
+      - name: Get changelog for current version
         id: changelog
+        uses: mindsers/changelog-reader-action@v2
+        with:
+          version: ${{ github.ref_name }}
+
+      - name: Ensure changelog entry exists
         run: |
-          echo "## Changes" > CHANGELOG.md
-          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s" >> CHANGELOG.md
+          if [ -z "${{ steps.changelog.outputs.changes }}" ]; then
+            echo "❌ No changelog entry found for this version!"
+            exit 1
+          fi
+
+      - name: Ensure Unreleased section is empty
+        run: |
+          CONTENT=$(awk '/## \[Unreleased\]/,/## \[/' CHANGELOG.md | sed '1d;$d' | grep -vE '^\s*$')
+
+          if [ -n "$CONTENT" ]; then
+            echo "❌ Unreleased section is not empty!"
+            echo "You probably forgot to move entries to the release version."
+            exit 1
+          fi
+
+      - name: Ensure changelog has date for version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION_CLEAN=${VERSION#v}
+
+          MATCH=$(grep -E "^## \[$VERSION_CLEAN\] - [0-9]{4}-[0-9]{2}-[0-9]{2}" CHANGELOG.md || true)
+
+          if [ -z "$MATCH" ]; then
+            echo "❌ Changelog entry for $VERSION_CLEAN is missing a valid date!"
+            echo "Expected format: ## [$VERSION_CLEAN] - YYYY-MM-DD"
+            exit 1
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          body_path: CHANGELOG.md
+          body: ${{ steps.changelog.outputs.changes }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

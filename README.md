@@ -238,9 +238,12 @@ Run unit tests:
 
 ## Contributing
 
-
 For contribution details, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+
+##  Releasing
+
+For release process details, see [releasing.md](docs/releasing.md).
 
 
 ## Security

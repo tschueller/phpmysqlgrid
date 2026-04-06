@@ -54,10 +54,10 @@
   - [x] Add PHPUnit config and first automated test suite
   - [x] change directory structure to src/ and assets/
   - [x] Cleanup Changelog.md (use only relevant entries)
+- [ ] switch version to 1.0.0 release and use correct semantic versioning from there on
 
-## v0.7 (no timeline yet)
+## v1.1 (no timeline yet)
 - [ ] Repository features
-  - [ ] switch version to 1.0.0 for v0.7 release and use correct semantic versioning from there on
   - [ ] Add release checklist document for tags and publishing
   - [ ] Add README badges (CI, license, latest release)
   - [ ] update phpstan to v2 ?
@@ -91,12 +91,13 @@
 
 ### Publishing
 - [ ] move repository to Github
-  - [ ] Change branch naming to main if needed
+  - [ ] configure repository settings (branch protection, required reviews, etc.)
+  - [x] Change branch naming to main if needed
   - [x] check if the name `PhpMySQLGrid` is available and not trademarked
-  - [ ] evaluate: Set up a GitHub Pages for demo and documentation hosting
-  - [ ] add the first the old v0.5.11 version to the new repository and then add the v0.6 changes on top of it, so that the
   - [x] tag versions
-- Publish to [packagist.org/](https://packagist.org/)
+  - [x] Add GitHub Actions workflow for releases (e.g. on tag push, with changelog generation and packagist update)
+- [x] Publish to [packagist.org/](https://packagist.org/)
+- [ ] evaluate: Set up a GitHub Pages/Wiki for demo and documentation hosting
 
 
 ### Tooling / Quality
