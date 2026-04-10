@@ -22,6 +22,7 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Move core library to `src/MySQLGrid.php`; move stylesheet to `assets/css/mysqlgrid.css`.
 - Use namespace `PhpMySQLGrid` for all public classes; add PSR-4 autoloading support for host projects.
 - Migrate CSS class names to semantic CSS class names.
+- Allow `$cssClass` to be configured as a string or an array of strings to support multiple custom CSS classes.
 
 ### Removed
 - Remove `$use_icon_font` property (breaking change).
