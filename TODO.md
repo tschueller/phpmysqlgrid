@@ -54,60 +54,28 @@
   - [x] Add PHPUnit config and first automated test suite
   - [x] change directory structure to src/ and assets/
   - [x] Cleanup Changelog.md (use only relevant entries)
-- [ ] switch version to 1.0.0 release and use correct semantic versioning from there on
-
-## v1.1 (no timeline yet)
-- [ ] Repository features
-  - [ ] Add release checklist document for tags and publishing
-  - [ ] Add README badges (CI, license, latest release)
-  - [ ] update phpstan to v2 ?
-
-- [ ] Styling improvements
-  - [ ] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
-  - [ ] Improve or add hover styles for action icons
-  - [ ] Add a second themes (TBD) to demonstrate theming capabilities
-  - [ ] fix styling for tables with only a few columns (eg. remove 100% table width)
-  - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
-
-- [ ] Demo page improvements
-  - [ ] add custom theming example to demo page
-
-- [ ] Security improvements
-  - [ ] secure file-upload handling (e.g. file type/size checks, )
-
-- [ ] Testing improvements
-  - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)
-  - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
-  - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
-  - [ ] test filter/sort/pagination behavior
-  - [ ] test file upload handling and security
-
-- [ ] Documentation improvements
-    - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
-    - [ ] update readme: how to include custom styles/themes, how to customize via CSS variables, how to override icons with custom SVGs, how to use a custom theme via `$grid->cssClass`
-
-
-## Open Issues / Features / Future Work
-
-### Publishing
-- [ ] move repository to Github
-  - [ ] configure repository settings (branch protection, required reviews, etc.)
+- [x] Add release checklist document for tags and publishing
+- [ ] Publishing
+  - [x] move repository to Github
   - [x] Change branch naming to main if needed
   - [x] check if the name `PhpMySQLGrid` is available and not trademarked
   - [x] tag versions
   - [x] Add GitHub Actions workflow for releases (e.g. on tag push, with changelog generation and packagist update)
-- [x] Publish to [packagist.org/](https://packagist.org/)
-- [ ] evaluate: Set up a GitHub Pages/Wiki for demo and documentation hosting
+  - [x] Publish to [packagist.org/](https://packagist.org/)
+  - [ ] configure repository settings (branch protection, required reviews, etc.)
+- [x] make 100% table width optional
 
+
+## Open Issues / Features / Future Work
 
 ### Tooling / Quality
 - [ ] Raise PHPStan to level 9 or 10 (Reason: stricter type checks for mixed data paths in MySQLGrid.php)
+- [ ] update phpstan to v2 ?
 - [ ] Investigate PSR coding standards
   - [ ] Define target style profile (PSR-12 baseline + project-specific exceptions)
   - [ ] Decide and document array syntax policy (`array(...)` vs `[]`) for new code
   - [ ] Add phased migration plan for legacy style cleanup (touch-and-upgrade strategy)
-  - [ ] Align php-cs-fixer configuration with documented style policy
-
+  - [ ] Align php-cs-fixer configuration with documented style policy- [ ]
 
 ### Accessibility
 - [ ] Implement ARIA attributes and semantic HTML in MySQLGrid.php (table, pagination, form controls)
@@ -115,7 +83,36 @@
 - [ ] Ensure WCAG 2.2 Level AA color contrast compliance in gridstyle.css
 - [ ] Add accessibility regression tests (ARIA presence, form labels, keyboard reachability)
 
-## Features
+## Features / Improvements
 - [ ] Save limit state in session/local storage for persistence across page reloads
 - [ ] show total row count in footer (total and filtered)
-- [ ] Hover effects for action icons
+
+### Styling
+  - [ ] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
+  - [ ] Improve or add hover styles for action icons
+  - [ ] Add a second themes (TBD) to demonstrate theming capabilities
+  - [ ] fix styling for tables with only a few columns (eg. remove 100% table width)
+  - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
+
+### Demo page
+  - [ ] add custom theming example to demo page
+
+### Security
+  - [ ] secure file-upload handling (e.g. file type/size checks, )
+
+### Testing
+  - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)
+  - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
+  - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
+  - [ ] test filter/sort/pagination behavior
+  - [ ] test file upload handling and security
+
+### Documentation
+  - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
+  - [ ] update readme: how to include custom styles/themes, how to customize via CSS variables, how to override icons with custom SVGs, how to use a custom theme via `$grid->cssClass`
+  - [ ] Add README badges (CI, license, latest release)
+
+### Publishing
+
+- [ ] switch version to 1.0.0 release and use correct semantic versioning from there on
+- [ ] evaluate: Set up a GitHub Pages/Wiki for demo and documentation hosting

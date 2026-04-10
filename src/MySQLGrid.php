@@ -56,7 +56,7 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  *
  * @property string|array<int, string> $primary Primary key column name or list for composite keys.
  * @property string $style CSS class prefix used for generated markup. Default: "phpmysqlgrid".
- * @property string $cssClass Additional custom CSS class appended to the table.
+ * @property string|string[] $cssClass Additional custom CSS class(es) appended to the table. Accepts a string or array of strings.
  * @property array<int, array<string, mixed>> $columns Grid column configuration.
  * @property array<int, array<string, mixed>> $actions Extra row action button definitions.
  * @property int $limit Rows shown per page. Default: 10.
@@ -163,13 +163,6 @@ class MySQLGrid {
         $this->charset = "UTF-8";
         $this->internationalize();
         $this->initSvgIcons();
-    }
-
-    /**
-     * @deprecated Use __construct() instead.
-     */
-    public function MySQLGrid(): void {
-        self::__construct();
     }
 
     /**
@@ -874,12 +867,18 @@ class MySQLGrid {
                 $upload = true;
                 break;
             }
+        // Support cssClass as string or array
+        $cssClass = $this->cssClass;
+        if (is_array($cssClass)) {
+            $cssClass = implode(" ", $cssClass);
+        }
+        $tableClass = trim($this->style . ' ' . $cssClass);
         echo
             '<form action="', $_SERVER["PHP_SELF"], '" method="post" id="' , $this->name,'_form"',
             $upload ? ' enctype="multipart/form-data"' : '',
             '>',
             '<input type="image" style="width: 0; height: 0; border: none; visibility: hidden; position: absolute; left: -999px" />',
-            '<table class="', $this->style, ' ' , $this->cssClass ,'" border="0" cellspacing="1">';
+            '<table class="', $tableClass ,'" border="0" cellspacing="1">';
     }
 
     /**

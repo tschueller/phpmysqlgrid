@@ -45,7 +45,6 @@
 }
 
 table.phpmysqlgrid {
-    width: 100%;
     border-collapse: collapse;
     border: 1px solid var(--phpmysqlgrid-border);
     border-radius: 6px;
@@ -55,6 +54,10 @@ table.phpmysqlgrid {
     font-size: var(--phpmysqlgrid-font-size);
     line-height: var(--phpmysqlgrid-line-height);
     color: var(--phpmysqlgrid-text-color);
+}
+
+table.phpmysqlgrid.full-width {
+    width: 100%;
 }
 
 table.phpmysqlgrid th {

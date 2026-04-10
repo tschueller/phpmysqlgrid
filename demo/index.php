@@ -20,7 +20,7 @@ $grid->setDatabaseConnection($pdo, "pdo_sqlite");
 $grid->table = "users";
 $grid->primary = "id";
 $grid->name = "demo_users_grid";
-//$grid->style = "demo_users_grid";
+$grid->cssClass = "full-width";
 
 $grid->can_add = true;
 $grid->can_edit = true;
