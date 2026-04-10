@@ -62,7 +62,12 @@ jobs:
 
       - name: Ensure Unreleased section is empty
         run: |
-          CONTENT=$(awk '/## \[Unreleased\]/,/## \[/' CHANGELOG.md | sed '1d;$d' | grep -vE '^\s*$')
+          if ! grep -q '^## \[Unreleased\]' CHANGELOG.md; then
+            echo "❌ Missing [Unreleased] section in CHANGELOG.md!"
+            exit 1
+          fi
+
+          CONTENT=$(awk '/## \[Unreleased\]/,/## \[/' CHANGELOG.md | sed '1d;$d' | grep -vE '^[[:space:]]*$' || true)
 
           if [ -n "$CONTENT" ]; then
             echo "❌ Unreleased section is not empty!"
