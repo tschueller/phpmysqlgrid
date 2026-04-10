@@ -55,14 +55,14 @@
   - [x] change directory structure to src/ and assets/
   - [x] Cleanup Changelog.md (use only relevant entries)
 - [x] Add release checklist document for tags and publishing
-- [ ] Publishing
+- [x] Publishing
   - [x] move repository to Github
   - [x] Change branch naming to main if needed
   - [x] check if the name `PhpMySQLGrid` is available and not trademarked
   - [x] tag versions
   - [x] Add GitHub Actions workflow for releases (e.g. on tag push, with changelog generation and packagist update)
   - [x] Publish to [packagist.org/](https://packagist.org/)
-  - [ ] configure repository settings (branch protection, required reviews, etc.)
+  - [x] configure repository settings (branch protection, required reviews, etc.)
 - [x] make 100% table width optional
 
 
@@ -99,6 +99,10 @@
 
 ### Security
   - [ ] secure file-upload handling (e.g. file type/size checks, )
+  - [ ] harden URL-based file import in FILE fields (restrict/validate or disable by default)
+  - [ ] add CSRF protection for add/edit/delete actions
+  - [ ] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
+  - [ ] escape HTML attributes consistently (e.g. `placeholder`) in edit controls
 
 ### Testing
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)
@@ -106,6 +110,10 @@
   - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
   - [ ] test filter/sort/pagination behavior
   - [ ] test file upload handling and security
+  - [ ] add regression tests for `cssClass` as string and string-array variants
+  - [ ] add regression tests for CSRF and POST-only state-changing request handling
+  - [ ] add regression test for escaped `placeholder` attribute values
+  - [ ] add playwright test (optional) for demo page to verify basic functionality and prevent regressions
 
 ### Documentation
   - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
