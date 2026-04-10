@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . "/../src/MySQLGridAssetPublisher.php";
+
+use PhpMySQLGrid\MySQLGridAssetPublisher;
+
+try {
+    $targetPath = MySQLGridAssetPublisher::resolveTargetPathFromInput(
+        $argv,
+        getenv("PHPMYSQLGRID_ASSET_TARGET") ?: null,
+        "assets/phpmysqlgrid"
+    );
+
+    $result = MySQLGridAssetPublisher::publish(dirname(__DIR__), $targetPath);
+
+    echo "📦 Published assets to: " . $result["target"] . PHP_EOL;
+    foreach ($result["files"] as $file) {
+        echo " - " . $file["name"] . " (" . $file["hash"] . ")" . PHP_EOL;
+    }
+
+    exit(0);
+} catch (Throwable $throwable) {
+    fwrite(STDERR, "❌ Asset publish failed: " . $throwable->getMessage() . PHP_EOL);
+    exit(1);
+}

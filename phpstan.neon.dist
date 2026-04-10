@@ -1,0 +1,7 @@
+parameters:
+    phpVersion: 80200 # PHP 8.2
+    level: 8
+    paths:
+        - src
+    universalObjectCratesClasses:
+        - PhpMySQLGrid\MySQLGrid

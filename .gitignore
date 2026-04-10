@@ -1,0 +1,6 @@
+/.env
+/.php-cs-fixer.cache
+/.phpunit.cache
+/vendor
+/demo/demo.sqlite
+/assets/phpmysqlgrid

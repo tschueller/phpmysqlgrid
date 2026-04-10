@@ -1,8 +1,9 @@
 {
     "name": "tschueller/phpmysqlgrid",
     "type": "library",
-    "description": "A flexible mysql data grid for PHP",
-    "keywords": ["php", "mySQL", "Grid"],
+    "license": "MIT",
+    "description": "A flexible MySQL data grid for PHP with support for filtering, sorting, pagination and CRUD operations.",
+    "keywords": ["php", "mysql", "grid", "datagrid", "table", "pagination", "filtering", "sorting", "crud", "pdo", "sql", "database", "mariadb", "sqlite"],
     "authors": [
         {
             "name": "Klaus Reimer",
@@ -14,9 +15,41 @@
         }
     ],
     "require": {
-        "php": ">=5.3.2"
+        "php": ">=8.2"
     },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpstan/phpstan": "^1.0",
+        "phpunit/phpunit": "^11.5"
+    },
+    "bin": [
+        "bin/phpmysqlgrid-assets"
+    ],
     "autoload": {
-        "classmap": ["MySQLGrid.php"]
+        "psr-4": {
+            "PhpMySQLGrid\\": "src/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        }
+    },
+    "scripts": {
+        "lint:syntax": "php bin/lint-syntax",
+        "lint:style": "php-cs-fixer fix --dry-run --diff",
+        "fix:style": "php-cs-fixer fix",
+        "lint:static": "phpstan analyse",
+        "test": "phpunit",
+        "assets:publish": "php bin/phpmysqlgrid-assets",
+        "demo:start": [
+            "Composer\\Config::disableProcessTimeout",
+            "php -S 127.0.0.1:8000 -t . demo/router.php"
+        ],
+        "lint": [
+            "@lint:syntax",
+            "@lint:style",
+            "@lint:static"
+        ]
     }
 }
