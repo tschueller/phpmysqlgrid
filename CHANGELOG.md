@@ -3,8 +3,10 @@
 All notable changes to this project are documented in this file.
 This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) format and follows [Semantic Versioning](https://semver.org/).
 
-
 ## [Unreleased]
+
+
+## [1.0.0] - 2026-04-10
 
 ### Added
 - PHPUnit test suite covering unit, CRUD integration, SQL injection, and XSS scenarios.

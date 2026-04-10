@@ -40,9 +40,9 @@ For development in this repository:
     composer install
 
 
-## Upgrade Guide (v0.5 to v0.6)
+## Upgrade Guide (v0.5 to v1.0)
 
-See the dedicated upgrade guide in [docs/upgrade-guide.md](docs/upgrade-guide.md#v05---v06).
+See the dedicated upgrade guide in [docs/upgrade-guide.md](docs/upgrade-guide.md#v05---v10).
 
 
 ## Simple Example

@@ -2,9 +2,9 @@
 
 This document contains upgrade steps for version jumps.
 
-## v0.5 -> v0.6
+## v0.5 -> v1.0
 
-v0.6 includes breaking changes. For most projects, these are the required migration steps:
+v1.0 includes breaking changes. For most projects, these are the required migration steps:
 
 1. Require PHP 8.2 or newer.
 2. Update imports to the new namespace:
@@ -21,7 +21,7 @@ use PhpMySQLGrid\MySQLGridAssets;
     php vendor/bin/phpmysqlgrid-assets
 
 6. If you used legacy `mysqli` assumptions, switch to PDO usage patterns (internal PDO mode or injected PDO via `setDatabaseConnection()`).
-7. Remove separate icon-font/image dependencies for grid controls. v0.6 ships inline SVG icons by default, so external icon fonts and separate control-image assets are no longer required for standard usage.
+7. Remove separate icon-font/image dependencies for grid controls. v1.0 ships inline SVG icons by default, so external icon fonts and separate control-image assets are no longer required for standard usage.
 
 ### Notes
 

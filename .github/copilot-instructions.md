@@ -62,7 +62,7 @@ Each topic has a primary source where guidance is authoritative. When working, c
 | **Tests: unit vs integration, SQLite fixtures, DB testing patterns** | `.github/instructions/testing.instructions.md` | See also: README.md (quick facts) |
 | **Styling: CSS naming, theme migration, semantic classes, contrast** | `.github/instructions/styling.instructions.md` | See also: assets/css/mysqlgrid.css |
 | **Accessibility: ARIA, labels, keyboard navigation, semantic HTML** | `.github/instructions/accessibility.instructions.md` | See also: styling.instructions.md (contrast rules) |
-| **Current DB architecture: PDO, connections, why it changed** | `README.md` (Connection Modes section) | Historical context: `docs/refactoring-notes-v0.6.md` |
+| **Current DB architecture: PDO, connections, why it changed** | `README.md` (Connection Modes section) |  |
 | **Asset publishing and cache busting (manifest + helpers)** | `.github/instructions/assets.instructions.md` | Runtime helper: `src/MySQLGridAssets.php`; publish command: `bin/phpmysqlgrid-assets`; usage examples: README.md |
 | **What is being built next** | `TODO.md` | (product backlog only) |
 
