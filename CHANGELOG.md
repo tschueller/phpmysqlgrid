@@ -5,6 +5,12 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+### Added
+- Add more CSS classes for different column types.
+
+### Changed
+- Update asset manifest writing logic to prevent unnecessary overwrites on each publish.
+
 
 ## [1.0.0] - 2026-04-10
 

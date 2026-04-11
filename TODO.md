@@ -27,6 +27,7 @@
   - [ ] Add a second themes (TBD) to demonstrate theming capabilities
   - [ ] fix styling for tables with only a few columns (eg. remove 100% table width)
   - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
+  - [x] Add CSS classes for different column types (e.g. `mysqlgrid-cell--text`, `mysqlgrid-cell--select`, etc.) to allow more specific styling of different column types
 
 ### Demo page
   - [ ] add custom theming example to demo page
@@ -53,6 +54,9 @@
   - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
   - [ ] update readme: how to include custom styles/themes, how to customize via CSS variables, how to override icons with custom SVGs, how to use a custom theme via `$grid->cssClass`
   - [ ] Add README badges (CI, license, latest release)
+
+### Deployment
+  - [x] update manifest in asset publishing only if assets actually changed (e.g. by comparing file hashes) to avoid unnecessary asset updates in host projects
 
 ### Publishing
 

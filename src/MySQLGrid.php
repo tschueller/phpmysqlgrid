@@ -1036,26 +1036,44 @@ class MySQLGrid {
                 '</td>';
 
             for ($i = 0; $i < count($this->columns); $i++) {
-                switch ($this->columns[$i]["type"]) {
+                $text = $data[$i + $this->countPrimaries()];
+                $cellTypeClass = "";
+                $type = $this->columns[$i]["type"] ?? PHPMYSQLGRID_TEXT;
+                switch ($type) {
+                    case PHPMYSQLGRID_TEXT:
+                        $cellTypeClass = $this->style . "-cell--text";
+                        break;
+                    case PHPMYSQLGRID_BOOLEAN:
+                        $cellTypeClass = $this->style . "-cell--boolean";
+                        break;
+                    case PHPMYSQLGRID_LOOKUP:
+                        $cellTypeClass = $this->style . "-cell--lookup";
+                        break;
                     case PHPMYSQLGRID_PASSWORD:
+                        $cellTypeClass = $this->style . "-cell--password";
                         $text = PHPMYSQLGRID_PWDUMMY;
                         break;
+                    case PHPMYSQLGRID_SELECTION:
+                        $cellTypeClass = $this->style . "-cell--select";
+                        break;
+                    case PHPMYSQLGRID_MULTILINETEXT:
+                        $cellTypeClass = $this->style . "-cell--multilinetext";
+                        break;
                     case PHPMYSQLGRID_FILE:
+                        $cellTypeClass = $this->style . "-cell--file";
                         if (isset($this->columns[$i]['convert_output']))
                             $text = $data[$i + $this->countPrimaries()];
                         else
                             $text = $data[$i + $this->countPrimaries()] ?
                                 $this->txtFileTrue : $this->txtFileFalse;
                         break;
-                    default:
-                        $text = $data[$i + $this->countPrimaries()];
                 }
 
                 // Handle output converter
                 if (isset($this->columns[$i]["convert_output"]))
                     $text = $this->columns[$i]["convert_output"]($this, $text, $i + $this->countPrimaries(), $data, false);
                 else {
-                    switch ($this->columns[$i]["type"]) {
+                    switch ($type) {
                         case PHPMYSQLGRID_BOOLEAN:
                             $text = $text
                                 ? $this->renderIcon($this->svgBoolTrue, "bool-true")
@@ -1070,13 +1088,13 @@ class MySQLGrid {
                     }
                 }
 
-                echo '<td class="', $datastyle, '"';
+                echo '<td class="', $datastyle , ' ' , $cellTypeClass, '"';
                 if (isset($this->columns[$i]["align"]))
                     echo ' align="', $this->columns[$i]["align"], '"';
                 echo '>';
 
                 // Trust converted output, otherwise htmlentity it.
-                if (isset($this->columns[$i]["convert_output"]) || $this->columns[$i]["type"] === PHPMYSQLGRID_BOOLEAN)
+                if (isset($this->columns[$i]["convert_output"]) || $type === PHPMYSQLGRID_BOOLEAN)
                     echo $text;
                 else {
                     if (isset($this->columns[$i]["size"])

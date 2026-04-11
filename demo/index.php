@@ -115,6 +115,11 @@ $grid->columns = array(
     <title>First Demo - User Grid</title>
     <?= \DemoAsset::gridStylesheetTag($_GET) ?>
     <?= \DemoAsset::demoStylesheetTag() ?>
+    <style>
+        .phpmysqlgrid-cell--boolean {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 <div class="demo-shell">
