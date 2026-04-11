@@ -56,7 +56,7 @@
 
 ### Publishing
 
-- [ ] switch version to 1.0.0 release and use correct semantic versioning from there on
+- [x] switch version to 1.0.0 release and use correct semantic versioning from there on
 - [ ] evaluate: Set up a GitHub Pages/Wiki for demo and documentation hosting
 
 
@@ -65,7 +65,7 @@
 
 ## Archive
 
-### v0.6 (next major version, currently in development)
+### v0.6
 
 - [x] Convert code style to 1TBS (one true brace style)
 - [x] Require PHP >= 8.2

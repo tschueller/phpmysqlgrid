@@ -134,19 +134,39 @@ final class MySQLGridAssetPublisher {
             );
         }
 
-        $manifest = array(
-            "generated_at" => gmdate("c"),
+        $manifestPath = $targetPath . DIRECTORY_SEPARATOR . self::MANIFEST_FILE;
+
+        // Build new manifest structure (without generated_at for comparison)
+        $newManifestData = array(
             "files" => $files,
         );
 
-        $manifestJson = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        if (!is_string($manifestJson)) {
-            throw new \RuntimeException("Failed to encode asset manifest.");
+        $shouldWrite = true;
+        if (is_file($manifestPath)) {
+            $existingJson = file_get_contents($manifestPath);
+            if (is_string($existingJson)) {
+                $existingData = json_decode($existingJson, true);
+                if (is_array($existingData) && isset($existingData["files"])) {
+                    // Vergleiche nur den files-Block
+                    if ($existingData["files"] === $newManifestData["files"]) {
+                        $shouldWrite = false;
+                    }
+                }
+            }
         }
 
-        $manifestPath = $targetPath . DIRECTORY_SEPARATOR . self::MANIFEST_FILE;
-        if (file_put_contents($manifestPath, $manifestJson . PHP_EOL) === false) {
-            throw new \RuntimeException("Failed to write asset manifest.");
+        if ($shouldWrite) {
+            $manifest = array(
+                "generated_at" => gmdate("c"),
+                "files" => $files,
+            );
+            $manifestJson = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            if (!is_string($manifestJson)) {
+                throw new \RuntimeException("Failed to encode asset manifest.");
+            }
+            if (file_put_contents($manifestPath, $manifestJson . PHP_EOL) === false) {
+                throw new \RuntimeException("Failed to write asset manifest.");
+            }
         }
     }
 }
