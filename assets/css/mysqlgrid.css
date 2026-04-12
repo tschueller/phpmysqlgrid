@@ -25,7 +25,6 @@
     --phpmysqlgrid-text-color: #212529;
 
     /* Effects */
-    --phpmysqlgrid-shadow: rgba(0, 0, 0, 0.1);
     --phpmysqlgrid-add-button-hover-bg: rgba(255, 255, 255, 0.2);
     --phpmysqlgrid-pagination-hover-bg: rgba(255, 255, 255, 0.2);
     --phpmysqlgrid-pagination-current-bg: rgba(255, 255, 255, 0.25);
@@ -38,16 +37,37 @@
     --phpmysqlgrid-icon-bool-true: #2b8a3e;
     --phpmysqlgrid-icon-bool-false: #c92a2a;
 
+    /* Icon sizes */
+    --phpmysqlgrid-icon-action-spacing: 0.75em;
+    --phpmysqlgrid-icon-confirm-font-size: 1.3em;
+    --phpmysqlgrid-icon-edit-font-size: 1em;
+    --phpmysqlgrid-icon-delete-font-size: 1.5em;
+    --phpmysqlgrid-icon-add-font-size: 2em;
+    --phpmysqlgrid-icon-bool-true-font-size: 1.1em;
+    --phpmysqlgrid-icon-bool-false-font-size: 1.1em;
+
     /* Typography */
     --phpmysqlgrid-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --phpmysqlgrid-font-size: 14px;
     --phpmysqlgrid-line-height: 1.5;
+    --phpmysqlgrid-header-font-weight: 600;
+    --phpmysqlgrid-header-text-align: left;
+
+    /* Table border */
+    --phpmysqlgrid-border-size: 1px;
+    --phpmysqlgrid-border-radius: 6px;
+    --phpmysqlgrid-border-collapse: collapse;
+    --phpmysqlgrid-shadow: rgba(0, 0, 0, 0.1);
+
+    /* Table cells */
+    --phpmysqlgrid-cell-header-padding: 0.8em 1em;
+    --phpmysqlgrid-cell-body-padding: 0.5em 1em;
 }
 
 table.phpmysqlgrid {
-    border-collapse: collapse;
-    border: 1px solid var(--phpmysqlgrid-border);
-    border-radius: 6px;
+    border-collapse: var(--phpmysqlgrid-border-collapse);
+    border: var(--phpmysqlgrid-border-size) solid var(--phpmysqlgrid-border);
+    border-radius: var(--phpmysqlgrid-border-radius);
     overflow: hidden;
     box-shadow: 0 1px 3px var(--phpmysqlgrid-shadow);
     font-family: var(--phpmysqlgrid-font-family);
@@ -61,12 +81,12 @@ table.phpmysqlgrid.full-width {
 }
 
 table.phpmysqlgrid th {
-    padding: 0.8em 1em;
+    padding: var(--phpmysqlgrid-cell-header-padding);
     margin: 0;
-    font-weight: 600;
+    font-weight: var(--phpmysqlgrid-header-font-weight);
     background-color: var(--phpmysqlgrid-header-bg);
     color: var(--phpmysqlgrid-header-text);
-    text-align: left;
+    text-align: var(--phpmysqlgrid-header-text-align);
 }
 
 table.phpmysqlgrid th a {
@@ -80,7 +100,7 @@ table.phpmysqlgrid tbody {
 }
 
 table.phpmysqlgrid td {
-    padding: 0.5em 1em;
+    padding: var(--phpmysqlgrid-cell-body-padding);
     margin: 0;
 }
 
@@ -101,17 +121,6 @@ table.phpmysqlgrid tr:hover td[class*="-cell"]:not([class*="--add"]):not([class*
     background-color: var(--phpmysqlgrid-row-hover);
 }
 
-/* Action cells - must override row colors */
-/* table.phpmysqlgrid td[class*="-action"] {
-    background-color: var(--phpmysqlgrid-action-bg);
-    color: var(--phpmysqlgrid-action-text);
-} */
-
-/* table.phpmysqlgrid td[class*="-action"] a {
-    color: inherit;
-    text-decoration: none;
-} */
-
 table.phpmysqlgrid [class*="-icon"] {
     display: inline-block;
     line-height: 1;
@@ -127,38 +136,41 @@ table.phpmysqlgrid [class*="-icon"] svg {
 }
 
 table.phpmysqlgrid td[class*="-action"] a + a {
-    margin-left: 0.75em;
+    margin-left: var(--phpmysqlgrid-icon-action-spacing);
 }
 
 table.phpmysqlgrid td[class*="-action"] [class*="-icon"] {
     stroke: currentColor;
     stroke-width: 0.75;
-    font-size: 1.5em;
 }
 
 table.phpmysqlgrid td[class*="-action"] [class*="-icon--confirm"] {
-    font-size: 1.3em;
+    font-size: var(--phpmysqlgrid-icon-confirm-font-size);
     color: var(--phpmysqlgrid-icon-confirm);
 }
 
 table.phpmysqlgrid td[class*="-action"] [class*="-icon--edit"] {
-    font-size: 1em;
+    font-size: var(--phpmysqlgrid-icon-edit-font-size);
     color: var(--phpmysqlgrid-icon-edit);
 }
 
 table.phpmysqlgrid td[class*="-action"] [class*="-icon--delete"] {
+    font-size: var(--phpmysqlgrid-icon-delete-font-size);
     color: var(--phpmysqlgrid-icon-delete);
 }
 
 table.phpmysqlgrid td[class*="-action"] [class*="-icon--add"] {
+    font-size: var(--phpmysqlgrid-icon-add-font-size);
     color: var(--phpmysqlgrid-icon-add);
 }
 
 table.phpmysqlgrid [class*="-icon--bool-true"] {
+    font-size: var(--phpmysqlgrid-icon-bool-true-font-size);
     color: var(--phpmysqlgrid-icon-bool-true);
 }
 
 table.phpmysqlgrid [class*="-icon--bool-false"] {
+    font-size: var(--phpmysqlgrid-icon-bool-false-font-size);
     color: var(--phpmysqlgrid-icon-bool-false);
 }
 
@@ -215,7 +227,6 @@ table.phpmysqlgrid .add-button {
     min-width: 1.5em;
     text-decoration: none;
     color: var(--phpmysqlgrid-footer-text);
-    font-size: 18px;
     padding: 5px;
     border-radius: 4px;
     transition: background-color 0.15s;
