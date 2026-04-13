@@ -858,6 +858,52 @@ class MySQLGrid {
     }
 
     /**
+     * Returns the HTML-escaped value of PHP_SELF, safe for use in href and action attributes.
+     */
+    private function selfUrl(): string {
+        return htmlspecialchars($_SERVER["PHP_SELF"], ENT_QUOTES, $this->charset);
+    }
+
+    /**
+     * Extracts preserved GET parameters (non-grid-specific) merged with grid parameters.
+     *
+     * @param array<string, string|int|float> $gridParams Grid parameters to merge.
+     * @return array<string, string> Merged parameters.
+     * @internal
+     */
+    protected function getPreservedParams(array $gridParams = []): array {
+        $params = [];
+        if (is_array($_GET)) {
+            foreach ($_GET as $key => $value) {
+                if (is_string($key) && strpos($key, $this->name . "_") === 0) {
+                    continue;
+                }
+                if (is_scalar($value)) {
+                    $params[(string)$key] = (string)$value;
+                }
+            }
+        }
+        foreach ($gridParams as $key => $value) {
+            $params[(string)$key] = (string)$value;
+        }
+        return $params;
+    }
+
+    /**
+     * Builds a URL with preserved query parameters (except MySQLGrid command parameters).
+     *
+     * Preserves existing GET parameters (e.g., theme, asset_mode) and adds new MySQLGrid parameters.
+     * All grid-specific parameters are filtered out before adding new ones.
+     *
+     * @param array<string, string|int|float> $gridParams Grid-specific parameters to add.
+     * @return string Full query string with preserved parameters and grid parameters.
+     */
+    private function buildUrl(array $gridParams): string {
+        $params = $this->getPreservedParams($gridParams);
+        return http_build_query($params, "", "&amp;");
+    }
+
+    /**
      * @internal
      * @ignore
      */
@@ -876,8 +922,16 @@ class MySQLGrid {
             $cssClass = implode(" ", $cssClass);
         }
         $tableClass = trim($this->style . ' ' . $cssClass);
+
+        // Build form action with preserved GET parameters
+        $formAction = $this->selfUrl();
+        $preservedParams = $this->getPreservedParams();
+        if (!empty($preservedParams)) {
+            $formAction .= "?" . http_build_query($preservedParams, "", "&amp;");
+        }
+
         echo
-            '<form action="', $_SERVER["PHP_SELF"], '" method="post" id="' , $this->name,'_form"',
+            '<form action="', $formAction, '" method="post" id="' , $this->name,'_form"',
             $upload ? ' enctype="multipart/form-data"' : '',
             '>',
             '<input type="image" style="width: 0; height: 0; border: none; visibility: hidden; position: absolute; left: -999px" />',
@@ -911,9 +965,8 @@ class MySQLGrid {
             if ($this->can_sort && $this->columns[$i]['can_sort']
                     && ($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD))
                 echo
-                    '<a href="', $_SERVER["PHP_SELF"], '?',
-                    $this->cmdSetSort, '=', $i, '&amp;',
-                    $this->cmdSetDir, '=0"',
+                    '<a href="', $this->selfUrl(), '?',
+                    $this->buildUrl(array($this->cmdSetSort => $i, $this->cmdSetDir => 0)), '"',
                     ' aria-label="', $this->convertToHtmlEntities($this->txtSortAsc),
                     '" title="', $this->convertToHtmlEntities($this->txtSortAsc), '">',
                         $this->renderIcon((($this->sort == $i) && !$this->dir) ? $this->svgSortAscActive : $this->svgSortAscInactive, "sort-asc"),
@@ -935,9 +988,8 @@ class MySQLGrid {
             if ($this->can_sort && $this->columns[$i]['can_sort']
                     && ($this->columns[$i]["type"] != PHPMYSQLGRID_PASSWORD))
                 echo
-                    '&nbsp;<a href="', $_SERVER["PHP_SELF"], '?',
-                    $this->cmdSetSort, '=', $i, '&amp;',
-                    $this->cmdSetDir, '=1"',
+                    '&nbsp;<a href="', $this->selfUrl(), '?',
+                    $this->buildUrl(array($this->cmdSetSort => $i, $this->cmdSetDir => 1)), '"',
                     ' aria-label="', $this->convertToHtmlEntities($this->txtSortDesc),
                     '" title="', $this->convertToHtmlEntities($this->txtSortDesc), '">',
                         $this->renderIcon((($this->sort == $i) && $this->dir) ? $this->svgSortDescActive : $this->svgSortDescInactive, "sort-desc"),
@@ -971,15 +1023,14 @@ class MySQLGrid {
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
                 && ($_REQUEST[$this->varDeleteID] == $data[0])) {
                 echo
-                    '<a href="', $_SERVER["PHP_SELF"], '?',
-                    $this->cmdConfirmDelete, '=1&amp;',
-                    $this->varDeleteID, '=', $data[0],
+                    '<a href="', $this->selfUrl(), '?',
+                    $this->buildUrl(array($this->cmdConfirmDelete => 1, $this->varDeleteID => $data[0])), '"',
                     '" aria-label="', $this->convertToHtmlEntities($this->txtConfirm),
                     '" title="', $this->convertToHtmlEntities($this->txtConfirm), '">',
                         $this->renderIcon($this->svgIconConfirm, "confirm"),
                     '</a>',
-                    '<a href="', $_SERVER["PHP_SELF"], '?',
-                    $this->cmdCancel, '=1"',
+                    '<a href="', $this->selfUrl(), '?',
+                    $this->buildUrl(array($this->cmdCancel => 1)), '"',
                     ' aria-label="', $this->convertToHtmlEntities($this->txtCancel),
                     '" title="', $this->convertToHtmlEntities($this->txtCancel), '">',
                         $this->renderIcon($this->svgIconCancel, "delete"),
@@ -987,9 +1038,8 @@ class MySQLGrid {
             } else {
                 if ($this->can_edit) {
                     echo
-                        '<a href="', $_SERVER["PHP_SELF"], '?',
-                        $this->cmdEdit, '=1&amp;', $this->varEditID,
-                        '=', $data[0],
+                        '<a href="', $this->selfUrl(), '?',
+                        $this->buildUrl(array($this->cmdEdit => 1, $this->varEditID => $data[0])), '"',
                         '" aria-label="', $this->convertToHtmlEntities($this->txtEdit),
                         '" title="', $this->convertToHtmlEntities($this->txtEdit), '">',
                             $this->renderIcon($this->svgIconEdit, "edit"),
@@ -997,9 +1047,8 @@ class MySQLGrid {
                 }
                 if ($this->can_delete) {
                     echo
-                        '<a href="', $_SERVER["PHP_SELF"], '?',
-                        $this->cmdDelete, '=1&amp;', $this->varDeleteID,
-                        '=', $data[0],
+                        '<a href="', $this->selfUrl(), '?',
+                        $this->buildUrl(array($this->cmdDelete => 1, $this->varDeleteID => $data[0])), '"',
                         '" aria-label="', $this->convertToHtmlEntities($this->txtDelete),
                         '" title="', $this->convertToHtmlEntities($this->txtDelete), '">',
                             $this->renderIcon($this->svgIconDelete, "delete"),
@@ -1151,8 +1200,8 @@ class MySQLGrid {
                 '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
                     $this->renderIcon($this->svgIconConfirm, "confirm").
                 '</a>',
-                '<a href="', $_SERVER["PHP_SELF"], "?",
-                $this->cmdCancel, '=1"',
+                '<a href="', $this->selfUrl(), "?",
+                $this->buildUrl(array($this->cmdCancel => 1)), '"',
                 ' aria-label="', $this->convertToHtmlEntities($this->txtCancel),
                 '" title="', $this->convertToHtmlEntities($this->txtCancel), '">',
                     $this->renderIcon($this->svgIconCancel, "delete"),
@@ -1164,8 +1213,8 @@ class MySQLGrid {
                 '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
                     $this->renderIcon($this->svgIconConfirm, "confirm").
                 '</a>',
-                '<a href="', $_SERVER["PHP_SELF"], "?",
-                $this->cmdCancel, '=1"',
+                '<a href="', $this->selfUrl(), "?",
+                $this->buildUrl(array($this->cmdCancel => 1)), '"',
                 ' aria-label="', $this->convertToHtmlEntities($this->txtCancel),
                 '" title="', $this->convertToHtmlEntities($this->txtCancel), '">',
                     $this->renderIcon($this->svgIconCancel, "delete"),
@@ -1384,7 +1433,7 @@ class MySQLGrid {
         // Draw Add Button if wanted
         if ($this->can_add) {
             echo
-                '<a href="', $_SERVER["PHP_SELF"], '?', $this->cmdAdd, '=1#',$this->name,'_bottom" class="add-button"',
+                '<a href="', $this->selfUrl(), '?', $this->buildUrl(array($this->cmdAdd => 1)), '#',$this->name,'_bottom" class="add-button"',
                 ' aria-label="', $this->convertToHtmlEntities($this->txtAdd),
                 '" title="', $this->convertToHtmlEntities($this->txtAdd), '">',
                     $this->renderIcon($this->svgIconAdd, "add"),
@@ -1400,7 +1449,7 @@ class MySQLGrid {
             // Prev button
             if ($this->page > 1) {
                 echo '<a class="', $this->style, '-pagination-prev" href="',
-                    $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $this->page - 1,
+                    $this->selfUrl(), '?', $this->buildUrl(array($this->cmdSetPage => $this->page - 1)),
                     '" aria-label="', $this->convertToHtmlEntities($this->txtPrevious), '">',
                     $this->renderIcon($this->svgNavPrev, "previous"), '</a>';
             } else {
@@ -1415,7 +1464,7 @@ class MySQLGrid {
             if ($this->page > 3) {
                 echo '<li class="', $this->style, '-pagination-item">',
                     '<a class="', $this->style, '-pagination-link" href="',
-                    $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=1">1</a>',
+                    $this->selfUrl(), '?', $this->buildUrl(array($this->cmdSetPage => 1)), '">1</a>',
                     '</li>';
             }
             if ($this->page > 4) {
@@ -1431,7 +1480,7 @@ class MySQLGrid {
                 } else {
                     echo '<li class="', $this->style, '-pagination-item">',
                         '<a class="', $this->style, '-pagination-link" href="',
-                        $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $i, '">', $i, '</a>',
+                        $this->selfUrl(), '?', $this->buildUrl(array($this->cmdSetPage => $i)), '">', $i, '</a>',
                         '</li>';
                 }
             }
@@ -1443,7 +1492,7 @@ class MySQLGrid {
             if ($this->page < $pages - 2) {
                 echo '<li class="', $this->style, '-pagination-item">',
                     '<a class="', $this->style, '-pagination-link" href="',
-                    $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $pages, '">', $pages, '</a>',
+                    $this->selfUrl(), '?', $this->buildUrl(array($this->cmdSetPage => $pages)), '">', $pages, '</a>',
                     '</li>';
             }
 
@@ -1452,7 +1501,7 @@ class MySQLGrid {
             // Next button
             if ($this->page < $pages) {
                 echo '<a class="', $this->style, '-pagination-next" href="',
-                    $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $this->page + 1,
+                    $this->selfUrl(), '?', $this->buildUrl(array($this->cmdSetPage => $this->page + 1)),
                     '" aria-label="', $this->convertToHtmlEntities($this->txtNext), '">',
                     $this->renderIcon($this->svgNavNext, "next"), '</a>';
             } else {

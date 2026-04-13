@@ -51,10 +51,6 @@ $limit = isset($_GET["limit"]) ? (int) $_GET["limit"] : 5;
 $limit = max(1, min(10, $limit));
 $grid->limit = $limit;
 
-// category_id is NOT NULL in the schema but not shown in the grid;
-// use add_values to always supply a default when inserting.
-$grid->add_values = array("category_id" => 1);
-
 $grid->columns = array(
     array(
         "field" => "name",

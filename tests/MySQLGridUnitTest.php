@@ -8,6 +8,17 @@ use PhpMySQLGrid\MySQLGrid;
 use PHPUnit\Framework\TestCase;
 
 final class MySQLGridUnitTest extends TestCase {
+    private array $originalGet = [];
+
+    protected function setUp(): void {
+        // Save original $_GET to prevent test interference
+        $this->originalGet = $_GET;
+    }
+
+    protected function tearDown(): void {
+        // Restore original $_GET
+        $_GET = $this->originalGet;
+    }
     public function testCountPrimariesWithCompositeKey(): void {
         $grid = new MySQLGrid();
         $grid->primary = array("id", "tenant_id");
@@ -472,5 +483,48 @@ final class MySQLGridUnitTest extends TestCase {
         $output = ob_get_clean();
 
         $this->assertStringContainsString('class="phpmysqlgrid-action phpmysqlgrid-cell--even phpmysqlgrid-action--add"', $output);
+    }
+
+    public function testGetPreservedParamsFiltersGridSpecificParams(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "users";
+        $grid->prepareQueryVars();
+
+        // Simulate GET with grid-specific and non-grid params
+        $_GET = array(
+            "theme" => "dark",
+            "users_setpage" => "2",
+            "users_sort" => "name",
+            "limit" => "50",
+        );
+
+        // Use reflection to call protected method
+        $reflection = new \ReflectionMethod($grid, "getPreservedParams");
+        $preserved = $reflection->invoke($grid);
+
+        // Non-grid params should be kept
+        $this->assertArrayHasKey("theme", $preserved);
+        $this->assertArrayHasKey("limit", $preserved);
+        $this->assertSame("dark", $preserved["theme"]);
+        $this->assertSame("50", $preserved["limit"]);
+
+        // Grid-specific params should be filtered out
+        $this->assertArrayNotHasKey("users_setpage", $preserved);
+        $this->assertArrayNotHasKey("users_sort", $preserved);
+    }
+
+    public function testGetPreservedParamsMergesGridParams(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "products";
+        $grid->prepareQueryVars();
+
+        $_GET = array("theme" => "light");
+
+        // Use reflection to call protected method with arguments
+        $reflection = new \ReflectionMethod($grid, "getPreservedParams");
+        $result = $reflection->invoke($grid, array("cmdSort" => "price"));
+
+        $this->assertSame("light", $result["theme"]);
+        $this->assertSame("price", $result["cmdSort"]);
     }
 }

@@ -11,6 +11,10 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Add new dark theme CSS file (`mysqlgrid-theme-dark.css`) and use it in the second demo page.
 - Add simplified configuration-based asset helper API: `configure()`, `setDefaultPublicBasePath()`, `setDefaultDocumentRoot()`, `resetConfiguration()`, and `*For()` helper methods.
 - Add light theme CSS file (`mysqlgrid-theme-light.css`) and a theme selection to the second demo page.
+- Preserve non-grid GET parameters (e.g. `theme`, `limit`) across all grid links and form submissions (pagination, sorting, row actions, add/edit/delete, filter).
+
+### Fixed
+- Fix XSS vulnerability: `$_SERVER["PHP_SELF"]` is now HTML-escaped via `selfUrl()` before output in all `href` and `action` attributes.
 
 ### Changed
 - Update asset manifest writing logic to prevent unnecessary overwrites on each publish.
