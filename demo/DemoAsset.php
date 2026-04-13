@@ -115,6 +115,10 @@ final class DemoAsset {
             return "mysqlgrid-theme-dark.css";
         }
 
+        if ($theme === "light") {
+            return "mysqlgrid-theme-light.css";
+        }
+
         return "mysqlgrid-theme-default.css";
     }
 

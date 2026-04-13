@@ -10,6 +10,7 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Add split CSS helper methods `MySQLGridAssets::cssUrls()` and `MySQLGridAssets::cssTags()` for loading `mysqlgrid-base.css` + `mysqlgrid-theme-default.css`.
 - Add new dark theme CSS file (`mysqlgrid-theme-dark.css`) and use it in the second demo page.
 - Add simplified configuration-based asset helper API: `configure()`, `setDefaultPublicBasePath()`, `setDefaultDocumentRoot()`, `resetConfiguration()`, and `*For()` helper methods.
+- Add light theme CSS file (`mysqlgrid-theme-light.css`) and a theme selection to the second demo page.
 
 ### Changed
 - Update asset manifest writing logic to prevent unnecessary overwrites on each publish.

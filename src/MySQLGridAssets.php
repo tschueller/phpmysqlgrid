@@ -21,6 +21,7 @@ final class MySQLGridAssets {
     private static array $builtInThemes = array(
         "default" => array("mysqlgrid-base.css", "mysqlgrid-theme-default.css"),
         "dark" => array("mysqlgrid-base.css", "mysqlgrid-theme-dark.css"),
+        "light" => array("mysqlgrid-base.css", "mysqlgrid-theme-light.css"),
     );
 
     /**

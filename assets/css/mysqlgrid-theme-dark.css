@@ -1,8 +1,8 @@
 /* MySQLGrid dark theme.
  *
  * To use this theme, load base + this file instead of default theme:
- *     <?= MySQLGridAssets::cssUrl('/assets/phpmysqlgrid', 'mysqlgrid-base.css'); ?>
- *     <?= MySQLGridAssets::cssUrl('/assets/phpmysqlgrid', 'mysqlgrid-theme-dark.css'); ?>
+ *     <?php MySQLGridAssets::configure('/assets/phpmysqlgrid'); ?>
+ *     <?= MySQLGridAssets::cssTagsFor('dark'); ?>
  */
 
 table.phpmysqlgrid.theme-dark {
