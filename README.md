@@ -189,14 +189,51 @@ Use the static helper to generate a stylesheet URL with cache busting.
 Published assets store their hash once in a manifest during `assets:publish`.
 The helper reads that manifest first, falls back to a direct content hash when no manifest is available, and finally falls back to package version.
 
+
+### Recommended: Load base + theme (best for theming)
+
+The grid stylesheet is split into two parts:
+- **Base** (`mysqlgrid-base.css`): Table structure, layout, pagination flex grid
+- **Theme** (`mysqlgrid-theme-default.css`): Colors, fonts, visual states
+
+This separation lets you create custom themes by writing only a new theme CSS, without duplicating base structure.
+Theme tokens are scoped to the grid table, so different grids on the same page can use different themes.
+
 ```php
 use PhpMySQLGrid\MySQLGridAssets;
 
-echo MySQLGridAssets::cssTag('/assets/phpmysqlgrid');
-// or:
-$href = MySQLGridAssets::cssUrl('/assets/phpmysqlgrid');
-echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">';
+// Load default theme (base + default theme)
+echo MySQLGridAssets::cssTags('/assets/phpmysqlgrid');
 ```
+
+If you want different themes per grid, assign a theme class via `$grid->cssClass`:
+
+```php
+$usersGrid->cssClass = "theme-default";
+$productsGrid->cssClass = "theme-dark";
+```
+
+Or manually for more control:
+
+```php
+$baseHref = MySQLGridAssets::cssUrl('/assets/phpmysqlgrid', 'mysqlgrid-base.css');
+$defaultThemeHref = MySQLGridAssets::cssUrl('/assets/phpmysqlgrid', 'mysqlgrid-theme-default.css');
+$darkThemeHref = MySQLGridAssets::cssUrl('/assets/phpmysqlgrid', 'mysqlgrid-theme-dark.css');
+
+echo '<link rel="stylesheet" href="' . htmlspecialchars($baseHref, ENT_QUOTES, 'UTF-8') . '">';
+echo '<link rel="stylesheet" href="' . htmlspecialchars($defaultThemeHref, ENT_QUOTES, 'UTF-8') . '">';
+echo '<link rel="stylesheet" href="' . htmlspecialchars($darkThemeHref, ENT_QUOTES, 'UTF-8') . '">';
+```
+
+### Legacy: Single-file include
+
+For backward compatibility, the single-file wrapper still works:
+
+```php
+echo MySQLGridAssets::cssTag('/assets/phpmysqlgrid', 'mysqlgrid.css');
+```
+
+This internally loads both base and default theme files. Use this if you don't plan to switch themes.
 
 Manual include (without helper):
 

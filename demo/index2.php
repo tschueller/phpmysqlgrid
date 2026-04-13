@@ -10,6 +10,10 @@ use PhpMySQLGrid\MySQLGrid;
 
 session_start();
 
+if (!isset($_GET["theme"])) {
+    $_GET["theme"] = "dark";
+}
+
 $databaseFilePath = __DIR__ . "/demo.sqlite";
 $resetDatabase = isset($_GET["reset"]) && $_GET["reset"] === "1";
 
@@ -20,6 +24,7 @@ $grid->setDatabaseConnection($pdo, "pdo_sqlite");
 $grid->table = "products";
 $grid->primary = "id";
 $grid->name = "demo_products_grid";
+$grid->cssClass = "theme-dark";
 
 $grid->can_add = true;
 $grid->can_edit = true;

@@ -13,16 +13,27 @@ use PhpMySQLGrid\MySQLGridAssets;
  *   to MySQLGridAssets (manifest/content hash/version fallback).
  */
 final class DemoAsset {
+    /**
+     * Builds stylesheet link tags for the grid assets based on demo mode and selected theme.
+     *
+     * @param array<string, mixed> $query Request query parameters.
+     */
     public static function gridStylesheetTag(array $query): string {
         $assetMode = self::resolveAssetMode($query);
+        $themeFile = self::resolveThemeFile($query);
+        $cssFiles = array("mysqlgrid-base.css", $themeFile);
 
         if ($assetMode === "published") {
             $publishedBasePath = getenv("PHPMYSQLGRID_DEMO_ASSET_BASE") ?: "/assets/phpmysqlgrid";
-            return MySQLGridAssets::cssTag($publishedBasePath, "mysqlgrid.css");
+            return MySQLGridAssets::cssTags($publishedBasePath, null, $cssFiles);
         }
 
-        $cacheToken = self::fileMTimeToken(__DIR__ . "/../assets/css/mysqlgrid.css");
-        return '<link rel="stylesheet" href="/assets/css/mysqlgrid.css?v=' . self::escapeHtml($cacheToken) . '">';
+        $baseToken = self::fileMTimeToken(__DIR__ . "/../assets/css/mysqlgrid-base.css");
+        $themeToken = self::fileMTimeToken(__DIR__ . "/../assets/css/" . $themeFile);
+
+        return '<link rel="stylesheet" href="/assets/css/mysqlgrid-base.css?v=' . self::escapeHtml($baseToken) . '">'
+            . "\n"
+            . '<link rel="stylesheet" href="/assets/css/' . self::escapeHtml($themeFile) . '?v=' . self::escapeHtml($themeToken) . '">';
     }
 
     public static function demoStylesheetTag(): string {
@@ -30,6 +41,12 @@ final class DemoAsset {
         return '<link rel="stylesheet" href="/demo/demo.css?v=' . self::escapeHtml($cacheToken) . '">';
     }
 
+    /**
+     * Builds the grid JavaScript tag for repo or published mode.
+     *
+     * @param array<string, mixed> $query Request query parameters.
+     * @param bool $defer Whether the script should be loaded with defer.
+     */
     public static function gridScriptTag(array $query, bool $defer = true): string {
         $assetMode = self::resolveAssetMode($query);
 
@@ -49,6 +66,11 @@ final class DemoAsset {
         return '<script src="/assets/js/mysqlgrid.js?v=' . self::escapeHtml($cacheToken) . '"' . $deferAttribute . '></script>';
     }
 
+    /**
+     * Builds the demo page script tag.
+     *
+     * @param bool $defer Whether the script should be loaded with defer.
+     */
     public static function demoScriptTag(bool $defer = true): string {
         $scriptPath = __DIR__ . "/demo.js";
         if (!is_file($scriptPath)) {
@@ -78,6 +100,20 @@ final class DemoAsset {
         }
 
         return "repo";
+    }
+
+    private static function resolveThemeFile(array $query): string {
+        $theme = "default";
+
+        if (isset($query["theme"]) && is_string($query["theme"])) {
+            $theme = strtolower(trim($query["theme"]));
+        }
+
+        if ($theme === "dark") {
+            return "mysqlgrid-theme-dark.css";
+        }
+
+        return "mysqlgrid-theme-default.css";
     }
 
     private static function fileMTimeToken(string $path): string {

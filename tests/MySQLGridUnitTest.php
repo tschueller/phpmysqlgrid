@@ -433,6 +433,29 @@ final class MySQLGridUnitTest extends TestCase {
         $this->assertStringContainsString('phpmysqlgrid-pagination-ellipsis', $output);
     }
 
+    public function testDrawNavigationUsesCustomStylePrefixForPaginationClasses(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "test_grid";
+        $grid->style = "customgrid";
+        $grid->can_navigate = true;
+        $grid->columns = array(array("field" => "id"));
+        $grid->rows = 50;
+        $grid->page = 2;
+        $grid->limit = 10;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('class="customgrid-pagination"', $output);
+        $this->assertStringContainsString('class="customgrid-pagination-prev"', $output);
+        $this->assertStringContainsString('class="customgrid-pagination-next"', $output);
+        $this->assertStringContainsString('class="customgrid-pagination-link"', $output);
+        $this->assertStringContainsString('class="customgrid-pagination-current"', $output);
+    }
+
     public function testDrawEditControlsAddsOddEvenModifierToActionCell(): void {
         $grid = new MySQLGrid();
         $grid->name = "test_grid";

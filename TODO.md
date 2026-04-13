@@ -16,21 +16,24 @@
 - [ ] Add keyboard navigation support (Tab order, focus indicators, escape handling)
 - [ ] Ensure WCAG 2.2 Level AA color contrast compliance in gridstyle.css
 - [ ] Add accessibility regression tests (ARIA presence, form labels, keyboard reachability)
+- [ ] disable add button in add mode
+- [ ] use automated accessibility testing tools (e.g. axe) on demo page to identify and fix issues
 
 ## Features / Improvements
 - [ ] Save limit state in session/local storage for persistence across page reloads
 - [ ] show total row count in footer (total and filtered)
 
 ### Styling
-  - [ ] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
+  - [x] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
   - [ ] Improve or add hover styles for action icons
   - [ ] Add a second themes (TBD) to demonstrate theming capabilities
-  - [ ] fix styling for tables with only a few columns (eg. remove 100% table width)
+  - [ ] fix styling for tables with only a few columns (e.g. in full width mode centering content, max-width for action cells)
   - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
   - [x] Add CSS classes for different column types (e.g. `mysqlgrid-cell--text`, `mysqlgrid-cell--select`, etc.) to allow more specific styling of different column types
+  - [ ] Implement real dark mode support (e.g. via `prefers-color-scheme` media query) in default theme
 
 ### Demo page
-  - [ ] add custom theming example to demo page
+  - [x] add custom theming example to demo page
 
 ### Security
   - [ ] secure file-upload handling (e.g. file type/size checks, )
@@ -51,6 +54,7 @@
   - [ ] add playwright test (optional) for demo page to verify basic functionality and prevent regressions
 
 ### Documentation
+  - [ ] check parameter typings. (eg. `mixed` types in MySQLGrid.php which could be more specific, especially for public API methods)
   - [ ] Documentation in readme for grid configuration, styling, columns types, convert_input/convert_output etc.
   - [ ] update readme: how to include custom styles/themes, how to customize via CSS variables, how to override icons with custom SVGs, how to use a custom theme via `$grid->cssClass`
   - [ ] Add README badges (CI, license, latest release)

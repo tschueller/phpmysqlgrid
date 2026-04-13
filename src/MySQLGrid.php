@@ -60,7 +60,7 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  * @property array<int, array<string, mixed>> $columns Grid column configuration.
  * @property array<int, array<string, mixed>> $actions Extra row action button definitions.
  * @property int $limit Rows shown per page. Default: 10.
- * @property string $name Grid instance name used for generated query/session keys. Default: "phpmysqlgrid".
+ * @property string $name Grid instance name used for generated query/session keys and for id attributes. Must be unique. Default: "phpmysqlgrid".
  *
  * @property bool $can_add Enables add-row mode and controls. Default: true.
  * @property bool $can_delete Enables delete controls. Default: true.
@@ -169,6 +169,9 @@ class MySQLGrid {
      * Injects an existing database connection.
      *
      * Supported drivers are pdo, pdo_mysql, and pdo_sqlite.
+      *
+      * @param mixed $connection Existing database connection instance.
+      * @param string $driver Connection driver identifier (pdo, pdo_mysql, pdo_sqlite).
      */
     public function setDatabaseConnection(mixed $connection, string $driver = "pdo_mysql"): void {
         $allowedDrivers = array("pdo", "pdo_mysql", "pdo_sqlite");
@@ -1392,42 +1395,42 @@ class MySQLGrid {
         echo '<td class="', $this->style, '-navigation" colspan="', count($this->columns), '">';
         if ($this->can_navigate) {
             $pages = ceil((int)$this->rows / $this->limit);
-            echo '<nav class="phpmysqlgrid-pagination" aria-label="', $this->convertToHtmlEntities($this->txtPaginationLabel), '">';
+            echo '<nav class="', $this->style, '-pagination" aria-label="', $this->convertToHtmlEntities($this->txtPaginationLabel), '">';
 
             // Prev button
             if ($this->page > 1) {
-                echo '<a class="phpmysqlgrid-pagination-prev" href="',
+                echo '<a class="', $this->style, '-pagination-prev" href="',
                     $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $this->page - 1,
                     '" aria-label="', $this->convertToHtmlEntities($this->txtPrevious), '">',
                     $this->renderIcon($this->svgNavPrev, "previous"), '</a>';
             } else {
-                echo '<span class="phpmysqlgrid-pagination-prev is-disabled" aria-disabled="true" aria-label="',
+                echo '<span class="', $this->style, '-pagination-prev is-disabled" aria-disabled="true" aria-label="',
                     $this->convertToHtmlEntities($this->txtPrevious), '">',
                     $this->renderIcon($this->svgNavPrev, "previous"), '</span>';
             }
 
-            echo '<ol class="phpmysqlgrid-pagination-list">';
+            echo '<ol class="', $this->style, '-pagination-list">';
 
             // First page shortcut when far from the window
             if ($this->page > 3) {
-                echo '<li class="phpmysqlgrid-pagination-item">',
-                    '<a class="phpmysqlgrid-pagination-link" href="',
+                echo '<li class="', $this->style, '-pagination-item">',
+                    '<a class="', $this->style, '-pagination-link" href="',
                     $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=1">1</a>',
                     '</li>';
             }
             if ($this->page > 4) {
-                echo '<li class="phpmysqlgrid-pagination-ellipsis" aria-hidden="true">&#x2026;</li>';
+                echo '<li class="', $this->style, '-pagination-ellipsis" aria-hidden="true">&#x2026;</li>';
             }
 
             // Page window ±2 around current page
             for ($i = max(1, $this->page - 2); $i <= min($pages, $this->page + 2); $i++) {
                 if ($i == $this->page) {
-                    echo '<li class="phpmysqlgrid-pagination-item is-active">',
-                        '<span class="phpmysqlgrid-pagination-current" aria-current="page">', $i, '</span>',
+                    echo '<li class="', $this->style, '-pagination-item is-active">',
+                        '<span class="', $this->style, '-pagination-current" aria-current="page">', $i, '</span>',
                         '</li>';
                 } else {
-                    echo '<li class="phpmysqlgrid-pagination-item">',
-                        '<a class="phpmysqlgrid-pagination-link" href="',
+                    echo '<li class="', $this->style, '-pagination-item">',
+                        '<a class="', $this->style, '-pagination-link" href="',
                         $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $i, '">', $i, '</a>',
                         '</li>';
                 }
@@ -1435,11 +1438,11 @@ class MySQLGrid {
 
             // Last page shortcut when far from the window
             if ($this->page < $pages - 3) {
-                echo '<li class="phpmysqlgrid-pagination-ellipsis" aria-hidden="true">&#x2026;</li>';
+                echo '<li class="', $this->style, '-pagination-ellipsis" aria-hidden="true">&#x2026;</li>';
             }
             if ($this->page < $pages - 2) {
-                echo '<li class="phpmysqlgrid-pagination-item">',
-                    '<a class="phpmysqlgrid-pagination-link" href="',
+                echo '<li class="', $this->style, '-pagination-item">',
+                    '<a class="', $this->style, '-pagination-link" href="',
                     $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $pages, '">', $pages, '</a>',
                     '</li>';
             }
@@ -1448,12 +1451,12 @@ class MySQLGrid {
 
             // Next button
             if ($this->page < $pages) {
-                echo '<a class="phpmysqlgrid-pagination-next" href="',
+                echo '<a class="', $this->style, '-pagination-next" href="',
                     $_SERVER["PHP_SELF"], '?', $this->cmdSetPage, '=', $this->page + 1,
                     '" aria-label="', $this->convertToHtmlEntities($this->txtNext), '">',
                     $this->renderIcon($this->svgNavNext, "next"), '</a>';
             } else {
-                echo '<span class="phpmysqlgrid-pagination-next is-disabled" aria-disabled="true" aria-label="',
+                echo '<span class="', $this->style, '-pagination-next is-disabled" aria-disabled="true" aria-label="',
                     $this->convertToHtmlEntities($this->txtNext), '">',
                     $this->renderIcon($this->svgNavNext, "next"), '</span>';
             }
@@ -1542,6 +1545,8 @@ class MySQLGrid {
     }
 
     /**
+     * Escapes a value for safe HTML output based on the configured charset.
+     *
      * @internal
      * @ignore
      */

@@ -74,6 +74,12 @@ Runtime helper rules:
 - Normalize paths to forward slashes for public URLs.
 - Keep backward compatibility for existing default arguments.
 
+Documentation rule for methods in asset/runtime classes:
+- For all `public` or `protected` methods, add a short method description sentence in PHPDoc.
+- For all `public` or `protected` methods with parameters, document **every parameter** in PHPDoc using `@param`.
+- Partial parameter documentation (only one of several params) is not allowed.
+- For `private` methods or public methods with `internal` annotation, parameter PHPDoc is optional and should be used for complex shapes/context.
+
 ## Demo Asset Loading
 
 `demo/DemoAsset.php` supports two modes:

@@ -15,6 +15,10 @@ final class MySQLGridAssets {
 
     /**
      * Builds a cache-busted public URL for the default stylesheet.
+     *
+     * @param string $publicBasePath Public base path of published assets.
+     * @param string $fileName Stylesheet file name relative to the publish base path.
+     * @param string|null $documentRoot Optional document root for filesystem resolution.
      */
     public static function cssUrl(
         string $publicBasePath = "/assets/phpmysqlgrid",
@@ -26,6 +30,10 @@ final class MySQLGridAssets {
 
     /**
      * Builds a cache-busted public URL for the default JavaScript asset.
+     *
+     * @param string $publicBasePath Public base path of published assets.
+     * @param string $fileName Script file name relative to the publish base path.
+     * @param string|null $documentRoot Optional document root for filesystem resolution.
      */
     public static function jsUrl(
         string $publicBasePath = "/assets/phpmysqlgrid",
@@ -37,6 +45,10 @@ final class MySQLGridAssets {
 
     /**
      * Builds a cache-busted public URL for an asset path relative to the publish base path.
+     *
+     * @param string $publicBasePath Public base path of published assets.
+     * @param string $fileName Asset file name relative to the publish base path.
+     * @param string|null $documentRoot Optional document root for filesystem resolution.
      */
     public static function assetUrl(
         string $publicBasePath,
@@ -62,6 +74,10 @@ final class MySQLGridAssets {
 
     /**
      * Returns a ready-to-render stylesheet link tag with cache-busted URL.
+     *
+     * @param string $publicBasePath Public base path of published assets.
+     * @param string $fileName Stylesheet file name relative to the publish base path.
+     * @param string|null $documentRoot Optional document root for filesystem resolution.
      */
     public static function cssTag(
         string $publicBasePath = "/assets/phpmysqlgrid",
@@ -72,7 +88,67 @@ final class MySQLGridAssets {
     }
 
     /**
+     * Returns the default split CSS file names (base + default theme).
+     *
+     * @return array<int, string>
+     */
+    public static function defaultCssFiles(): array {
+        return array("mysqlgrid-base.css", "mysqlgrid-theme-default.css");
+    }
+
+    /**
+     * Returns cache-busted URLs for multiple stylesheet files.
+     *
+     * @param string $publicBasePath Public base path of published assets.
+     * @param string|null $documentRoot Optional document root for filesystem resolution.
+     * @param array<int, string>|null $fileNames
+     * @return array<int, string>
+     */
+    public static function cssUrls(
+        string $publicBasePath = "/assets/phpmysqlgrid",
+        ?string $documentRoot = null,
+        ?array $fileNames = null
+    ): array {
+        $resolvedFileNames = is_array($fileNames) ? $fileNames : self::defaultCssFiles();
+        $urls = array();
+
+        foreach ($resolvedFileNames as $fileName) {
+            if (!is_string($fileName) || $fileName === "") {
+                continue;
+            }
+            $urls[] = self::cssUrl($publicBasePath, $fileName, $documentRoot);
+        }
+
+        return $urls;
+    }
+
+    /**
+     * Returns ready-to-render stylesheet tags for multiple CSS files.
+     *
+     * @param string $publicBasePath Public base path of published assets.
+     * @param string|null $documentRoot Optional document root for filesystem resolution.
+     * @param array<int, string>|null $fileNames
+     */
+    public static function cssTags(
+        string $publicBasePath = "/assets/phpmysqlgrid",
+        ?string $documentRoot = null,
+        ?array $fileNames = null
+    ): string {
+        $tags = array();
+        foreach (self::cssUrls($publicBasePath, $documentRoot, $fileNames) as $href) {
+            $tags[] = self::stylesheetTag($href);
+        }
+
+        return implode("\n", $tags);
+    }
+
+    /**
      * Returns a ready-to-render script tag with cache-busted URL.
+     *
+     * @param string $publicBasePath Public base path of published assets.
+     * @param string $fileName Script file name relative to the publish base path.
+     * @param string|null $documentRoot Optional document root for filesystem resolution.
+     * @param bool $defer Whether to include the defer attribute.
      */
     public static function jsTag(
         string $publicBasePath = "/assets/phpmysqlgrid",

@@ -17,6 +17,10 @@ final class MySQLGridAssetPublisher {
     );
 
     /**
+     * Publishes all supported package assets into the resolved target directory.
+     *
+     * @param string $packageRoot Absolute package root path containing the assets directory.
+     * @param string $targetPath Target path (absolute or relative) where assets are published.
      * @return array{target:string, files:array<int, array{name:string, path:string, hash:string}>}
      */
     public static function publish(string $packageRoot, string $targetPath): array {
@@ -67,7 +71,11 @@ final class MySQLGridAssetPublisher {
     }
 
     /**
-     * @param array<int, string> $argv
+     * Resolves the publish target path from CLI input, environment, or default fallback.
+     *
+     * @param array<int, string> $argv Raw CLI arguments.
+     * @param string|null $environmentTarget Optional target path from environment variable.
+     * @param string $defaultTarget Fallback target path used when input/env are not set.
      */
     public static function resolveTargetPathFromInput(array $argv, ?string $environmentTarget = null, string $defaultTarget = "assets/phpmysqlgrid"): string {
         $argumentTarget = self::readTargetArgument($argv);

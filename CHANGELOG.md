@@ -7,9 +7,13 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ### Added
 - Add more CSS classes for different column types.
+- Add split CSS helper methods `MySQLGridAssets::cssUrls()` and `MySQLGridAssets::cssTags()` for loading `mysqlgrid-base.css` + `mysqlgrid-theme-default.css`.
+- Add new dark theme CSS file (`mysqlgrid-theme-dark.css`) and use it in the second demo page.
 
 ### Changed
 - Update asset manifest writing logic to prevent unnecessary overwrites on each publish.
+- Split grid styling into base layout (`mysqlgrid-base.css`) and default theme (`mysqlgrid-theme-default.css`) with legacy compatibility via `mysqlgrid.css`.
+- Make pagination class output respect the configured `$grid->style` prefix instead of using hardcoded `phpmysqlgrid-*` classes.
 
 
 ## [1.0.0] - 2026-04-10
