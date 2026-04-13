@@ -217,6 +217,11 @@ $grid->cssClass = "theme-default";
 $grid->cssClass = "theme-dark";
 ```
 
+Currently available themes:
+- `default` (modern)
+- `dark` (dark mode)
+- `light` (border-less light design)
+
 For full asset helper documentation (themes, custom themes, cache busting internals, method reference, and legacy/deprecated methods), see [docs/assets.md](docs/assets.md).
 
 
