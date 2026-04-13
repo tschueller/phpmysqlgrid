@@ -62,6 +62,17 @@ $grid->columns = array(
         "maxlength" => 200
     ),
     array(
+        "field" => "category_id",
+        "caption" => "Category",
+        "type" => PHPMYSQLGRID_LOOKUP,
+        "lookup_primary" => "id",
+        "lookup_field" => "name",
+        "lookup_table" => "categories",
+        "can_sort" => true,
+        "can_filter" => true,
+        "width" => 190
+    ),
+    array(
         "field" => "status",
         "caption" => "Status",
         "type" => PHPMYSQLGRID_SELECTION,
