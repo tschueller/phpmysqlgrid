@@ -63,10 +63,11 @@
   - [x] update manifest in asset publishing only if assets actually changed (e.g. by comparing file hashes) to avoid unnecessary asset updates in host projects
 
 ### Publishing
-
 - [x] switch version to 1.0.0 release and use correct semantic versioning from there on
 - [ ] evaluate: Set up a GitHub Pages/Wiki for demo and documentation hosting
 
+### Cleanup
+- [ ] Remove legacy/deprecated properties or set to private/protected in MySQLGridAssets (e.g. `cssUrl`, `cssTag`, `cssUrls`, `cssTags`, `jsUrl`, `jsTag`, `assetUrl`)
 
 ---
 

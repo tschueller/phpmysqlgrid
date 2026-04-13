@@ -62,8 +62,8 @@ Rules:
 ## Runtime Helper Contract
 
 Helper behavior in `src/MySQLGridAssets.php`:
-- `cssUrl()` / `cssTag()` for stylesheets
-- `jsUrl()` / `jsTag()` for scripts
+- Recommended API: `configure()`, `setDefaultPublicBasePath()`, `setDefaultDocumentRoot()`, `resetConfiguration()`, `cssUrlFor()`, `cssTagFor()`, `cssUrlsFor()`, `cssTagsFor()`, `jsUrlFor()`, `jsTagFor()`
+- Legacy API (deprecated, keep backward compatibility): `cssUrl()` / `cssTag()` / `cssUrls()` / `cssTags()` / `jsUrl()` / `jsTag()` / `assetUrl()`
 - Shared token resolution should follow this order:
 1. Manifest hash from published directory
 2. Direct file hash (when manifest missing)

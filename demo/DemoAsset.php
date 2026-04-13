@@ -25,7 +25,8 @@ final class DemoAsset {
 
         if ($assetMode === "published") {
             $publishedBasePath = getenv("PHPMYSQLGRID_DEMO_ASSET_BASE") ?: "/assets/phpmysqlgrid";
-            return MySQLGridAssets::cssTags($publishedBasePath, null, $cssFiles);
+            MySQLGridAssets::configure($publishedBasePath);
+            return MySQLGridAssets::cssTagsFor($cssFiles);
         }
 
         $baseToken = self::fileMTimeToken(__DIR__ . "/../assets/css/mysqlgrid-base.css");
@@ -52,7 +53,8 @@ final class DemoAsset {
 
         if ($assetMode === "published") {
             $publishedBasePath = getenv("PHPMYSQLGRID_DEMO_ASSET_BASE") ?: "/assets/phpmysqlgrid";
-            return MySQLGridAssets::jsTag($publishedBasePath, "mysqlgrid.js", null, $defer);
+            MySQLGridAssets::configure($publishedBasePath);
+            return MySQLGridAssets::jsTagFor("mysqlgrid.js", null, $defer);
         }
 
         $scriptPath = __DIR__ . "/../assets/js/mysqlgrid.js";

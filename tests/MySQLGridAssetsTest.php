@@ -9,6 +9,14 @@ use PhpMySQLGrid\MySQLGridAssets;
 use PHPUnit\Framework\TestCase;
 
 final class MySQLGridAssetsTest extends TestCase {
+    protected function setUp(): void {
+        MySQLGridAssets::resetConfiguration();
+    }
+
+    protected function tearDown(): void {
+        MySQLGridAssets::resetConfiguration();
+    }
+
     public function testCssUrlUsesManifestHashWhenAvailable(): void {
         $workspaceRoot = getcwd();
         $tempRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "phpmysqlgrid_manifest_" . uniqid("", true);
@@ -174,6 +182,70 @@ final class MySQLGridAssetsTest extends TestCase {
 
         $this->assertStringContainsString('/assets/phpmysqlgrid/mysqlgrid-base.css', $tags);
         $this->assertStringContainsString('/assets/phpmysqlgrid/mysqlgrid-theme-default.css', $tags);
+        $this->assertSame(2, substr_count($tags, '<link rel="stylesheet"'));
+
+        $this->deleteDirectory($documentRoot);
+    }
+
+    public function testCssUrlForUsesConfiguredDefaults(): void {
+        $documentRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "phpmysqlgrid_assets_configured_" . uniqid("", true);
+        $assetDirectory = $documentRoot . DIRECTORY_SEPARATOR . "public" . DIRECTORY_SEPARATOR . "grid";
+        mkdir($assetDirectory, 0775, true);
+        file_put_contents($assetDirectory . DIRECTORY_SEPARATOR . "mysqlgrid.css", "body { color: #111; }");
+
+        MySQLGridAssets::configure("/public/grid", $documentRoot);
+        $url = MySQLGridAssets::cssUrlFor("mysqlgrid.css");
+
+        $this->assertMatchesRegularExpression('/^\/public\/grid\/mysqlgrid\.css\?v=[A-Za-z0-9._-]{12}$/', $url);
+
+        $this->deleteDirectory($documentRoot);
+    }
+
+    public function testCssTagsForSupportsDarkThemeByName(): void {
+        $documentRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "phpmysqlgrid_assets_dark_theme_" . uniqid("", true);
+        $assetDirectory = $documentRoot . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "phpmysqlgrid";
+        mkdir($assetDirectory, 0775, true);
+        file_put_contents($assetDirectory . DIRECTORY_SEPARATOR . "mysqlgrid-base.css", "table { border-collapse: collapse; }");
+        file_put_contents($assetDirectory . DIRECTORY_SEPARATOR . "mysqlgrid-theme-dark.css", "table { color: #eee; }");
+
+        MySQLGridAssets::configure("/assets/phpmysqlgrid", $documentRoot);
+        $tags = MySQLGridAssets::cssTagsFor("dark");
+
+        $this->assertStringContainsString('/assets/phpmysqlgrid/mysqlgrid-base.css', $tags);
+        $this->assertStringContainsString('/assets/phpmysqlgrid/mysqlgrid-theme-dark.css', $tags);
+        $this->assertSame(2, substr_count($tags, '<link rel="stylesheet"'));
+
+        $this->deleteDirectory($documentRoot);
+    }
+
+    public function testCssTagsForSupportsCustomFileList(): void {
+        $documentRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "phpmysqlgrid_assets_custom_list_" . uniqid("", true);
+        $assetDirectory = $documentRoot . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "phpmysqlgrid";
+        mkdir($assetDirectory, 0775, true);
+        file_put_contents($assetDirectory . DIRECTORY_SEPARATOR . "mysqlgrid-base.css", "table { border-collapse: collapse; }");
+        file_put_contents($assetDirectory . DIRECTORY_SEPARATOR . "mysqlgrid-theme-mybrand.css", "table { color: #123; }");
+
+        MySQLGridAssets::configure("/assets/phpmysqlgrid", $documentRoot);
+        $tags = MySQLGridAssets::cssTagsFor(array("mysqlgrid-base.css", "mysqlgrid-theme-mybrand.css"));
+
+        $this->assertStringContainsString('/assets/phpmysqlgrid/mysqlgrid-base.css', $tags);
+        $this->assertStringContainsString('/assets/phpmysqlgrid/mysqlgrid-theme-mybrand.css', $tags);
+        $this->assertSame(2, substr_count($tags, '<link rel="stylesheet"'));
+
+        $this->deleteDirectory($documentRoot);
+    }
+
+    public function testDeprecatedCssTagsAcceptsThemeNameForSoftMigration(): void {
+        $documentRoot = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "phpmysqlgrid_assets_legacy_theme_" . uniqid("", true);
+        $assetDirectory = $documentRoot . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "phpmysqlgrid";
+        mkdir($assetDirectory, 0775, true);
+        file_put_contents($assetDirectory . DIRECTORY_SEPARATOR . "mysqlgrid-base.css", "table { border-collapse: collapse; }");
+        file_put_contents($assetDirectory . DIRECTORY_SEPARATOR . "mysqlgrid-theme-dark.css", "table { color: #eee; }");
+
+        $tags = MySQLGridAssets::cssTags("/assets/phpmysqlgrid", $documentRoot, "dark");
+
+        $this->assertStringContainsString('/assets/phpmysqlgrid/mysqlgrid-base.css', $tags);
+        $this->assertStringContainsString('/assets/phpmysqlgrid/mysqlgrid-theme-dark.css', $tags);
         $this->assertSame(2, substr_count($tags, '<link rel="stylesheet"'));
 
         $this->deleteDirectory($documentRoot);
