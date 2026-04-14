@@ -5,6 +5,9 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+
+## [1.1.0] - 2026-04-14
+
 ### Added
 - Add more CSS classes for different column types.
 - Add split CSS helper methods `MySQLGridAssets::cssUrls()` and `MySQLGridAssets::cssTags()` for loading `mysqlgrid-base.css` + `mysqlgrid-theme-default.css`.
