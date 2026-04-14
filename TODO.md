@@ -18,10 +18,12 @@
 - [ ] Add accessibility regression tests (ARIA presence, form labels, keyboard reachability)
 - [ ] disable add button in add mode
 - [ ] use automated accessibility testing tools (e.g. axe) on demo page to identify and fix issues
+- [ ] add aria labels for boolean icons (currently aria-hidden="true" is set)
 
 ## Features / Improvements
 - [ ] Save limit state in session/local storage for persistence across page reloads
 - [ ] show total row count in footer (total and filtered)
+- [ ] Better visual indication of active filters (e.g. filter icon in header, highlight active filter values)
 
 ### Styling
   - [x] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
@@ -31,6 +33,7 @@
   - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
   - [x] Add CSS classes for different column types (e.g. `mysqlgrid-cell--text`, `mysqlgrid-cell--select`, etc.) to allow more specific styling of different column types
   - [ ] Implement real dark mode support (e.g. via `prefers-color-scheme` media query) in default theme
+  - [ ] center header text vertically when columns with and without filter are mixed
 
 ### Demo page
   - [x] add custom theming example to demo page
