@@ -10,6 +10,24 @@ use PhpMySQLGrid\MySQLGrid;
 
 session_start();
 
+if (!isset($_GET["theme"])) {
+    $_GET["theme"] = "dark";
+}
+
+switch ($_GET["theme"]) {
+    case "default":
+        $selectedTheme = "default";
+        break;
+    case "light":
+        $selectedTheme = "light";
+        break;
+    case "dark":
+    default:
+        $selectedTheme = "dark";
+        break;
+}
+
+
 $databaseFilePath = __DIR__ . "/demo.sqlite";
 $resetDatabase = isset($_GET["reset"]) && $_GET["reset"] === "1";
 
@@ -20,6 +38,7 @@ $grid->setDatabaseConnection($pdo, "pdo_sqlite");
 $grid->table = "products";
 $grid->primary = "id";
 $grid->name = "demo_products_grid";
+$grid->cssClass = "theme-" . $selectedTheme;
 
 $grid->can_add = true;
 $grid->can_edit = true;
@@ -32,10 +51,6 @@ $limit = isset($_GET["limit"]) ? (int) $_GET["limit"] : 5;
 $limit = max(1, min(10, $limit));
 $grid->limit = $limit;
 
-// category_id is NOT NULL in the schema but not shown in the grid;
-// use add_values to always supply a default when inserting.
-$grid->add_values = array("category_id" => 1);
-
 $grid->columns = array(
     array(
         "field" => "name",
@@ -45,6 +60,17 @@ $grid->columns = array(
         "can_filter" => true,
         "width" => 280,
         "maxlength" => 200
+    ),
+    array(
+        "field" => "category_id",
+        "caption" => "Category",
+        "type" => PHPMYSQLGRID_LOOKUP,
+        "lookup_primary" => "id",
+        "lookup_field" => "name",
+        "lookup_table" => "categories",
+        "can_sort" => true,
+        "can_filter" => true,
+        "width" => 190
     ),
     array(
         "field" => "status",
@@ -149,6 +175,24 @@ $grid->columns = array(
         <div class="demo-actions">
             <a href="index2.php?reset=1" class="reset">🔄 Reset Demo Data</a>
             <a href="index.php">← Back to First Demo</a>
+
+            <form method="get" action="index2.php" style="display:inline-flex;gap:8px;align-items:center;">
+                <?php
+                $themeParams = array_filter($_GET, static fn($k) => $k !== "theme" && $k !== "reset", ARRAY_FILTER_USE_KEY);
+                foreach ($themeParams as $key => $value):
+                    if (!is_scalar($value)) {
+                        continue;
+                    }
+                ?>
+                    <input type="hidden" name="<?= htmlspecialchars((string)$key, ENT_QUOTES, "UTF-8") ?>" value="<?= htmlspecialchars((string)$value, ENT_QUOTES, "UTF-8") ?>">
+                <?php endforeach; ?>
+                <label for="theme-select">Theme:</label>
+                <select id="theme-select" name="theme" onchange="this.form.submit()">
+                    <option value="default" <?= $selectedTheme === "default" ? "selected" : "" ?>>Default</option>
+                    <option value="dark" <?= $selectedTheme === "dark" ? "selected" : "" ?>>Dark</option>
+                    <option value="light" <?= $selectedTheme === "light" ? "selected" : "" ?>>Light</option>
+                </select>
+            </form>
         </div>
 
         <div class="demo-steps">

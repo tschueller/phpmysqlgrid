@@ -1,0 +1,70 @@
+/* MySQLGrid dark theme.
+ *
+ * To use this theme, load base + this file instead of default theme:
+ *     <?php MySQLGridAssets::configure('/assets/phpmysqlgrid'); ?>
+ *     <?= MySQLGridAssets::cssTagsFor('dark'); ?>
+ */
+
+table.phpmysqlgrid.theme-dark {
+    /* Dark surface colors */
+    --phpmysqlgrid-header-bg: #1a1a1a;
+    --phpmysqlgrid-action-bg: #1a1a1a;
+    --phpmysqlgrid-footer-bg: #1a1a1a;
+    --phpmysqlgrid-row-even: #2a2a2a;
+    --phpmysqlgrid-row-odd: #1f1f1f;
+    --phpmysqlgrid-row-hover: #3a3a3a;
+    --phpmysqlgrid-border: #404040;
+
+    /* State surfaces */
+    --phpmysqlgrid-add-bg: #1a3a36;
+    --phpmysqlgrid-edit-bg: #1a2e4d;
+    --phpmysqlgrid-delete-bg: #4d2a2a;
+
+    /* Light text colors for dark backgrounds */
+    --phpmysqlgrid-header-text: #e0e0e0;
+    --phpmysqlgrid-action-text: #e0e0e0;
+    --phpmysqlgrid-footer-text: #e0e0e0;
+    --phpmysqlgrid-add-text: #6dd9d2;
+    --phpmysqlgrid-edit-text: #6baef7;
+    --phpmysqlgrid-delete-text: #f78686;
+    --phpmysqlgrid-text-color: #d0d0d0;
+
+    /* Effects */
+    --phpmysqlgrid-add-button-hover-bg: rgba(255, 255, 255, 0.1);
+    --phpmysqlgrid-pagination-hover-bg: rgba(255, 255, 255, 0.15);
+    --phpmysqlgrid-pagination-current-bg: rgba(255, 255, 255, 0.2);
+
+    /* Icon accents */
+    --phpmysqlgrid-icon-edit: #5eb3d6;
+    --phpmysqlgrid-icon-delete: #ff6b6b;
+    --phpmysqlgrid-icon-add: #ffa940;
+    --phpmysqlgrid-icon-confirm: #52b788;
+    --phpmysqlgrid-icon-bool-true: #52b788;
+    --phpmysqlgrid-icon-bool-false: #ff6b6b;
+
+    /* Icon sizes (inherited from base) */
+    --phpmysqlgrid-icon-action-spacing: 0.75em;
+    --phpmysqlgrid-icon-confirm-font-size: 1.3em;
+    --phpmysqlgrid-icon-edit-font-size: 1em;
+    --phpmysqlgrid-icon-delete-font-size: 1.5em;
+    --phpmysqlgrid-icon-add-font-size: 2em;
+    --phpmysqlgrid-icon-bool-true-font-size: 1.1em;
+    --phpmysqlgrid-icon-bool-false-font-size: 1.1em;
+
+    /* Typography (inherited from base) */
+    --phpmysqlgrid-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --phpmysqlgrid-font-size: 14px;
+    --phpmysqlgrid-line-height: 1.5;
+    --phpmysqlgrid-header-font-weight: 600;
+    --phpmysqlgrid-header-text-align: left;
+
+    /* Table border (inherited from base) */
+    --phpmysqlgrid-border-size: 1px;
+    --phpmysqlgrid-border-radius: 6px;
+    --phpmysqlgrid-border-collapse: collapse;
+    --phpmysqlgrid-shadow: rgba(0, 0, 0, 0.5);
+
+    /* Table cells (inherited from base) */
+    --phpmysqlgrid-cell-header-padding: 0.8em 1em;
+    --phpmysqlgrid-cell-body-padding: 0.5em 1em;
+}

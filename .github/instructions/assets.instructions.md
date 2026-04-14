@@ -62,8 +62,8 @@ Rules:
 ## Runtime Helper Contract
 
 Helper behavior in `src/MySQLGridAssets.php`:
-- `cssUrl()` / `cssTag()` for stylesheets
-- `jsUrl()` / `jsTag()` for scripts
+- Recommended API: `configure()`, `setDefaultPublicBasePath()`, `setDefaultDocumentRoot()`, `resetConfiguration()`, `cssUrlFor()`, `cssTagFor()`, `cssUrlsFor()`, `cssTagsFor()`, `jsUrlFor()`, `jsTagFor()`
+- Legacy API (deprecated, keep backward compatibility): `cssUrl()` / `cssTag()` / `cssUrls()` / `cssTags()` / `jsUrl()` / `jsTag()` / `assetUrl()`
 - Shared token resolution should follow this order:
 1. Manifest hash from published directory
 2. Direct file hash (when manifest missing)
@@ -73,6 +73,12 @@ Runtime helper rules:
 - Escape all generated HTML attributes.
 - Normalize paths to forward slashes for public URLs.
 - Keep backward compatibility for existing default arguments.
+
+Documentation rule for methods in asset/runtime classes:
+- For all `public` or `protected` methods, add a short method description sentence in PHPDoc.
+- For all `public` or `protected` methods with parameters, document **every parameter** in PHPDoc using `@param`.
+- Partial parameter documentation (only one of several params) is not allowed.
+- For `private` methods or public methods with `internal` annotation, parameter PHPDoc is optional and should be used for complex shapes/context.
 
 ## Demo Asset Loading
 

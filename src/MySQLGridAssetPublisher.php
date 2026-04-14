@@ -17,6 +17,10 @@ final class MySQLGridAssetPublisher {
     );
 
     /**
+     * Publishes all supported package assets into the resolved target directory.
+     *
+     * @param string $packageRoot Absolute package root path containing the assets directory.
+     * @param string $targetPath Target path (absolute or relative) where assets are published.
      * @return array{target:string, files:array<int, array{name:string, path:string, hash:string}>}
      */
     public static function publish(string $packageRoot, string $targetPath): array {
@@ -67,7 +71,11 @@ final class MySQLGridAssetPublisher {
     }
 
     /**
-     * @param array<int, string> $argv
+     * Resolves the publish target path from CLI input, environment, or default fallback.
+     *
+     * @param array<int, string> $argv Raw CLI arguments.
+     * @param string|null $environmentTarget Optional target path from environment variable.
+     * @param string $defaultTarget Fallback target path used when input/env are not set.
      */
     public static function resolveTargetPathFromInput(array $argv, ?string $environmentTarget = null, string $defaultTarget = "assets/phpmysqlgrid"): string {
         $argumentTarget = self::readTargetArgument($argv);
@@ -134,19 +142,39 @@ final class MySQLGridAssetPublisher {
             );
         }
 
-        $manifest = array(
-            "generated_at" => gmdate("c"),
+        $manifestPath = $targetPath . DIRECTORY_SEPARATOR . self::MANIFEST_FILE;
+
+        // Build new manifest structure (without generated_at for comparison)
+        $newManifestData = array(
             "files" => $files,
         );
 
-        $manifestJson = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        if (!is_string($manifestJson)) {
-            throw new \RuntimeException("Failed to encode asset manifest.");
+        $shouldWrite = true;
+        if (is_file($manifestPath)) {
+            $existingJson = file_get_contents($manifestPath);
+            if (is_string($existingJson)) {
+                $existingData = json_decode($existingJson, true);
+                if (is_array($existingData) && isset($existingData["files"])) {
+                    // Vergleiche nur den files-Block
+                    if ($existingData["files"] === $newManifestData["files"]) {
+                        $shouldWrite = false;
+                    }
+                }
+            }
         }
 
-        $manifestPath = $targetPath . DIRECTORY_SEPARATOR . self::MANIFEST_FILE;
-        if (file_put_contents($manifestPath, $manifestJson . PHP_EOL) === false) {
-            throw new \RuntimeException("Failed to write asset manifest.");
+        if ($shouldWrite) {
+            $manifest = array(
+                "generated_at" => gmdate("c"),
+                "files" => $files,
+            );
+            $manifestJson = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            if (!is_string($manifestJson)) {
+                throw new \RuntimeException("Failed to encode asset manifest.");
+            }
+            if (file_put_contents($manifestPath, $manifestJson . PHP_EOL) === false) {
+                throw new \RuntimeException("Failed to write asset manifest.");
+            }
         }
     }
 }

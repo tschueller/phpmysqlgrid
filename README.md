@@ -185,38 +185,44 @@ In your host project's `composer.json`, you can run asset publishing automatical
 
 ## Include CSS
 
-Use the static helper to generate a stylesheet URL with cache busting.
-Published assets store their hash once in a manifest during `assets:publish`.
-The helper reads that manifest first, falls back to a direct content hash when no manifest is available, and finally falls back to package version.
+Use `MySQLGridAssets` for cache-busted URLs/tags.
+
+The default CSS include is split into:
+- `mysqlgrid-base.css`
+- `mysqlgrid-theme-default.css`
+
+Recommended default theme usage:
 
 ```php
 use PhpMySQLGrid\MySQLGridAssets;
 
-echo MySQLGridAssets::cssTag('/assets/phpmysqlgrid');
-// or:
-$href = MySQLGridAssets::cssUrl('/assets/phpmysqlgrid');
-echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">';
+MySQLGridAssets::configure('/assets/phpmysqlgrid');
+echo MySQLGridAssets::cssTagsFor();
 ```
 
-Manual include (without helper):
-
-```html
-<link rel="stylesheet" href="/assets/phpmysqlgrid/mysqlgrid.css">
-```
-
-<!-- TODO: add JS include example when we have JS assets
-
-JavaScript assets are supported as well when you add files under `assets/js`:
+Dark theme example:
 
 ```php
 use PhpMySQLGrid\MySQLGridAssets;
 
-echo MySQLGridAssets::jsTag('/assets/phpmysqlgrid');
-// or:
-$src = MySQLGridAssets::jsUrl('/assets/phpmysqlgrid', 'mysqlgrid.js');
-echo '<script src="' . htmlspecialchars($src, ENT_QUOTES, 'UTF-8') . '" defer="defer"></script>';
+MySQLGridAssets::configure('/assets/phpmysqlgrid');
+echo MySQLGridAssets::cssTagsFor('dark');
 ```
--->
+
+When you use themes, set `$grid->cssClass` so the grid uses the matching theme scope:
+
+```php
+$grid->cssClass = "theme-default";
+// or
+$grid->cssClass = "theme-dark";
+```
+
+Currently available themes:
+- `default` (modern)
+- `dark` (dark mode)
+- `light` (border-less light design)
+
+For full asset helper documentation (themes, custom themes, cache busting internals, method reference, and legacy/deprecated methods), see [docs/assets.md](docs/assets.md).
 
 
 ## Code Quality Checks / Unit Tests

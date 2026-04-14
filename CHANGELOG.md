@@ -5,6 +5,23 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+### Added
+- Add more CSS classes for different column types.
+- Add split CSS helper methods `MySQLGridAssets::cssUrls()` and `MySQLGridAssets::cssTags()` for loading `mysqlgrid-base.css` + `mysqlgrid-theme-default.css`.
+- Add new dark theme CSS file (`mysqlgrid-theme-dark.css`) and use it in the second demo page.
+- Add simplified configuration-based asset helper API: `configure()`, `setDefaultPublicBasePath()`, `setDefaultDocumentRoot()`, `resetConfiguration()`, and `*For()` helper methods.
+- Add light theme CSS file (`mysqlgrid-theme-light.css`) and a theme selection to the second demo page.
+- Preserve non-grid GET parameters (e.g. `theme`, `limit`) across all grid links and form submissions (pagination, sorting, row actions, add/edit/delete, filter).
+
+### Fixed
+- Fix XSS vulnerability: `$_SERVER["PHP_SELF"]` is now HTML-escaped via `selfUrl()` before output in all `href` and `action` attributes.
+
+### Changed
+- Update asset manifest writing logic to prevent unnecessary overwrites on each publish.
+- Split grid styling into base layout (`mysqlgrid-base.css`) and default theme (`mysqlgrid-theme-default.css`) with legacy compatibility via `mysqlgrid.css`.
+- Make pagination class output respect the configured `$grid->style` prefix instead of using hardcoded `phpmysqlgrid-*` classes.
+- Mark legacy asset helper methods as deprecated (`cssUrl()`, `cssTag()`, `cssUrls()`, `cssTags()`, `jsUrl()`, `jsTag()`, `assetUrl()`) and document migration to `*For()` methods.
+
 
 ## [1.0.0] - 2026-04-10
 

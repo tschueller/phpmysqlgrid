@@ -175,6 +175,29 @@ Never hardcode visible text in HTML output — use `txt*` properties initialized
 - Keep comments concise; prefer clear naming and type hints over verbose explanations.
 - Add comments only for non-obvious behavior or known-bug documentation.
 
+## Public Method PHPDoc Parameters (Required)
+
+- For every `public` or `protected` method, add a short method description sentence in the PHPDoc.
+- For every `public` or `protected` method that has parameters, document **all parameters** in the PHPDoc using `@param`.
+- Do not document only a subset of parameters.
+- For `private` methods or public methods with `internal` annotation, parameter PHPDoc is optional and should be added when it improves readability (for example complex array shapes).
+
+Example:
+
+```php
+/**
+ * Builds a cache-busted URL for a published asset.
+ *
+ * @param string $publicBasePath Public base path of published assets.
+ * @param string $fileName Asset file name relative to the publish base path.
+ * @param string|null $documentRoot Optional document root for filesystem resolution.
+ */
+public static function cssUrl(string $publicBasePath, string $fileName, ?string $documentRoot = null): string
+{
+  // ...
+}
+```
+
 ## Testing Non-DB Behavior
 
 For unit tests (MySQLGridUnitTest.php):
