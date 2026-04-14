@@ -51,6 +51,7 @@ Commit the changelog changes
 ```
 git add CHANGELOG.md
 git commit -m "Prepare release v1.2.0"
+git push origin main
 ```
 
 and create and push a version tag:
