@@ -40,14 +40,14 @@
   - [x] add custom theming example to demo page
 
 ### Security
-  - [ ] secure file-upload handling (e.g. file type/size checks, )
+  - [x] secure file-upload handling (e.g. file type/size checks, )
     - [x] Validate file upload size via `max_file_size` property
     - [x] Validate file extensions via `allowed_file_extensions` property
-    - [ ] Add MIME type validation via `allowed_file_mime_types` property
+    - [x] Add MIME type validation via `allowed_file_mime_types` property
   - [x] harden URL-based file import in FILE fields (restrict/validate or disable by default)
     - [x] Disable URL imports by default (`allow_url_import = false`)
     - [x] Validate URLs to prevent SSRF attacks (only http/https, block private IPs)
-    - [ ] Add optional URL whitelist for trusted domains
+    - [x] Add optional URL allowlist for trusted domains via `allowed_url_domains` property
   - [ ] add CSRF protection for add/edit/delete actions
   - [ ] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
   - [x] escape HTML attributes consistently (e.g. `placeholder`) in edit controls

@@ -80,6 +80,8 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  * @property bool $allow_url_import Whether to allow URL-based file imports. Default: false (disabled for security).
  * @property int|null $max_file_size Maximum file upload size in bytes. Default: null (no limit).
  * @property array<int, string> $allowed_file_extensions List of allowed file extensions (e.g. ['pdf', 'doc']). Empty array allows all. Default: [].
+ * @property array<int, string> $allowed_file_mime_types List of allowed MIME types detected via finfo (e.g. ['image/jpeg', 'image/png']). Empty array allows all. Default: [].
+ * @property array<int, string> $allowed_url_domains Allowlist of trusted hostnames for URL imports (e.g. ['cdn.example.com']). Empty array allows all hosts (when allow_url_import is true). Default: [].
  *
  * @property callable|false $delete_before Hook called before delete. Default: false.
  * @property callable|false $delete_after Hook called after delete. Default: false.
@@ -170,6 +172,8 @@ class MySQLGrid {
         $this->allow_url_import = false;  // Disabled by default to prevent SSRF attacks
         $this->max_file_size = null;      // No limit by default (can be set by user)
         $this->allowed_file_extensions = array();  // Empty array = allow all extensions
+        $this->allowed_file_mime_types = array();  // Empty array = no MIME type restriction
+        $this->allowed_url_domains = array();     // Empty array = any host allowed (when allow_url_import = true)
 
         $this->internationalize();
         $this->initSvgIcons();
@@ -278,6 +282,19 @@ class MySQLGrid {
             return false;
         }
 
+        // Check MIME type if allowed_file_mime_types is set (uses finfo on the actual file, not client-supplied type)
+        if (!empty($this->allowed_file_mime_types)) {
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->file((string)$fileData["tmp_name"]);
+            if ($mime === false || !in_array($mime, $this->allowed_file_mime_types, true)) {
+                trigger_error(
+                    "MIME type '" . ($mime ?: "unknown") . "' is not allowed. Allowed types: " . implode(", ", $this->allowed_file_mime_types),
+                    E_USER_WARNING
+                );
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -314,6 +331,15 @@ class MySQLGrid {
         $ip = gethostbyname($host);
         if ($this->isPrivateIpAddress($ip)) {
             trigger_error("URL points to a private IP address. Private IP ranges are not allowed for security.", E_USER_WARNING);
+            return false;
+        }
+
+        // Check domain allowlist if configured
+        if (!empty($this->allowed_url_domains) && !in_array($host, $this->allowed_url_domains, true)) {
+            trigger_error(
+                "Host '" . $host . "' is not in the allowed domains list.",
+                E_USER_WARNING
+            );
             return false;
         }
 

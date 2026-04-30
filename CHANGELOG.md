@@ -6,7 +6,8 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 ## [Unreleased]
 
 ### Added
-- Add file upload security: `allow_url_import` (default: false), `max_file_size`, and `allowed_file_extensions` properties for server-side upload validation and SSRF prevention.
+- Add file upload security: `allow_url_import` (default: false), `max_file_size`, `allowed_file_extensions`, and `allowed_file_mime_types` properties for server-side upload validation and SSRF prevention.
+- Add `allowed_url_domains` property to restrict URL imports to trusted hostnames.
 - Add `show_url_input` and `show_file_input` column options to control visibility of file upload controls.
 
 ### Fixed

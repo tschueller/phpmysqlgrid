@@ -44,6 +44,7 @@ $grid->cssClass = "theme-" . $selectedTheme;
 $grid->allow_url_import = false;
 $grid->max_file_size = 2 * 1024 * 1024; // 2 MB
 $grid->allowed_file_extensions = array("jpg", "jpeg", "png", "gif", "webp");
+$grid->allowed_file_mime_types = array("image/jpeg", "image/png", "image/gif", "image/webp");
 
 $grid->can_add = true;
 $grid->can_edit = true;
@@ -179,7 +180,7 @@ $grid->columns = array(
             Use this for internal testing of different field types and grid interactions.
         </p>
         <p class="demo-note">
-            File upload hardening is active: URL import disabled, max upload size 2 MB, allowed extensions: jpg, jpeg, png, gif, webp.
+            File upload hardening is active: URL import disabled, max 2 MB, allowed extensions: jpg/jpeg/png/gif/webp, MIME types validated via finfo.
         </p>
         <div class="demo-actions">
             <a href="index2.php?reset=1" class="reset">🔄 Reset Demo Data</a>
