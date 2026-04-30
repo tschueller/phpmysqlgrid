@@ -256,6 +256,8 @@ For release process details, see [releasing.md](docs/releasing.md).
 
 Please report vulnerabilities according to [SECURITY.md](SECURITY.md).
 
+For secure runtime configuration and hardening recommendations, see [docs/security-settings.md](docs/security-settings.md).
+
 
 ## License
 

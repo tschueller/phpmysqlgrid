@@ -40,6 +40,11 @@ $grid->primary = "id";
 $grid->name = "demo_products_grid";
 $grid->cssClass = "theme-" . $selectedTheme;
 
+// Secure defaults for FILE fields in demo.
+$grid->allow_url_import = false;
+$grid->max_file_size = 2 * 1024 * 1024; // 2 MB
+$grid->allowed_file_extensions = array("jpg", "jpeg", "png", "gif", "webp");
+
 $grid->can_add = true;
 $grid->can_edit = true;
 $grid->can_delete = true;
@@ -132,6 +137,7 @@ $grid->columns = array(
         "type" => PHPMYSQLGRID_FILE,
         "accept" => "image/*",
         "size" => 30,
+        "show_url_input" => false,  // URL import disabled; use file upload only
         "can_sort" => false,
         "can_filter" => false,
         "width" => 180,
@@ -171,6 +177,9 @@ $grid->columns = array(
         <p>
             This advanced demo showcases the grid library with multiple column types, advanced features, and complex data relationships.
             Use this for internal testing of different field types and grid interactions.
+        </p>
+        <p class="demo-note">
+            File upload hardening is active: URL import disabled, max upload size 2 MB, allowed extensions: jpg, jpeg, png, gif, webp.
         </p>
         <div class="demo-actions">
             <a href="index2.php?reset=1" class="reset">🔄 Reset Demo Data</a>

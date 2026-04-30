@@ -77,6 +77,10 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  * @property array<int, array<string, mixed>> $lookups Lookup definitions used by columns.
  * @property string $charset Charset used by HTML entity escaping. Default: "UTF-8".
  *
+ * @property bool $allow_url_import Whether to allow URL-based file imports. Default: false (disabled for security).
+ * @property int|null $max_file_size Maximum file upload size in bytes. Default: null (no limit).
+ * @property array<int, string> $allowed_file_extensions List of allowed file extensions (e.g. ['pdf', 'doc']). Empty array allows all. Default: [].
+ *
  * @property callable|false $delete_before Hook called before delete. Default: false.
  * @property callable|false $delete_after Hook called after delete. Default: false.
  * @property callable|false $add_before Hook called before add. Default: false.
@@ -161,6 +165,12 @@ class MySQLGrid {
         $this->edit_after = false;
         $this->lookups = array();
         $this->charset = "UTF-8";
+
+        // File upload security configuration
+        $this->allow_url_import = false;  // Disabled by default to prevent SSRF attacks
+        $this->max_file_size = null;      // No limit by default (can be set by user)
+        $this->allowed_file_extensions = array();  // Empty array = allow all extensions
+
         $this->internationalize();
         $this->initSvgIcons();
     }
@@ -218,6 +228,155 @@ class MySQLGrid {
                 trigger_error("Unsafe SQL fragment detected in " . $context, E_USER_ERROR);
             }
         }
+    }
+
+    /**
+     * Validates an uploaded file against configured security rules.
+     *
+    * @param array<string, mixed>|false $fileData File data from $_FILES array (keys: "name", "type", "size", "tmp_name", "error").
+     * @return bool True if file passes validation, false otherwise.
+     * @internal
+     */
+    private function validateUploadedFile(mixed $fileData): bool {
+        if (!is_array($fileData)) {
+            return false;
+        }
+
+        // Check for upload errors
+        if (isset($fileData["error"]) && $fileData["error"] !== UPLOAD_ERR_OK) {
+            trigger_error("File upload error: " . $this->getUploadErrorMessage($fileData["error"]), E_USER_WARNING);
+            return false;
+        }
+
+        // Check file size if max_file_size is set
+        if ($this->max_file_size !== null && isset($fileData["size"])) {
+            if ((int)$fileData["size"] > $this->max_file_size) {
+                trigger_error(
+                    "File size (" . $fileData["size"] . " bytes) exceeds maximum allowed size (" . $this->max_file_size . " bytes)",
+                    E_USER_WARNING
+                );
+                return false;
+            }
+        }
+
+        // Check file extension if allowed_file_extensions is set
+        if (!empty($this->allowed_file_extensions) && isset($fileData["name"])) {
+            $filename = (string)$fileData["name"];
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            if (!in_array($ext, $this->allowed_file_extensions, true)) {
+                trigger_error(
+                    "File extension '." . $ext . "' is not allowed. Allowed extensions: " . implode(", ", $this->allowed_file_extensions),
+                    E_USER_WARNING
+                );
+                return false;
+            }
+        }
+
+        // Verify tmp_name is a valid uploaded file
+        if (!isset($fileData["tmp_name"]) || !is_uploaded_file((string)$fileData["tmp_name"])) {
+            trigger_error("Invalid uploaded file", E_USER_WARNING);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates a URL for safe file import (only if allow_url_import is enabled).
+     *
+     * @param string $url URL to validate and open.
+     * @return bool True if URL passes validation, false otherwise.
+     * @internal
+     */
+    private function validateFileUrl(string $url): bool {
+        // URL imports are disabled by default for security (SSRF prevention)
+        if (!$this->allow_url_import) {
+            trigger_error("URL-based file imports are disabled for security. Set allow_url_import=true to enable.", E_USER_WARNING);
+            return false;
+        }
+
+        // Parse and validate URL
+        $parsed = parse_url($url);
+        if ($parsed === false || !isset($parsed["scheme"]) || !isset($parsed["host"])) {
+            trigger_error("Invalid URL format", E_USER_WARNING);
+            return false;
+        }
+
+        // Only allow http and https schemes
+        $scheme = strtolower((string)$parsed["scheme"]);
+        if (!in_array($scheme, array("http", "https"), true)) {
+            trigger_error("URL scheme '" . $scheme . "' is not allowed. Only http and https are supported.", E_USER_WARNING);
+            return false;
+        }
+
+        // Prevent localhost/private IP ranges to mitigate SSRF attacks
+        $host = (string)$parsed["host"];
+        $ip = gethostbyname($host);
+        if ($this->isPrivateIpAddress($ip)) {
+            trigger_error("URL points to a private IP address. Private IP ranges are not allowed for security.", E_USER_WARNING);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if an IP address is in a private range.
+     *
+     * @param string $ip IP address to check.
+     * @return bool True if IP is private/reserved, false otherwise.
+     * @internal
+     */
+    private function isPrivateIpAddress(string $ip): bool {
+        // Check if it's a valid IP first
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return true;  // Treat invalid as private for safety
+        }
+
+        // Private IPv4 ranges
+        $privateRanges = array(
+            "10.0.0.0|10.255.255.255",
+            "127.0.0.0|127.255.255.255",
+            "172.16.0.0|172.31.255.255",
+            "192.168.0.0|192.168.255.255",
+        );
+
+        // Check if IP is in any private range
+        foreach ($privateRanges as $range) {
+            list($start, $end) = explode("|", $range);
+            if (ip2long($ip) >= ip2long($start) && ip2long($ip) <= ip2long($end)) {
+                return true;
+            }
+        }
+
+        // Also check for localhost and special addresses
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets a user-friendly message for a PHP file upload error code.
+     *
+     * @param int $errorCode PHP upload error constant.
+     * @return string Error message.
+     * @internal
+     */
+    private function getUploadErrorMessage(int $errorCode): string {
+        $messages = array(
+            UPLOAD_ERR_OK => "No error",
+            UPLOAD_ERR_INI_SIZE => "File exceeds upload_max_filesize directive",
+            UPLOAD_ERR_FORM_SIZE => "File exceeds MAX_FILE_SIZE form directive",
+            UPLOAD_ERR_PARTIAL => "File was only partially uploaded",
+            UPLOAD_ERR_NO_FILE => "No file was uploaded",
+            UPLOAD_ERR_NO_TMP_DIR => "Missing temporary folder",
+            UPLOAD_ERR_CANT_WRITE => "Cannot write file to disk",
+            UPLOAD_ERR_EXTENSION => "PHP extension stopped the file upload",
+        );
+
+        return $messages[$errorCode] ?? "Unknown upload error";
     }
 
     private function getPrimaryColumnForSingleColumnContext(): string {
@@ -810,12 +969,27 @@ class MySQLGrid {
             for ($i = 0; $i < count($this->columns); $i++) {
                 switch ($this->columns[$i]["type"]) {
                     case PHPMYSQLGRID_FILE:
-                        if (isset($_REQUEST[$this->cmdClearFile][$i]))
+                        if (isset($_REQUEST[$this->cmdClearFile][$i])) {
                             $data[$i] = false;
-                        else if ($_REQUEST[$this->cmdSetURL][$i])
-                            $data[$i] = $_REQUEST[$this->cmdSetURL][$i];
-                        else
-                            $data[$i] = current($_FILES);
+                        } else if (isset($_REQUEST[$this->cmdSetURL][$i]) && $_REQUEST[$this->cmdSetURL][$i]) {
+                            // URL import - validate if enabled
+                            $url = (string)$_REQUEST[$this->cmdSetURL][$i];
+                            if ($this->validateFileUrl($url)) {
+                                $data[$i] = $url;
+                            } else {
+                                // Validation failed - skip this file
+                                $data[$i] = false;
+                            }
+                        } else {
+                            // Regular file upload - validate
+                            $fileData = current($_FILES);
+                            if ($fileData && $this->validateUploadedFile($fileData)) {
+                                $data[$i] = $fileData;
+                            } else {
+                                // Validation failed - skip this file
+                                $data[$i] = false;
+                            }
+                        }
                         next($_FILES);
                         break;
                     default:
@@ -1340,8 +1514,9 @@ class MySQLGrid {
                     echo '</textarea>';
                     break;
                 case PHPMYSQLGRID_FILE:
+                    $rawFileValue = ($this->mode === PHPMYSQLGRID_EDITMODE && $data) ? $data[$i + $this->countPrimaries()] : '';
                     if ($this->mode == PHPMYSQLGRID_EDITMODE) {
-                        $value = $data ? $data[$i + $this->countPrimaries()] : '';
+                        $value = $rawFileValue;
                         if (isset($this->columns[$i]["convert_output"]))
                             $value = $this->columns[$i]["convert_output"]($this, $value, $i + $this->countPrimaries(), $data, true);
                         else
@@ -1349,38 +1524,42 @@ class MySQLGrid {
                         if ($data) echo $value;
                         echo '<br><br>';
                     }
-                    echo
-                        $this->txtURL, '&nbsp;<input type="text" class="', $this->style,'-file" ',
-                        'name="', $this->cmdSetURL, '[', $i, ']"';
-                    if (isset($this->columns[$i]["size"]))
-                        echo ' size="', (int)$this->columns[$i]["size"], '"';
-                    $style = "";
-                    if (isset($this->columns[$i]["width"]))
-                        $style .= sprintf("width:%dpx;",
-                            (int)$this->columns[$i]["width"]);
-                    if ($style)
-                        echo ' style="', $style, '"';
-                    echo
-                        '><br>';
-                    echo
-                        $this->txtFile, '&nbsp;<input type="file" class="', $this->style,
-                        '" name="', $this->cmdSetFile, $i, '"';
-                    if (isset($this->columns[$i]["size"]))
-                        echo ' size="', (int)$this->columns[$i]["size"], '"';
-                    if (isset($this->columns[$i]["maxlength"]))
-                        echo ' maxlength="', (int)$this->columns[$i]["maxlength"], '"';
-                    if (isset($this->columns[$i]["accept"]))
-                        echo ' accept="', $this->convertToHtmlEntities($this->columns[$i]["accept"]), '"';
-                    $style = "";
-                    if (isset($this->columns[$i]["width"]))
-                        $style .= sprintf("width:%dpx;",
-                            (int)$this->columns[$i]["width"]);
-                    if ($style)
-                        echo ' style="', $style, '"';
-                    echo
-                        '>';
-
-                    if ($this->mode == PHPMYSQLGRID_EDITMODE) {
+                    // Also hide URL input when URL imports are disabled globally (allow_url_import = false),
+                    // to avoid showing a field whose input would be silently discarded server-side.
+                    $showUrlInput = (!isset($this->columns[$i]["show_url_input"]) || $this->columns[$i]["show_url_input"])
+                        && $this->allow_url_import;
+                    $showFileInput = !isset($this->columns[$i]["show_file_input"]) || $this->columns[$i]["show_file_input"];
+                    if ($showUrlInput) {
+                        echo
+                            $this->txtURL, '&nbsp;<input type="text" class="', $this->style, '-file" ',
+                            'name="', $this->cmdSetURL, '[', $i, ']"';
+                        if (isset($this->columns[$i]["size"]))
+                            echo ' size="', (int)$this->columns[$i]["size"], '"';
+                        $style = "";
+                        if (isset($this->columns[$i]["width"]))
+                            $style .= sprintf("width:%dpx;", (int)$this->columns[$i]["width"]);
+                        if ($style)
+                            echo ' style="', $style, '"';
+                        echo '><br>';
+                    }
+                    if ($showFileInput) {
+                        echo
+                            $this->txtFile, '&nbsp;<input type="file" class="', $this->style,
+                            '" name="', $this->cmdSetFile, $i, '"';
+                        if (isset($this->columns[$i]["size"]))
+                            echo ' size="', (int)$this->columns[$i]["size"], '"';
+                        if (isset($this->columns[$i]["maxlength"]))
+                            echo ' maxlength="', (int)$this->columns[$i]["maxlength"], '"';
+                        if (isset($this->columns[$i]["accept"]))
+                            echo ' accept="', $this->convertToHtmlEntities($this->columns[$i]["accept"]), '"';
+                        $style = "";
+                        if (isset($this->columns[$i]["width"]))
+                            $style .= sprintf("width:%dpx;", (int)$this->columns[$i]["width"]);
+                        if ($style)
+                            echo ' style="', $style, '"';
+                        echo '>';
+                    }
+                    if ($this->mode == PHPMYSQLGRID_EDITMODE && $rawFileValue) {
                         echo
                             '<br>',
                             $this->txtDelete, '&nbsp;<input type="checkbox"',

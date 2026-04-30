@@ -5,8 +5,13 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+### Added
+- Add file upload security: `allow_url_import` (default: false), `max_file_size`, and `allowed_file_extensions` properties for server-side upload validation and SSRF prevention.
+- Add `show_url_input` and `show_file_input` column options to control visibility of file upload controls.
+
 ### Fixed
-- Fix XSS and attribute injection vulnerabilities in edit controls by escaping `placeholder`, `align`, `accept` attributes and casting numeric attributes (`size`, `maxlength`, `cols`, `rows`, `width`, `height`) to integers.
+- Fix XSS/attribute injection in edit controls: escape `placeholder`, `align`, `accept`; cast numeric attributes to int.
+- Fix "Delete file" checkbox being shown even when no file is present in edit mode.
 
 
 ## [1.1.0] - 2026-04-14
