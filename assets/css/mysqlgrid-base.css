@@ -16,6 +16,26 @@ table.phpmysqlgrid.full-width {
     width: 100%;
 }
 
+/* Frontend error summary */
+.phpmysqlgrid-error-summary {
+    margin: 0 0 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--phpmysqlgrid-error-border, #f1b0b7);
+    background-color: var(--phpmysqlgrid-error-bg, #f8d7da);
+    color: var(--phpmysqlgrid-error-text, #721c24);
+    border-radius: 6px;
+    font-size: calc(var(--phpmysqlgrid-font-size) - 0.05em);
+}
+
+.phpmysqlgrid-error-list {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.phpmysqlgrid-error-item + .phpmysqlgrid-error-item {
+    margin-top: 0.2rem;
+}
+
 table.phpmysqlgrid th {
     padding: var(--phpmysqlgrid-cell-header-padding);
     margin: 0;

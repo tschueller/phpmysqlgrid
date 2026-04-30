@@ -9,10 +9,12 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Add file upload security: `allow_url_import` (default: false), `max_file_size`, `allowed_file_extensions`, and `allowed_file_mime_types` properties for server-side upload validation and SSRF prevention.
 - Add `allowed_url_domains` property to restrict URL imports to trusted hostnames.
 - Add `show_url_input` and `show_file_input` column options to control visibility of file upload controls.
+- Add grid-level frontend error summary (`*-error-summary`) to show validation/security failures in the UI.
 
 ### Fixed
 - Fix XSS/attribute injection in edit controls: escape `placeholder`, `align`, `accept`; cast numeric attributes to int.
 - Fix "Delete file" checkbox being shown even when no file is present in edit mode.
+- Fix noisy PHP warning output for validation failures by reporting messages in-grid and logging server-side instead.
 
 
 ## [1.1.0] - 2026-04-14

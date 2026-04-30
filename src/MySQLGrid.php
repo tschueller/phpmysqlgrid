@@ -128,6 +128,8 @@ class MySQLGrid {
     private \PDO | null $db = null;
     private \PDO | null $db_connection = null;
     private string $db_driver = "pdo_mysql";
+    /** @var array<int, string> */
+    private array $frontendErrors = array();
     /** @internal @ignore */
     public int $mode = PHPMYSQLGRID_VIEWMODE;
 
@@ -248,16 +250,15 @@ class MySQLGrid {
 
         // Check for upload errors
         if (isset($fileData["error"]) && $fileData["error"] !== UPLOAD_ERR_OK) {
-            trigger_error("File upload error: " . $this->getUploadErrorMessage($fileData["error"]), E_USER_WARNING);
+            $this->reportValidationFailure("File upload error: " . $this->getUploadErrorMessage($fileData["error"]));
             return false;
         }
 
         // Check file size if max_file_size is set
         if ($this->max_file_size !== null && isset($fileData["size"])) {
             if ((int)$fileData["size"] > $this->max_file_size) {
-                trigger_error(
-                    "File size (" . $fileData["size"] . " bytes) exceeds maximum allowed size (" . $this->max_file_size . " bytes)",
-                    E_USER_WARNING
+                $this->reportValidationFailure(
+                    "File size (" . $fileData["size"] . " bytes) exceeds maximum allowed size (" . $this->max_file_size . " bytes)"
                 );
                 return false;
             }
@@ -268,9 +269,8 @@ class MySQLGrid {
             $filename = (string)$fileData["name"];
             $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
             if (!in_array($ext, $this->allowed_file_extensions, true)) {
-                trigger_error(
-                    "File extension '." . $ext . "' is not allowed. Allowed extensions: " . implode(", ", $this->allowed_file_extensions),
-                    E_USER_WARNING
+                $this->reportValidationFailure(
+                    "File extension '." . $ext . "' is not allowed. Allowed extensions: " . implode(", ", $this->allowed_file_extensions)
                 );
                 return false;
             }
@@ -278,7 +278,7 @@ class MySQLGrid {
 
         // Verify tmp_name is a valid uploaded file
         if (!isset($fileData["tmp_name"]) || !is_uploaded_file((string)$fileData["tmp_name"])) {
-            trigger_error("Invalid uploaded file", E_USER_WARNING);
+            $this->reportValidationFailure("Invalid uploaded file");
             return false;
         }
 
@@ -287,9 +287,8 @@ class MySQLGrid {
             $finfo = new \finfo(FILEINFO_MIME_TYPE);
             $mime = $finfo->file((string)$fileData["tmp_name"]);
             if ($mime === false || !in_array($mime, $this->allowed_file_mime_types, true)) {
-                trigger_error(
-                    "MIME type '" . ($mime ?: "unknown") . "' is not allowed. Allowed types: " . implode(", ", $this->allowed_file_mime_types),
-                    E_USER_WARNING
+                $this->reportValidationFailure(
+                    "MIME type '" . ($mime ?: "unknown") . "' is not allowed. Allowed types: " . implode(", ", $this->allowed_file_mime_types)
                 );
                 return false;
             }
@@ -308,21 +307,21 @@ class MySQLGrid {
     private function validateFileUrl(string $url): bool {
         // URL imports are disabled by default for security (SSRF prevention)
         if (!$this->allow_url_import) {
-            trigger_error("URL-based file imports are disabled for security. Set allow_url_import=true to enable.", E_USER_WARNING);
+            $this->reportValidationFailure("URL-based file imports are disabled for security. Set allow_url_import=true to enable.");
             return false;
         }
 
         // Parse and validate URL
         $parsed = parse_url($url);
         if ($parsed === false || !isset($parsed["scheme"]) || !isset($parsed["host"])) {
-            trigger_error("Invalid URL format", E_USER_WARNING);
+            $this->reportValidationFailure("Invalid URL format");
             return false;
         }
 
         // Only allow http and https schemes
         $scheme = strtolower((string)$parsed["scheme"]);
         if (!in_array($scheme, array("http", "https"), true)) {
-            trigger_error("URL scheme '" . $scheme . "' is not allowed. Only http and https are supported.", E_USER_WARNING);
+            $this->reportValidationFailure("URL scheme '" . $scheme . "' is not allowed. Only http and https are supported.");
             return false;
         }
 
@@ -330,15 +329,14 @@ class MySQLGrid {
         $host = (string)$parsed["host"];
         $ip = gethostbyname($host);
         if ($this->isPrivateIpAddress($ip)) {
-            trigger_error("URL points to a private IP address. Private IP ranges are not allowed for security.", E_USER_WARNING);
+            $this->reportValidationFailure("URL points to a private IP address. Private IP ranges are not allowed for security.");
             return false;
         }
 
         // Check domain allowlist if configured
         if (!empty($this->allowed_url_domains) && !in_array($host, $this->allowed_url_domains, true)) {
-            trigger_error(
-                "Host '" . $host . "' is not in the allowed domains list.",
-                E_USER_WARNING
+            $this->reportValidationFailure(
+                "Host '" . $host . "' is not in the allowed domains list."
             );
             return false;
         }
@@ -1134,8 +1132,18 @@ class MySQLGrid {
             '<form action="', $formAction, '" method="post" id="' , $this->name,'_form"',
             $upload ? ' enctype="multipart/form-data"' : '',
             '>',
-            '<input type="image" style="width: 0; height: 0; border: none; visibility: hidden; position: absolute; left: -999px" />',
-            '<table class="', $tableClass ,'" border="0" cellspacing="1">';
+            '<input type="image" style="width: 0; height: 0; border: none; visibility: hidden; position: absolute; left: -999px" />';
+
+        if (!empty($this->frontendErrors)) {
+            echo '<div class="', $this->style, '-error-summary" role="alert" aria-live="polite">',
+                '<ul class="', $this->style, '-error-list">';
+            foreach ($this->frontendErrors as $message) {
+                echo '<li class="', $this->style, '-error-item">', $this->convertToHtmlEntities($message), '</li>';
+            }
+            echo '</ul></div>';
+        }
+
+        echo '<table class="', $tableClass ,'" border="0" cellspacing="1">';
     }
 
     /**
@@ -1752,6 +1760,8 @@ class MySQLGrid {
      * Executes one full grid request lifecycle and renders the grid HTML.
      */
     public function execute(): void {
+        $this->frontendErrors = array();
+
         // Prepare some variables
         $this->prepareQueryVars();
 
@@ -1806,6 +1816,20 @@ class MySQLGrid {
      */
     public function convertToHtmlEntities(mixed $data): string {
         return htmlentities($data ?? "", ENT_COMPAT, $this->charset);
+    }
+
+    private function addFrontendError(string $message): void {
+        if ($message === "") {
+            return;
+        }
+        if (!in_array($message, $this->frontendErrors, true)) {
+            $this->frontendErrors[] = $message;
+        }
+    }
+
+    private function reportValidationFailure(string $message): void {
+        $this->addFrontendError($message);
+        error_log("MySQLGrid validation: " . $message);
     }
 }
 

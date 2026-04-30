@@ -241,6 +241,23 @@ final class MySQLGridUnitTest extends TestCase {
         $this->assertStringNotContainsString('enctype="multipart/form-data"', $output);
     }
 
+    public function testDrawHeaderRendersFrontendErrorSummary(): void {
+        $grid = new MySQLGrid();
+        $grid->columns = array();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        $addFrontendError = new \ReflectionMethod($grid, "addFrontendError");
+        $addFrontendError->invoke($grid, "Upload blocked by policy");
+
+        ob_start();
+        $grid->drawHeader();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('phpmysqlgrid-error-summary', $output);
+        $this->assertStringContainsString('role="alert"', $output);
+        $this->assertStringContainsString('Upload blocked by policy', $output);
+    }
+
     public function testDrawFooterOutputsClosingTags(): void {
         $grid = new MySQLGrid();
 

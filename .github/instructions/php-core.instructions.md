@@ -62,6 +62,18 @@ Rules:
 - If a legacy PHP4-style constructor exists, keep it only as a temporary backward-compatibility wrapper and mark it `@deprecated`.
 - Route any legacy wrapper directly to `__construct()`.
 
+## Member Ordering in `MySQLGrid`
+
+When adding new methods to `src/MySQLGrid.php`, keep method declarations below the constructor.
+
+Preferred order inside the class:
+
+1. Properties
+2. `__construct()`
+3. All other methods (`private`/`protected`/`public`)
+
+Do not insert new methods between property declarations and `__construct()`.
+
 ## Dynamic Properties
 
 The `MySQLGrid` class is namespaced as `PhpMySQLGrid\MySQLGrid` and uses `#[\AllowDynamicProperties]` for PHP 8.2+ compatibility. This is intentional and expected due to the library's age and backward compatibility needs.

@@ -51,6 +51,14 @@
   - [ ] add CSRF protection for add/edit/delete actions
   - [ ] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
   - [x] escape HTML attributes consistently (e.g. `placeholder`) in edit controls
+  - [x] add a grid-level error summary area (e.g. above table) for request-level errors
+
+## Error-handling and Validation
+- [ ] improve frontend error handling for security and validation failures
+  - [ ] show user-friendly inline error messages for blocked uploads/URLs instead of silent failure
+  - [ ] define a consistent error response format (error code + message + field) for UI rendering
+  - [ ] keep technical details in logs, show safe/generalized messages in UI
+  - [ ] add integration tests that verify error messages are rendered for invalid file/url input
 
 ### Testing
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)

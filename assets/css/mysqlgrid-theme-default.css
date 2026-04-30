@@ -25,6 +25,11 @@ table.phpmysqlgrid.theme-default {
     --phpmysqlgrid-delete-text: #721c24;
     --phpmysqlgrid-text-color: #212529;
 
+    /* Error state */
+    --phpmysqlgrid-error-bg: #f8d7da;
+    --phpmysqlgrid-error-border: #f1b0b7;
+    --phpmysqlgrid-error-text: #721c24;
+
     /* Effects */
     --phpmysqlgrid-add-button-hover-bg: rgba(255, 255, 255, 0.2);
     --phpmysqlgrid-pagination-hover-bg: rgba(255, 255, 255, 0.2);
