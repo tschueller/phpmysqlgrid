@@ -1142,7 +1142,7 @@ class MySQLGrid {
 
                 echo '<td class="', $datastyle , ' ' , $cellTypeClass, '"';
                 if (isset($this->columns[$i]["align"]))
-                    echo ' align="', $this->columns[$i]["align"], '"';
+                    echo ' align="', $this->convertToHtmlEntities($this->columns[$i]["align"]), '"';
                 echo '>';
 
                 // Trust converted output, otherwise htmlentity it.
@@ -1223,7 +1223,7 @@ class MySQLGrid {
         for ($i = 0; $i < count($this->columns); $i++) {
             echo '<td class="', $datastyle, '"';
             if (isset($this->columns[$i]["align"]))
-                echo ' align="', $this->columns[$i]["align"], '"';
+                echo ' align="', $this->convertToHtmlEntities($this->columns[$i]["align"]), '"';
             echo '>';
             switch($this->columns[$i]["type"]) {
                 case PHPMYSQLGRID_LOOKUP:
@@ -1293,14 +1293,14 @@ class MySQLGrid {
                     if ($data) echo PHPMYSQLGRID_PWDUMMY;
                     echo '" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
-                        echo ' size="', $this->columns[$i]["size"], '"';
+                        echo ' size="', (int)$this->columns[$i]["size"], '"';
                     if (isset($this->columns[$i]["maxlength"]))
                         echo
-                            ' maxlength="', $this->columns[$i]["maxlength"],
+                            ' maxlength="', (int)$this->columns[$i]["maxlength"],
                             '"';
                     if (isset($this->columns[$i]["width"]))
                         echo
-                            ' style="width:', $this->columns[$i]["width"],
+                            ' style="width:', (int)$this->columns[$i]["width"],
                             'px;"';
                     echo '>';
                     break;
@@ -1320,16 +1320,16 @@ class MySQLGrid {
                     echo
                         '<textarea class="', $this->style, '-textarea" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
-                        echo ' cols="', $this->columns[$i]["size"], '"';
+                        echo ' cols="', (int)$this->columns[$i]["size"], '"';
                     if (isset($this->columns[$i]["lines"]))
-                        echo ' rows="', $this->columns[$i]["lines"], '"';
+                        echo ' rows="', (int)$this->columns[$i]["lines"], '"';
                     $style = "";
                     if (isset($this->columns[$i]["width"]))
                         $style .= sprintf("width:%dpx;",
-                            $this->columns[$i]["width"]);
+                            (int)$this->columns[$i]["width"]);
                     if (isset($this->columns[$i]["height"]))
                         $style .= sprintf("height:%dpx;",
-                            $this->columns[$i]["height"]);
+                            (int)$this->columns[$i]["height"]);
                     if ($style)
                         echo ' style="', $style, '"';
                     echo '>';
@@ -1353,11 +1353,11 @@ class MySQLGrid {
                         $this->txtURL, '&nbsp;<input type="text" class="', $this->style,'-file" ',
                         'name="', $this->cmdSetURL, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
-                        echo ' size="', $this->columns[$i]["size"], '"';
+                        echo ' size="', (int)$this->columns[$i]["size"], '"';
                     $style = "";
                     if (isset($this->columns[$i]["width"]))
                         $style .= sprintf("width:%dpx;",
-                            $this->columns[$i]["width"]);
+                            (int)$this->columns[$i]["width"]);
                     if ($style)
                         echo ' style="', $style, '"';
                     echo
@@ -1366,15 +1366,15 @@ class MySQLGrid {
                         $this->txtFile, '&nbsp;<input type="file" class="', $this->style,
                         '" name="', $this->cmdSetFile, $i, '"';
                     if (isset($this->columns[$i]["size"]))
-                        echo ' size="', $this->columns[$i]["size"], '"';
+                        echo ' size="', (int)$this->columns[$i]["size"], '"';
                     if (isset($this->columns[$i]["maxlength"]))
-                        echo ' maxlength="', $this->columns[$i]["maxlength"], '"';
+                        echo ' maxlength="', (int)$this->columns[$i]["maxlength"], '"';
                     if (isset($this->columns[$i]["accept"]))
-                        echo ' accept="', $this->columns[$i]["accept"], '"';
+                        echo ' accept="', $this->convertToHtmlEntities($this->columns[$i]["accept"]), '"';
                     $style = "";
                     if (isset($this->columns[$i]["width"]))
                         $style .= sprintf("width:%dpx;",
-                            $this->columns[$i]["width"]);
+                            (int)$this->columns[$i]["width"]);
                     if ($style)
                         echo ' style="', $style, '"';
                     echo
@@ -1401,18 +1401,18 @@ class MySQLGrid {
                         echo $this->convertToHtmlEntities($this->columns[$i]["default"]);
                     echo '" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
-                        echo ' size="', $this->columns[$i]["size"], '"';
+                        echo ' size="', (int)$this->columns[$i]["size"], '"';
                     if (isset($this->columns[$i]["maxlength"]))
                         echo
-                            ' maxlength="', $this->columns[$i]["maxlength"],
+                            ' maxlength="', (int)$this->columns[$i]["maxlength"],
                             '"';
                     if (isset($this->columns[$i]["width"]))
                         echo
-                            ' style="width:', $this->columns[$i]["width"],
+                            ' style="width:', (int)$this->columns[$i]["width"],
                             'px;"';
                     if (isset($this->columns[$i]["placeholder"]))
                         echo
-                            ' placeholder="', $this->columns[$i]["placeholder"],
+                            ' placeholder="', $this->convertToHtmlEntities($this->columns[$i]["placeholder"]),
                             '"';
                     echo '>';
             }

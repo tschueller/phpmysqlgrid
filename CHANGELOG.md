@@ -5,6 +5,9 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+### Fixed
+- Fix XSS and attribute injection vulnerabilities in edit controls by escaping `placeholder`, `align`, `accept` attributes and casting numeric attributes (`size`, `maxlength`, `cols`, `rows`, `width`, `height`) to integers.
+
 
 ## [1.1.0] - 2026-04-14
 

@@ -24,11 +24,12 @@
 - [ ] Save limit state in session/local storage for persistence across page reloads
 - [ ] show total row count in footer (total and filtered)
 - [ ] Better visual indication of active filters (e.g. filter icon in header, highlight active filter values)
+- [ ] Second New/edit mode (configurable): Instead of inline editing, open a modal dialog with a form for editing the row. This allows more space for complex forms and better UX on mobile devices.
 
 ### Styling
   - [x] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
   - [ ] Improve or add hover styles for action icons
-  - [ ] Add a second themes (TBD) to demonstrate theming capabilities
+  - [x] Add a second themes (TBD) to demonstrate theming capabilities
   - [ ] fix styling for tables with only a few columns (e.g. in full width mode centering content, max-width for action cells)
   - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
   - [x] Add CSS classes for different column types (e.g. `mysqlgrid-cell--text`, `mysqlgrid-cell--select`, etc.) to allow more specific styling of different column types
@@ -43,7 +44,7 @@
   - [ ] harden URL-based file import in FILE fields (restrict/validate or disable by default)
   - [ ] add CSRF protection for add/edit/delete actions
   - [ ] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
-  - [ ] escape HTML attributes consistently (e.g. `placeholder`) in edit controls
+  - [x] escape HTML attributes consistently (e.g. `placeholder`) in edit controls
 
 ### Testing
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)
