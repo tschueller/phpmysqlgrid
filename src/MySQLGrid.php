@@ -1007,10 +1007,18 @@ class MySQLGrid {
                         } else {
                             // Regular file upload - validate
                             $fileData = current($_FILES);
-                            if ($fileData && $this->validateUploadedFile($fileData)) {
-                                $data[$i] = $fileData;
+                            if ($fileData && isset($fileData["error"])) {
+                                // Skip validation if no file was uploaded (optional file upload)
+                                if ($fileData["error"] === UPLOAD_ERR_NO_FILE) {
+                                    $data[$i] = false;
+                                } else if ($this->validateUploadedFile($fileData)) {
+                                    $data[$i] = $fileData;
+                                } else {
+                                    // Validation failed - skip this file
+                                    $data[$i] = false;
+                                }
                             } else {
-                                // Validation failed - skip this file
+                                // No file data available - treat as no upload
                                 $data[$i] = false;
                             }
                         }
