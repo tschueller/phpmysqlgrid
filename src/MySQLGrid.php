@@ -181,6 +181,10 @@ class MySQLGrid {
         $this->initSvgIcons();
     }
 
+    private function isPostRequest(): bool {
+        return isset($_SERVER["REQUEST_METHOD"]) && strtoupper((string)$_SERVER["REQUEST_METHOD"]) === "POST";
+    }
+
     /**
      * Injects an existing database connection.
      *
@@ -988,17 +992,17 @@ class MySQLGrid {
 
         // Process data vars
         $data = array();
-        if (isset($_REQUEST[$this->cmdSetData])) {
+        if (isset($_POST[$this->cmdSetData])) {
             reset($_FILES);
 
             for ($i = 0; $i < count($this->columns); $i++) {
                 switch ($this->columns[$i]["type"]) {
                     case PHPMYSQLGRID_FILE:
-                        if (isset($_REQUEST[$this->cmdClearFile][$i])) {
+                        if (isset($_POST[$this->cmdClearFile][$i])) {
                             $data[$i] = false;
-                        } else if (isset($_REQUEST[$this->cmdSetURL][$i]) && $_REQUEST[$this->cmdSetURL][$i]) {
+                        } else if (isset($_POST[$this->cmdSetURL][$i]) && $_POST[$this->cmdSetURL][$i]) {
                             // URL import - validate if enabled
-                            $url = (string)$_REQUEST[$this->cmdSetURL][$i];
+                            $url = (string)$_POST[$this->cmdSetURL][$i];
                             if ($this->validateFileUrl($url)) {
                                 $data[$i] = $url;
                             } else {
@@ -1026,7 +1030,7 @@ class MySQLGrid {
                         next($_FILES);
                         break;
                     default:
-                        $data[$i] = $_REQUEST[$this->cmdSetData][$i];
+                        $data[$i] = $_POST[$this->cmdSetData][$i];
                 }
             }
         }
@@ -1037,7 +1041,7 @@ class MySQLGrid {
         }
 
         // Process ConfirmAdd command
-        if (($this->can_add) && (isset($_REQUEST[$this->cmdConfirmAdd]))) {
+        if (($this->can_add) && $this->isPostRequest() && (isset($_POST[$this->cmdConfirmAdd]))) {
             $this->addData($data);
         }
 
@@ -1047,9 +1051,9 @@ class MySQLGrid {
         }
 
         // Process ConfirmDelete command
-        if (($this->can_delete) &&
-            (isset($_REQUEST[$this->cmdConfirmDelete]))) {
-            $this->deleteData($_REQUEST[$this->varDeleteID]);
+        if (($this->can_delete) && $this->isPostRequest() &&
+            (isset($_POST[$this->cmdConfirmDelete])) && isset($_POST[$this->varDeleteID])) {
+            $this->deleteData($_POST[$this->varDeleteID]);
         }
 
         // Process Edit command
@@ -1058,9 +1062,9 @@ class MySQLGrid {
         }
 
         // Process ConfirmEdit command
-        if (($this->can_edit) &&
-            (isset($_REQUEST[$this->cmdConfirmEdit]))) {
-            $this->editData($_REQUEST[$this->varEditID], $data);
+        if (($this->can_edit) && $this->isPostRequest() &&
+            (isset($_POST[$this->cmdConfirmEdit])) && isset($_POST[$this->varEditID])) {
+            $this->editData($_POST[$this->varEditID], $data);
         }
     }
 
@@ -1231,6 +1235,7 @@ class MySQLGrid {
     }
 
     private function drawData(): void {
+        $formId = $this->buildSafeDomId($this->name . "_form");
         echo '<tbody>';
         $this->row = 0;
         while (($data = $this->fetchResultRow()) !== false) {
@@ -1254,9 +1259,10 @@ class MySQLGrid {
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
                 && ($_REQUEST[$this->varDeleteID] == $data[0])) {
                 echo
-                    '<a href="', $this->selfUrl(), '?',
-                    $this->buildUrl(array($this->cmdConfirmDelete => 1, $this->varDeleteID => $data[0])), '"',
-                    '" aria-label="', $this->convertToHtmlEntities($this->txtConfirm),
+                    '<input type="hidden" name="', $this->cmdConfirmDelete, '" value="1">',
+                    '<input type="hidden" name="', $this->varDeleteID, '" value="', $this->convertToHtmlEntities($data[0]), '">',
+                    '<a href="#" onclick="document.getElementById(\'', $formId, '\').submit(); return false;"',
+                    ' aria-label="', $this->convertToHtmlEntities($this->txtConfirm),
                     '" title="', $this->convertToHtmlEntities($this->txtConfirm), '">',
                         $this->renderIcon($this->svgIconConfirm, "confirm"),
                     '</a>',

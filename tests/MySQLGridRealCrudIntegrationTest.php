@@ -15,9 +15,12 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
         parent::setUp();
 
         $_REQUEST = array();
+        $_POST = array();
+        $_GET = array();
         $_FILES = array();
         $_SESSION = array();
         $_SERVER["PHP_SELF"] = "/index.php";
+        $_SERVER["REQUEST_METHOD"] = "GET";
 
         $this->grid = new MySQLGrid();
         $this->grid->setDatabaseConnection($this->sqlite, "pdo_sqlite");
@@ -34,6 +37,8 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
 
     protected function tearDown(): void {
         $_REQUEST = array();
+        $_POST = array();
+        $_GET = array();
         $_FILES = array();
         $_SESSION = array();
 
@@ -274,8 +279,9 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
     public function testExecuteProcessesConfirmAddRequestWithInjectedPdo(): void {
         $grid = $this->buildExecuteGrid();
 
-        $_REQUEST["exec_grid_confirmadd"] = "1";
-        $_REQUEST["exec_grid_setdata"] = array(
+        $_SERVER["REQUEST_METHOD"] = "POST";
+        $_POST["exec_grid_confirmadd"] = "1";
+        $_POST["exec_grid_setdata"] = array(
             "new-exec@example.test",
             "Exec Added",
             "1",
@@ -295,9 +301,10 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
     public function testExecuteProcessesConfirmEditRequestWithInjectedPdo(): void {
         $grid = $this->buildExecuteGrid();
 
-        $_REQUEST["exec_grid_confirmedit"] = "1";
-        $_REQUEST["exec_grid_editid"] = "1";
-        $_REQUEST["exec_grid_setdata"] = array(
+        $_SERVER["REQUEST_METHOD"] = "POST";
+        $_POST["exec_grid_confirmedit"] = "1";
+        $_POST["exec_grid_editid"] = "1";
+        $_POST["exec_grid_setdata"] = array(
             "alice@example.test",
             "Exec Edited",
             "0",
@@ -317,8 +324,9 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
     public function testExecuteProcessesConfirmDeleteRequestWithInjectedPdo(): void {
         $grid = $this->buildExecuteGrid();
 
-        $_REQUEST["exec_grid_confirmdelete"] = "1";
-        $_REQUEST["exec_grid_deleteid"] = "2";
+        $_SERVER["REQUEST_METHOD"] = "POST";
+        $_POST["exec_grid_confirmdelete"] = "1";
+        $_POST["exec_grid_deleteid"] = "2";
 
         ob_start();
         $grid->execute();
@@ -327,5 +335,38 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
         $this->assertTableRowCount("users", 1);
         $deleted = $this->fetchUserByEmail("bob@example.test");
         $this->assertNull($deleted);
+    }
+
+    public function testExecuteIgnoresConfirmCommandsOnGetRequests(): void {
+        $grid = $this->buildExecuteGrid();
+
+        $_SERVER["REQUEST_METHOD"] = "GET";
+        $_REQUEST["exec_grid_confirmadd"] = "1";
+        $_REQUEST["exec_grid_setdata"] = array(
+            "blocked-by-get@example.test",
+            "Should Not Be Added",
+            "1",
+            "Blocked"
+        );
+        $_REQUEST["exec_grid_confirmedit"] = "1";
+        $_REQUEST["exec_grid_editid"] = "1";
+        $_REQUEST["exec_grid_confirmdelete"] = "1";
+        $_REQUEST["exec_grid_deleteid"] = "2";
+
+        ob_start();
+        $grid->execute();
+        ob_end_clean();
+
+        $this->assertTableRowCount("users", 2);
+
+        $alice = $this->fetchUserByEmail("alice@example.test");
+        $this->assertNotNull($alice);
+        $this->assertSame("Alice", $alice["display_name"]);
+
+        $bob = $this->fetchUserByEmail("bob@example.test");
+        $this->assertNotNull($bob);
+
+        $blocked = $this->fetchUserByEmail("blocked-by-get@example.test");
+        $this->assertNull($blocked);
     }
 }

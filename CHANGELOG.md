@@ -16,6 +16,7 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Fix unsafe name-based DOM output by sanitizing `$grid->name` for generated form/footer IDs, add-button anchor fragments, and submit handlers.
 - Fix "Delete file" checkbox being shown even when no file is present in edit mode.
 - Fix noisy PHP warning output for validation failures by reporting messages in-grid and logging server-side instead.
+- Fix state-changing confirm actions (`confirmadd`, `confirmedit`, `confirmdelete`) to run on POST requests only.
 
 
 ## [1.1.0] - 2026-04-14
