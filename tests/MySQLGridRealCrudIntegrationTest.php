@@ -213,7 +213,8 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
                 "type" => PHPMYSQLGRID_LOOKUP,
                 "lookup_primary" => "id",
                 "lookup_field" => "title",
-                "lookup_table" => "roles"
+                "lookup_table" => "roles",
+                "width" => '" onload="alert(1);>'
             )
         );
         $lookupGrid->connect();
@@ -231,6 +232,7 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
         }
 
         $this->assertStringContainsString('name="lookup_grid_setdata[0]"', $html);
+        $this->assertStringContainsString('style="width:0px;"', $html);
         $this->assertStringContainsString('>Admin</option>', $html);
         $this->assertStringContainsString('>Editor</option>', $html);
     }

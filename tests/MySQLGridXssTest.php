@@ -84,6 +84,8 @@ final class MySQLGridXssTest extends TestCase {
         $grid->mode = PHPMYSQLGRID_ADDMODE;
 
         ob_start();
+        $grid->row = 0;
+        $grid->prepareQueryVars();
         $grid->drawEditControls(false);
         $output = ob_get_clean();
 
@@ -111,6 +113,8 @@ final class MySQLGridXssTest extends TestCase {
         $grid->mode = PHPMYSQLGRID_ADDMODE;
 
         ob_start();
+        $grid->row = 0;
+        $grid->prepareQueryVars();
         $grid->drawEditControls(false);
         $output = ob_get_clean();
 
@@ -138,6 +142,8 @@ final class MySQLGridXssTest extends TestCase {
         $grid->mode = PHPMYSQLGRID_ADDMODE;
 
         ob_start();
+        $grid->row = 0;
+        $grid->prepareQueryVars();
         $grid->drawEditControls(false);
         $output = ob_get_clean();
 
@@ -165,6 +171,8 @@ final class MySQLGridXssTest extends TestCase {
         $grid->mode = PHPMYSQLGRID_ADDMODE;
 
         ob_start();
+        $grid->row = 0;
+        $grid->prepareQueryVars();
         $grid->drawEditControls(false);
         $output = ob_get_clean();
 
@@ -197,6 +205,8 @@ final class MySQLGridXssTest extends TestCase {
         $grid->mode = PHPMYSQLGRID_ADDMODE;
 
         ob_start();
+        $grid->row = 0;
+        $grid->prepareQueryVars();
         $grid->drawEditControls(false);
         $output = ob_get_clean();
 
@@ -229,6 +239,8 @@ final class MySQLGridXssTest extends TestCase {
         $grid->mode = PHPMYSQLGRID_ADDMODE;
 
         ob_start();
+        $grid->row = 0;
+        $grid->prepareQueryVars();
         $grid->drawEditControls(false);
         $output = ob_get_clean();
 
@@ -261,6 +273,8 @@ final class MySQLGridXssTest extends TestCase {
         $grid->mode = PHPMYSQLGRID_ADDMODE;
 
         ob_start();
+        $grid->row = 0;
+        $grid->prepareQueryVars();
         $grid->drawEditControls(false);
         $output = ob_get_clean();
 
@@ -269,6 +283,40 @@ final class MySQLGridXssTest extends TestCase {
             'style="height:0px;"',
             $output,
             'Height in style must be cast to integer'
+        );
+        $this->assertStringNotContainsString(
+            'onload=',
+            $output,
+            'Malicious onload attribute must not appear in output'
+        );
+    }
+
+    /**
+     * Test that width in SELECTION style attribute is cast to int to prevent injection.
+     */
+    public function testSelectionWidthInStyleAttributeCastedToIntegerInEditControls(): void {
+        $grid = new MySQLGrid();
+        $grid->columns = array(
+            array(
+                "field" => "choice",
+                "caption" => "Choice",
+                "type" => PHPMYSQLGRID_SELECTION,
+                "selection" => array("A" => "Option A"),
+                "width" => '" onload="alert(1);>',
+            ),
+        );
+        $grid->mode = PHPMYSQLGRID_ADDMODE;
+
+        ob_start();
+        $grid->row = 0;
+        $grid->prepareQueryVars();
+        $grid->drawEditControls(false);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString(
+            'style="width:0px;"',
+            $output,
+            'Selection width in style must be cast to integer'
         );
         $this->assertStringNotContainsString(
             'onload=',

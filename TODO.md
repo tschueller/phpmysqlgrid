@@ -50,7 +50,11 @@
     - [x] Add optional URL allowlist for trusted domains via `allowed_url_domains` property
   - [ ] add CSRF protection for add/edit/delete actions
   - [ ] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
+  - [ ] harden URL import against DNS-rebinding/TOCTOU between validation and fetch
+    - [ ] re-validate the final resolved target immediately before reading remote content
+    - [ ] disallow redirects for URL import, or validate every redirect hop against SSRF/domain rules
   - [x] escape HTML attributes consistently (e.g. `placeholder`) in edit controls
+  - [x] harden HTML/JS output contexts for configurable grid name (`$grid->name`) in DOM IDs and inline handlers
   - [x] add a grid-level error summary area (e.g. above table) for request-level errors
 
 ## Error-handling and Validation

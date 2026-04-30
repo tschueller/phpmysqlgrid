@@ -1102,6 +1102,17 @@ class MySQLGrid {
     }
 
     /**
+     * Creates a safe DOM id from user-configurable values (for example $this->name).
+     */
+    private function buildSafeDomId(string $value): string {
+        $sanitized = preg_replace('/[^A-Za-z0-9_\-:.]/', '_', $value);
+        if (!is_string($sanitized) || $sanitized === "") {
+            return "mysqlgrid";
+        }
+        return $sanitized;
+    }
+
+    /**
      * @internal
      * @ignore
      */
@@ -1128,8 +1139,10 @@ class MySQLGrid {
             $formAction .= "?" . http_build_query($preservedParams, "", "&amp;");
         }
 
+        $formId = $this->buildSafeDomId($this->name . "_form");
+
         echo
-            '<form action="', $formAction, '" method="post" id="' , $this->name,'_form"',
+            '<form action="', $formAction, '" method="post" id="' , $this->convertToHtmlEntities($formId),'"',
             $upload ? ' enctype="multipart/form-data"' : '',
             '>',
             '<input type="image" style="width: 0; height: 0; border: none; visibility: hidden; position: absolute; left: -999px" />';
@@ -1151,9 +1164,10 @@ class MySQLGrid {
      * @ignore
      */
     public function drawFooter(): void {
+        $bottomId = $this->buildSafeDomId($this->name . "_bottom");
         echo
             '</table>',
-            '</form><a href="#" id="',$this->name,'_bottom"></a>';
+            '</form><a href="#" id="', $this->convertToHtmlEntities($bottomId), '"></a>';
     }
 
     /**
@@ -1382,6 +1396,7 @@ class MySQLGrid {
      * @ignore
      */
     public function drawEditControls(array|false $data = false): void {
+        $formId = $this->buildSafeDomId($this->name . "_form");
         $rowClass = $this->style . '-cell--' . (($this->row % 2) ? 'odd' : 'even');
         switch ($this->mode) {
             case PHPMYSQLGRID_EDITMODE:
@@ -1405,7 +1420,7 @@ class MySQLGrid {
                 '<input type="hidden" name="', $this->varEditID, '" value="',
                 $_REQUEST[$this->varEditID], '">',
                 '<input type="hidden" name="' . $this->cmdConfirmEdit. '" value="true" />'.
-                '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
+                '<a href="#" onclick="document.getElementById(\'' . $formId . '\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
                     $this->renderIcon($this->svgIconConfirm, "confirm").
                 '</a>',
                 '<a href="', $this->selfUrl(), "?",
@@ -1418,7 +1433,7 @@ class MySQLGrid {
         } else {
             echo
                 '<input type="hidden" name="' . $this->cmdConfirmAdd. '" value="true" />'.
-                '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
+                '<a href="#" onclick="document.getElementById(\'' . $formId . '\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
                     $this->renderIcon($this->svgIconConfirm, "confirm").
                 '</a>',
                 '<a href="', $this->selfUrl(), "?",
@@ -1441,7 +1456,7 @@ class MySQLGrid {
                         ' name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["width"]))
                         echo
-                            ' style="width:', $this->columns[$i]["width"],
+                            ' style="width:', (int)$this->columns[$i]["width"],
                             'px;"';
                     echo '>';
                     $lookupFilter = isset($this->columns[$i]["lookup_filter"]) ? (string)$this->columns[$i]["lookup_filter"] : "";
@@ -1476,7 +1491,7 @@ class MySQLGrid {
                         ' name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["width"]))
                         echo
-                            ' style="width:', $this->columns[$i]["width"],
+                            ' style="width:', (int)$this->columns[$i]["width"],
                             'px;"';
                     echo '>';
                     foreach($this->columns[$i]["selection"] as $key => $value) {
@@ -1640,13 +1655,14 @@ class MySQLGrid {
      * @ignore
      */
     public function drawNavigation(): void {
+        $bottomId = $this->buildSafeDomId($this->name . "_bottom");
         echo
             '<tfoot><tr>',
             '<td align="right" class="', $this->style, '-action">';
         // Draw Add Button if wanted
         if ($this->can_add) {
             echo
-                '<a href="', $this->selfUrl(), '?', $this->buildUrl(array($this->cmdAdd => 1)), '#',$this->name,'_bottom" class="add-button"',
+                '<a href="', $this->selfUrl(), '?', $this->buildUrl(array($this->cmdAdd => 1)), '#', $this->convertToHtmlEntities($bottomId), '" class="add-button"',
                 ' aria-label="', $this->convertToHtmlEntities($this->txtAdd),
                 '" title="', $this->convertToHtmlEntities($this->txtAdd), '">',
                     $this->renderIcon($this->svgIconAdd, "add"),

@@ -55,6 +55,13 @@ $grid->allowed_url_domains = ["cdn.example.com"];
    - Only evaluated when `allow_url_import = true`.
    - Empty array (default) means any public host is accepted.
 
+6. DNS-rebinding / TOCTOU note for URL imports
+   - URL validation and remote fetch should be treated as one security boundary.
+   - If validation and fetch are separated, attackers may change DNS answers between both steps.
+   - Redirects can also bypass hostname checks if only the initial URL is validated.
+   - Prefer disabling redirects for URL imports, or validate each redirect target with the same SSRF/domain rules.
+   - Re-validate the finally resolved network target immediately before reading response data.
+
 ## Recommended Defaults
 
 1. Set `allowed_file_extensions` explicitly for every file column.
@@ -62,7 +69,8 @@ $grid->allowed_url_domains = ["cdn.example.com"];
 3. Set `max_file_size` to your operational maximum.
 4. Keep `allow_url_import = false` unless there is a strict business need.
 5. If you enable URL imports, set `allowed_url_domains` to a whitelist of trusted hosts.
-6. Add application-level validation via `convert_input` for domain-specific checks.
+6. For URL imports, avoid automatic redirects unless every hop is validated.
+7. Add application-level validation via `convert_input` for domain-specific checks.
 
 Example:
 
