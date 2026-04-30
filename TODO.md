@@ -63,6 +63,7 @@
   - [ ] define a consistent error response format (error code + message + field) for UI rendering
   - [ ] keep technical details in logs, show safe/generalized messages in UI
   - [ ] add integration tests that verify error messages are rendered for invalid file/url input
+- [ ] make messages customizable via properties for internationalization
 
 ### Testing
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)

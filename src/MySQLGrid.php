@@ -389,6 +389,7 @@ class MySQLGrid {
      * @internal
      */
     private function getUploadErrorMessage(int $errorCode): string {
+        // TODO: make messages customizable via properties for internationalization
         $messages = array(
             UPLOAD_ERR_OK => "No error",
             UPLOAD_ERR_INI_SIZE => "File exceeds upload_max_filesize directive",
