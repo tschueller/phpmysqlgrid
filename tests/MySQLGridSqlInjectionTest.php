@@ -128,4 +128,20 @@ final class MySQLGridSqlInjectionTest extends DatabaseTestCase {
         // Value stored verbatim — HTML encoding must happen at render time, not storage time
         $this->assertSame($xssPayload, $row["display_name"]);
     }
+
+    public function testPrepareDataRejectsUnsafeTableIdentifier(): void {
+        $this->grid->table = "users; DROP TABLE users; --";
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unsafe SQL identifier detected in table");
+
+        $this->grid->prepareData();
+    }
+
+    public function testAddDataRejectsUnsafeColumnIdentifier(): void {
+        $this->grid->columns[0]["field"] = "email; DROP TABLE users; --";
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Unsafe SQL identifier detected in columns[0].field");
+
+        $this->grid->addData(array("test@example.test", "Test", 1, "Bio"));
+    }
 }

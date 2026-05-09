@@ -339,6 +339,111 @@ class MySQLGrid {
     }
 
     /**
+     * Validates one SQL identifier (for example table/column name) against a strict allowlist.
+     *
+     * This protects dynamic SQL parts that cannot be parameterized via prepared statements
+     * (for example table names, column lists, ORDER BY fields, JOIN identifiers).
+     *
+     * Allowed forms:
+     * - Simple identifiers: letters/underscore first, then letters/digits/underscore.
+     * - Optional dotted identifiers when $allowQualified is true (for example schema.table).
+     * - Optional backtick-wrapped identifiers for backwards compatibility.
+     *
+     * Allowed examples: 'users', 'display_name', 'myschema.mytable' (with $allowQualified=true), '`column`'.
+     * Forbidden examples: 'users; DROP TABLE users; --', "col'injection", '0invalid', ''.
+     *
+     * @throws \InvalidArgumentException When the identifier is empty or contains unsafe characters/tokens.
+     */
+    private function assertSafeSqlIdentifier(string $identifier, string $context, bool $allowQualified = false): void {
+        $trimmed = trim($identifier);
+        if ($trimmed === "") {
+            throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+        }
+
+        $parts = $allowQualified ? explode(".", $trimmed) : array($trimmed);
+        foreach ($parts as $part) {
+            $segment = trim((string)$part);
+            if ($segment === "") {
+                throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+            }
+
+            // Allow backtick-quoted identifiers for backward compatibility.
+            if (str_starts_with($segment, "`") || str_ends_with($segment, "`")) {
+                if (!(str_starts_with($segment, "`") && str_ends_with($segment, "`") && strlen($segment) > 2)) {
+                    throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+                }
+
+                $unquoted = substr($segment, 1, -1);
+                if ($unquoted === "" || str_contains($unquoted, "`") || str_contains($unquoted, "\0")) {
+                    throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+                }
+                continue;
+            }
+
+            if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $segment)) {
+                throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+            }
+        }
+    }
+
+    /**
+     * Runs identifier validation for all dynamic SQL identifier sources used by the grid.
+     *
+     * Checked sources:
+     * - table + primary key definitions
+     * - column field names (including LOOKUP metadata)
+     * - global lookup definitions
+     * - add_values keys used as INSERT column names
+     *
+     * This method is intentionally called before SQL query assembly in read/write code paths,
+     * so invalid identifiers fail closed before any dynamic SQL is built.
+     *
+     * Example: a grid with $table='orders', $primary='id', columns [['field'=>'customer_name']] passes.
+     * Example: a grid with $table='orders; DROP TABLE orders; --' throws \InvalidArgumentException.
+     *
+     * @throws \InvalidArgumentException When any configured identifier is unsafe.
+     */
+    private function validateSqlIdentifiers(): void {
+        $this->assertSafeSqlIdentifier((string)$this->table, "table", true);
+
+        $primaryColumns = is_array($this->primary) ? $this->primary : array($this->primary);
+        foreach ($primaryColumns as $index => $primaryColumn) {
+            $this->assertSafeSqlIdentifier((string)$primaryColumn, "primary[" . $index . "]");
+        }
+
+        foreach ($this->columns as $index => $column) {
+            if (!isset($column["field"])) {
+                throw new \InvalidArgumentException("Unsafe SQL identifier detected in columns[" . $index . "].field");
+            }
+            $this->assertSafeSqlIdentifier((string)$column["field"], "columns[" . $index . "].field");
+
+            $columnType = isset($column["type"]) ? (int)$column["type"] : PHPMYSQLGRID_TEXT;
+            if ($columnType === PHPMYSQLGRID_LOOKUP) {
+                if (!isset($column["lookup_table"], $column["lookup_primary"], $column["lookup_field"])) {
+                    throw new \InvalidArgumentException("Unsafe SQL identifier detected in columns[" . $index . "].lookup");
+                }
+
+                $this->assertSafeSqlIdentifier((string)$column["lookup_table"], "columns[" . $index . "].lookup_table", true);
+                $this->assertSafeSqlIdentifier((string)$column["lookup_primary"], "columns[" . $index . "].lookup_primary");
+                $this->assertSafeSqlIdentifier((string)$column["lookup_field"], "columns[" . $index . "].lookup_field");
+            }
+        }
+
+        foreach ($this->lookups as $index => $lookup) {
+            if (!isset($lookup["lookup_table"], $lookup["lookup_primary"])) {
+                throw new \InvalidArgumentException("Unsafe SQL identifier detected in lookups[" . $index . "]");
+            }
+
+            $this->assertSafeSqlIdentifier((string)$lookup["lookup_table"], "lookups[" . $index . "].lookup_table", true);
+            $this->assertSafeSqlIdentifier((string)$lookup["lookup_primary"], "lookups[" . $index . "].lookup_primary");
+        }
+
+        foreach ($this->add_values as $key => $_value) {
+            $this->assertSafeSqlIdentifier((string)$key, "add_values[" . (string)$key . "]");
+        }
+    }
+
+    /**
      * Validates an uploaded file against configured security rules.
      *
     * @param array<string, mixed>|false $fileData File data from $_FILES array (keys: "name", "type", "size", "tmp_name", "error").
@@ -530,6 +635,8 @@ class MySQLGrid {
         if (!($this->db instanceof \PDO)) {
             trigger_error("PDO connection expected for injected PDO driver", E_USER_ERROR);
         }
+
+        $this->validateSqlIdentifiers();
 
         if (is_array($this->primary)) {
             $fields = array();
@@ -731,6 +838,7 @@ class MySQLGrid {
      * Auto-populates grid columns from the configured table metadata.
      */
     public function useAllColumns(): void {
+        $this->assertSafeSqlIdentifier((string)$this->table, "table", true);
         $this->columns = array();
 
         if ($this->db_driver === "pdo_sqlite") {
@@ -846,6 +954,7 @@ class MySQLGrid {
     }
 
     private function addDataWithPdo(mixed $data): void {
+        $this->validateSqlIdentifiers();
         $columns = array();
         $params = array();
 
@@ -936,6 +1045,7 @@ class MySQLGrid {
     }
 
     private function deleteDataWithPdo(mixed $id): void {
+        $this->validateSqlIdentifiers();
         $query = sprintf(
             "DELETE FROM %s where %s=:id",
             $this->table,
@@ -946,6 +1056,7 @@ class MySQLGrid {
     }
 
     private function editDataWithPdo(mixed $id, mixed $data): void {
+        $this->validateSqlIdentifiers();
         $updates = array();
         $params = array();
 
