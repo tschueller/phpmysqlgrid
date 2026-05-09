@@ -298,6 +298,31 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
         $this->assertSame("Exec Added", $row["display_name"]);
     }
 
+    public function testExecuteProcessesConfirmAddWithValidCsrfTokenWhenEnabled(): void {
+        $grid = $this->buildExecuteGrid();
+        $grid->csrf_protection_enabled = true;
+
+        $_SERVER["REQUEST_METHOD"] = "POST";
+        $_SESSION["phpMySQLGrid_exec_grid"]["csrf_token"] = "valid-csrf-token";
+        $_POST["exec_grid_confirmadd"] = "1";
+        $_POST["exec_grid_setdata"] = array(
+            "csrf-add@example.test",
+            "CSRF Added",
+            "1",
+            "Created through execute() with CSRF"
+        );
+        $_POST["exec_grid_csrf_token"] = "valid-csrf-token";
+
+        ob_start();
+        $grid->execute();
+        ob_end_clean();
+
+        $this->assertTableRowCount("users", 3);
+        $row = $this->fetchUserByEmail("csrf-add@example.test");
+        $this->assertNotNull($row);
+        $this->assertSame("CSRF Added", $row["display_name"]);
+    }
+
     public function testExecuteProcessesConfirmEditRequestWithInjectedPdo(): void {
         $grid = $this->buildExecuteGrid();
 
@@ -335,6 +360,80 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
         $this->assertTableRowCount("users", 1);
         $deleted = $this->fetchUserByEmail("bob@example.test");
         $this->assertNull($deleted);
+    }
+
+    public function testExecuteRejectsConfirmAddWithoutCsrfTokenWhenEnabled(): void {
+        $grid = $this->buildExecuteGrid();
+        $grid->csrf_protection_enabled = true;
+
+        $_SERVER["REQUEST_METHOD"] = "POST";
+        $_POST["exec_grid_confirmadd"] = "1";
+        $_POST["exec_grid_setdata"] = array(
+            "csrf-blocked@example.test",
+            "Should Not Be Added",
+            "1",
+            "Blocked"
+        );
+
+        ob_start();
+        $grid->execute();
+        $html = ob_get_clean();
+
+        $this->assertTableRowCount("users", 2);
+        $blocked = $this->fetchUserByEmail("csrf-blocked@example.test");
+        $this->assertNull($blocked);
+
+        $this->assertIsString($html);
+        if (!is_string($html)) {
+            $this->fail("Expected execute output string");
+        }
+        $this->assertStringContainsString("Security check failed. Please try again.", $html);
+    }
+
+    public function testExecuteRejectsConfirmDeleteWithInvalidCsrfTokenWhenEnabled(): void {
+        $grid = $this->buildExecuteGrid();
+        $grid->csrf_protection_enabled = true;
+
+        $_SERVER["REQUEST_METHOD"] = "POST";
+        $_SESSION["phpMySQLGrid_exec_grid"]["csrf_token"] = "valid-csrf-token";
+        $_POST["exec_grid_confirmdelete"] = "1";
+        $_POST["exec_grid_deleteid"] = "2";
+        $_POST["exec_grid_csrf_token"] = "invalid-csrf-token";
+
+        ob_start();
+        $grid->execute();
+        $html = ob_get_clean();
+
+        $this->assertTableRowCount("users", 2);
+        $bob = $this->fetchUserByEmail("bob@example.test");
+        $this->assertNotNull($bob);
+
+        $this->assertIsString($html);
+        if (!is_string($html)) {
+            $this->fail("Expected execute output string");
+        }
+        $this->assertStringContainsString("Security check failed. Please try again.", $html);
+    }
+
+    public function testExecuteRendersCsrfTokenHiddenInputWhenEnabled(): void {
+        $grid = $this->buildExecuteGrid();
+        $grid->csrf_protection_enabled = true;
+
+        $_REQUEST["exec_grid_add"] = "1";
+
+        ob_start();
+        $grid->execute();
+        $html = ob_get_clean();
+
+        $this->assertIsString($html);
+        if (!is_string($html)) {
+            $this->fail("Expected execute output string");
+        }
+
+        $this->assertArrayHasKey("phpMySQLGrid_exec_grid", $_SESSION);
+        $this->assertIsArray($_SESSION["phpMySQLGrid_exec_grid"]);
+        $this->assertArrayHasKey("csrf_token", $_SESSION["phpMySQLGrid_exec_grid"]);
+        $this->assertStringContainsString('name="exec_grid_csrf_token"', $html);
     }
 
     public function testExecuteIgnoresConfirmCommandsOnGetRequests(): void {

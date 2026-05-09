@@ -1,6 +1,6 @@
 <?php
 // +----------------------------------------------------------------------+
-// | phpMySQLGrid version 0.6                                             |
+// | phpMySQLGrid                                                         |
 // |                                                                      |
 // | A flexible mysql data grid for PHP.                                  |
 // +----------------------------------------------------------------------+
@@ -82,6 +82,8 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  * @property array<int, string> $allowed_file_extensions List of allowed file extensions (e.g. ['pdf', 'doc']). Empty array allows all. Default: [].
  * @property array<int, string> $allowed_file_mime_types List of allowed MIME types detected via finfo (e.g. ['image/jpeg', 'image/png']). Empty array allows all. Default: [].
  * @property array<int, string> $allowed_url_domains Allowlist of trusted hostnames for URL imports (e.g. ['cdn.example.com']). Empty array allows all hosts (when allow_url_import is true). Default: [].
+ * @property bool $csrf_protection_enabled Enables CSRF validation for state-changing confirm actions. Default: false.
+ * @property string $csrf_token_field Base field name used for CSRF hidden input (grid name prefix is added automatically). Default: "csrf_token".
  *
  * @property callable|false $delete_before Hook called before delete. Default: false.
  * @property callable|false $delete_after Hook called after delete. Default: false.
@@ -103,6 +105,7 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  * @property string $txtFileFalse Label for missing file values. Default: "No file present".
  * @property string $txtFile Label for file upload control. Default: "File".
  * @property string $txtURL Label for URL file source control. Default: "URL".
+ * @property string $txtCsrfError Error message shown when CSRF validation fails. Default: "Security check failed. Please try again.".
  * @property string $txtPaginationLabel ARIA label for pagination navigation. Default: "Pagination".
  * @property string $txtSortAsc ARIA/title label for ascending sort control. Default: "Sort ascending".
  * @property string $txtSortDesc ARIA/title label for descending sort control. Default: "Sort descending".
@@ -176,6 +179,8 @@ class MySQLGrid {
         $this->allowed_file_extensions = array();  // Empty array = allow all extensions
         $this->allowed_file_mime_types = array();  // Empty array = no MIME type restriction
         $this->allowed_url_domains = array();     // Empty array = any host allowed (when allow_url_import = true)
+        $this->csrf_protection_enabled = false;
+        $this->csrf_token_field = "csrf_token";
 
         $this->internationalize();
         $this->initSvgIcons();
@@ -183,6 +188,99 @@ class MySQLGrid {
 
     private function isPostRequest(): bool {
         return isset($_SERVER["REQUEST_METHOD"]) && strtoupper((string)$_SERVER["REQUEST_METHOD"]) === "POST";
+    }
+
+    private function isCsrfProtectionEnabled(): bool {
+        return isset($this->csrf_protection_enabled) && (bool)$this->csrf_protection_enabled;
+    }
+
+    private function getGridSessionKey(): string {
+        return "phpMySQLGrid_" . $this->name;
+    }
+
+    private function getCsrfTokenFieldName(): string {
+        $fieldName = isset($this->csrf_token_field) ? trim((string)$this->csrf_token_field) : "csrf_token";
+        if ($fieldName === "") {
+            $fieldName = "csrf_token";
+        }
+
+        $prefix = $this->name . "_";
+        if (str_starts_with($fieldName, $prefix)) {
+            return $fieldName;
+        }
+
+        return $prefix . $fieldName;
+    }
+
+    private function ensureCsrfToken(): void {
+        if (!$this->isCsrfProtectionEnabled()) {
+            return;
+        }
+
+        $sessionKey = $this->getGridSessionKey();
+        if (!isset($_SESSION[$sessionKey]) || !is_array($_SESSION[$sessionKey])) {
+            $_SESSION[$sessionKey] = array();
+        }
+
+        if (!isset($_SESSION[$sessionKey]["csrf_token"]) || !is_string($_SESSION[$sessionKey]["csrf_token"]) || $_SESSION[$sessionKey]["csrf_token"] === "") {
+            try {
+                $_SESSION[$sessionKey]["csrf_token"] = bin2hex(random_bytes(32));
+            } catch (\Exception) {
+                $this->frontendErrors[] = "Unable to initialize security token.";
+            }
+        }
+    }
+
+    private function addCsrfFailureError(): void {
+        $error = isset($this->txtCsrfError) ? (string)$this->txtCsrfError : "Security check failed. Please try again.";
+        if (!in_array($error, $this->frontendErrors, true)) {
+            $this->frontendErrors[] = $error;
+        }
+    }
+
+    private function validateCsrfToken(): bool {
+        if (!$this->isCsrfProtectionEnabled()) {
+            return true;
+        }
+
+        $this->ensureCsrfToken();
+        $sessionToken = $_SESSION[$this->getGridSessionKey()]["csrf_token"] ?? "";
+        if (!is_string($sessionToken) || $sessionToken === "") {
+            $this->addCsrfFailureError();
+            return false;
+        }
+
+        $tokenField = $this->getCsrfTokenFieldName();
+        $submittedToken = $_POST[$tokenField] ?? null;
+        if (!is_string($submittedToken) || $submittedToken === "") {
+            $this->addCsrfFailureError();
+            return false;
+        }
+
+        if (!hash_equals($sessionToken, $submittedToken)) {
+            $this->addCsrfFailureError();
+            return false;
+        }
+
+        return true;
+    }
+
+    private function renderCsrfTokenInput(): string {
+        if (!$this->isCsrfProtectionEnabled()) {
+            return "";
+        }
+
+        $this->ensureCsrfToken();
+        $sessionToken = $_SESSION[$this->getGridSessionKey()]["csrf_token"] ?? "";
+        if (!is_string($sessionToken) || $sessionToken === "") {
+            return "";
+        }
+
+        return '<input type="hidden" name="'
+            . $this->convertToHtmlEntities($this->getCsrfTokenFieldName())
+            . '" value="'
+            . $this->convertToHtmlEntities($sessionToken)
+            . '">';
     }
 
     /**
@@ -517,7 +615,7 @@ class MySQLGrid {
 
         if ($this->rows <= (($this->page - 1) * $this->limit)) {
             $this->page = (int)ceil((int)$this->rows / $this->limit);
-            $_SESSION["phpMySQLGrid_" . $this->name]["page"] = $this->page;
+            $_SESSION[$this->getGridSessionKey()]["page"] = $this->page;
         }
 
         $offset = ($this->page > 0 ? (($this->page - 1) * $this->limit) : 0);
@@ -556,6 +654,7 @@ class MySQLGrid {
         $this->txtFileFalse = "No file present";
         $this->txtFile = "File";
         $this->txtURL = "URL";
+        $this->txtCsrfError = "Security check failed. Please try again.";
         $this->txtPaginationLabel = "Pagination";
 
         // Accessible labels for sort controls
@@ -708,18 +807,20 @@ class MySQLGrid {
     }
 
     private function processSession(): void {
+        $sessionKey = $this->getGridSessionKey();
+
         if (!isset($this->page)) {
-            if (isset($_SESSION["phpMySQLGrid_" . $this->name]["page"]))
-                $this->page = $_SESSION["phpMySQLGrid_" . $this->name]["page"];
+            if (isset($_SESSION[$sessionKey]["page"]))
+                $this->page = $_SESSION[$sessionKey]["page"];
             else {
                 $this->page = 1;
-                $_SESSION["phpMySQLGrid_" . $this->name]["page"] = 1;
+                $_SESSION[$sessionKey]["page"] = 1;
             }
-        } else $_SESSION['phpMySQLGrid_' . $this->name]['page'] = $this->page;
+        } else $_SESSION[$sessionKey]['page'] = $this->page;
         for ($i = 0; $i < count($this->columns); $i++) {
-            if (isset($_SESSION['phpMySQLGrid_' . $this->name]['filter'][$i])) {
+            if (isset($_SESSION[$sessionKey]['filter'][$i])) {
                 $this->columns[$i]['active_filter'] =
-                    $_SESSION['phpMySQLGrid_' . $this->name]['filter'][$i];
+                    $_SESSION[$sessionKey]['filter'][$i];
             } else if (isset($this->columns[$i]['filter'])) {
                 $this->columns[$i]['active_filter'] =
                     $this->columns[$i]['filter'];
@@ -727,19 +828,21 @@ class MySQLGrid {
                 $this->columns[$i]['active_filter'] = '';
             }
         }
-        if (isset($_SESSION["phpMySQLGrid_" . $this->name]["sort"]))
+        if (isset($_SESSION[$sessionKey]["sort"]))
             $this->sort = min(count($this->columns) - 1,
-                $_SESSION["phpMySQLGrid_" . $this->name]["sort"]);
+                $_SESSION[$sessionKey]["sort"]);
         else {
             $this->sort = $this->default_sort_column;
-            $_SESSION["phpMySQLGrid_" . $this->name]["sort"] = $this->default_sort_column;
+            $_SESSION[$sessionKey]["sort"] = $this->default_sort_column;
         }
-        if (isset($_SESSION["phpMySQLGrid_" . $this->name]["dir"]))
-            $this->dir = $_SESSION["phpMySQLGrid_" . $this->name]["dir"];
+        if (isset($_SESSION[$sessionKey]["dir"]))
+            $this->dir = $_SESSION[$sessionKey]["dir"];
         else {
             $this->dir = $this->default_sort_direction;
-            $_SESSION["phpMySQLGrid_" . $this->name]["dir"] = $this->default_sort_direction;
+            $_SESSION[$sessionKey]["dir"] = $this->default_sort_direction;
         }
+
+        $this->ensureCsrfToken();
     }
 
     private function addDataWithPdo(mixed $data): void {
@@ -964,30 +1067,32 @@ class MySQLGrid {
     }
 
     private function processRequests(): void {
+        $sessionKey = $this->getGridSessionKey();
+
         // Process SetPage command
         if (isset($_REQUEST[$this->cmdSetPage])) {
             $this->page = intval($_REQUEST[$this->cmdSetPage]);
-            $_SESSION["phpMySQLGrid_" . $this->name]["page"] = $this->page;
+            $_SESSION[$sessionKey]["page"] = $this->page;
         }
 
         // Process SetSort command
         if (isset($_REQUEST[$this->cmdSetSort])) {
             $this->sort = intval($_REQUEST[$this->cmdSetSort]);
-            $_SESSION["phpMySQLGrid_" . $this->name]["sort"] = $this->sort;
+            $_SESSION[$sessionKey]["sort"] = $this->sort;
         }
 
         // Process SetFilter command
         if (isset($_REQUEST[$this->cmdSetFilter])) {
             foreach ($_REQUEST[$this->cmdSetFilter] as $key => $value) {
                 $this->columns[$key]['active_filter'] = stripslashes($value);
-                $_SESSION["phpMySQLGrid_" . $this->name]["filter"][$key] = $this->columns[$key]['active_filter'];
+                $_SESSION[$sessionKey]["filter"][$key] = $this->columns[$key]['active_filter'];
             }
         }
 
         // Process SetDir command
         if (isset($_REQUEST[$this->cmdSetDir])) {
             $this->dir = intval($_REQUEST[$this->cmdSetDir]);
-            $_SESSION["phpMySQLGrid_" . $this->name]["dir"] = $this->dir;
+            $_SESSION[$sessionKey]["dir"] = $this->dir;
         }
 
         // Process data vars
@@ -1041,7 +1146,7 @@ class MySQLGrid {
         }
 
         // Process ConfirmAdd command
-        if (($this->can_add) && $this->isPostRequest() && (isset($_POST[$this->cmdConfirmAdd]))) {
+        if (($this->can_add) && $this->isPostRequest() && (isset($_POST[$this->cmdConfirmAdd])) && $this->validateCsrfToken()) {
             $this->addData($data);
         }
 
@@ -1052,7 +1157,7 @@ class MySQLGrid {
 
         // Process ConfirmDelete command
         if (($this->can_delete) && $this->isPostRequest() &&
-            (isset($_POST[$this->cmdConfirmDelete])) && isset($_POST[$this->varDeleteID])) {
+            (isset($_POST[$this->cmdConfirmDelete])) && isset($_POST[$this->varDeleteID]) && $this->validateCsrfToken()) {
             $this->deleteData($_POST[$this->varDeleteID]);
         }
 
@@ -1063,7 +1168,7 @@ class MySQLGrid {
 
         // Process ConfirmEdit command
         if (($this->can_edit) && $this->isPostRequest() &&
-            (isset($_POST[$this->cmdConfirmEdit])) && isset($_POST[$this->varEditID])) {
+            (isset($_POST[$this->cmdConfirmEdit])) && isset($_POST[$this->varEditID]) && $this->validateCsrfToken()) {
             $this->editData($_POST[$this->varEditID], $data);
         }
     }
@@ -1261,6 +1366,7 @@ class MySQLGrid {
                 echo
                     '<input type="hidden" name="', $this->cmdConfirmDelete, '" value="1">',
                     '<input type="hidden" name="', $this->varDeleteID, '" value="', $this->convertToHtmlEntities($data[0]), '">',
+                    $this->renderCsrfTokenInput(),
                     '<a href="#" onclick="document.getElementById(\'', $formId, '\').submit(); return false;"',
                     ' aria-label="', $this->convertToHtmlEntities($this->txtConfirm),
                     '" title="', $this->convertToHtmlEntities($this->txtConfirm), '">',
@@ -1435,6 +1541,7 @@ class MySQLGrid {
                 '<input type="hidden" name="', $this->varEditID, '" value="',
                 $_REQUEST[$this->varEditID], '">',
                 '<input type="hidden" name="' . $this->cmdConfirmEdit. '" value="true" />'.
+                $this->renderCsrfTokenInput().
                 '<a href="#" onclick="document.getElementById(\'' . $formId . '\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
                     $this->renderIcon($this->svgIconConfirm, "confirm").
                 '</a>',
@@ -1448,6 +1555,7 @@ class MySQLGrid {
         } else {
             echo
                 '<input type="hidden" name="' . $this->cmdConfirmAdd. '" value="true" />'.
+                $this->renderCsrfTokenInput().
                 '<a href="#" onclick="document.getElementById(\'' . $formId . '\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
                     $this->renderIcon($this->svgIconConfirm, "confirm").
                 '</a>',

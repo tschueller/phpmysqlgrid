@@ -10,6 +10,7 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Add `allowed_url_domains` property to restrict URL imports to trusted hostnames.
 - Add `show_url_input` and `show_file_input` column options to control visibility of file upload controls.
 - Add grid-level frontend error summary (`*-error-summary`) to show validation/security failures in the UI.
+- Add optional built-in CSRF protection for state-changing confirm actions via `csrf_protection_enabled`.
 
 ### Fixed
 - Fix XSS/attribute injection in edit controls by escaping `placeholder`/`align`/`accept` and enforcing integer casts for numeric attributes, including `width` in LOOKUP/SELECTION controls.

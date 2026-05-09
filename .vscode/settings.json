@@ -13,6 +13,7 @@
         "confirmadd",
         "confirmdelete",
         "confirmedit",
+        "csrf",
         "dataadd",
         "datadelete",
         "dataedit",

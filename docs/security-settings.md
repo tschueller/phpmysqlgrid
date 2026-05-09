@@ -71,6 +71,7 @@ $grid->allowed_url_domains = ["cdn.example.com"];
 5. If you enable URL imports, set `allowed_url_domains` to a whitelist of trusted hosts.
 6. For URL imports, avoid automatic redirects unless every hop is validated.
 7. Add application-level validation via `convert_input` for domain-specific checks.
+8. Enable built-in CSRF protection for write actions in production (`$grid->csrf_protection_enabled = true`).
 
 Example:
 
@@ -92,4 +93,5 @@ $grid->columns[] = [
 
 - XSS protection: grid output escapes relevant HTML contexts.
 - SQL injection prevention: database operations use prepared PDO statements.
-- CSRF protection: implement CSRF tokens in your host application (not built-in).
+- State-changing commands: `confirmadd`, `confirmedit`, and `confirmdelete` are POST-only.
+- CSRF protection: built-in and configurable via `$grid->csrf_protection_enabled` (default: `false` for backward compatibility).

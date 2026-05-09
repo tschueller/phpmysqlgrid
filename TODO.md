@@ -48,8 +48,11 @@
     - [x] Disable URL imports by default (`allow_url_import = false`)
     - [x] Validate URLs to prevent SSRF attacks (only http/https, block private IPs)
     - [x] Add optional URL allowlist for trusted domains via `allowed_url_domains` property
-  - [ ] add CSRF protection for add/edit/delete actions
+  - [x] add CSRF protection for add/edit/delete actions
   - [x] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
+  - [ ] harden custom action URL/image output contexts against XSS (escape `href`/`src`, restrict dangerous schemes like `javascript:`)
+  - [ ] escape request-derived hidden form values consistently (e.g. edit id in hidden input `value`)
+  - [ ] validate or whitelist SQL identifiers used in dynamic query building (table/field/lookup identifiers)
   - [ ] harden URL import against DNS-rebinding/TOCTOU between validation and fetch
     - [ ] re-validate the final resolved target immediately before reading remote content
     - [ ] disallow redirects for URL import, or validate every redirect hop against SSRF/domain rules
@@ -91,6 +94,7 @@
 
 ### Cleanup
 - [ ] Remove legacy/deprecated properties or set to private/protected in MySQLGridAssets (e.g. `cssUrl`, `cssTag`, `cssUrls`, `cssTags`, `jsUrl`, `jsTag`, `assetUrl`)
+- [ ] Switch `csrf_protection_enabled` default to `true` in next major release (strict CSRF by default)
 
 ---
 

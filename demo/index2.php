@@ -45,6 +45,7 @@ $grid->allow_url_import = false;
 $grid->max_file_size = 2 * 1024 * 1024; // 2 MB
 $grid->allowed_file_extensions = array("jpg", "jpeg", "png", "gif", "webp");
 $grid->allowed_file_mime_types = array("image/jpeg", "image/png", "image/gif", "image/webp");
+$grid->csrf_protection_enabled = true;
 
 $grid->can_add = true;
 $grid->can_edit = true;
