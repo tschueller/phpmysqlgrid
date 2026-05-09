@@ -362,4 +362,47 @@ final class MySQLGridXssTest extends TestCase {
             'Malicious onload attribute must not appear in output'
         );
     }
+
+    /**
+     * Test that primary key values in data-id attributes are HTML-escaped to prevent XSS.
+     */
+    public function testPrimaryKeyEscapedInDataIdAttribute(): void {
+        $grid = new MySQLGrid();
+        $grid->setDatabaseConnection(
+            (function (): \PDO {
+                $pdo = new \PDO("sqlite::memory:");
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $pdo->exec("CREATE TABLE t (id TEXT PRIMARY KEY, name TEXT)");
+                $pdo->exec("INSERT INTO t VALUES ('<script>alert(1)</script>', 'Alice')");
+                return $pdo;
+            })(),
+            "pdo_sqlite"
+        );
+        $grid->table = "t";
+        $grid->primary = "id";
+        $grid->columns = [
+            ["field" => "name", "caption" => "Name", "type" => PHPMYSQLGRID_TEXT],
+        ];
+        $grid->can_add = false;
+        $grid->can_edit = false;
+        $grid->can_delete = false;
+        $grid->can_filter = false;
+        $grid->can_sort = false;
+        $grid->can_navigate = false;
+
+        ob_start();
+        $grid->execute();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString(
+            'data-id="&lt;script&gt;alert(1)&lt;/script&gt;"',
+            $output,
+            'Primary key in data-id must be HTML-escaped'
+        );
+        $this->assertStringNotContainsString(
+            'data-id="<script>',
+            $output,
+            'Raw script tag must not appear in data-id attribute'
+        );
+    }
 }

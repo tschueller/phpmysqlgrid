@@ -1491,7 +1491,7 @@ class MySQLGrid {
                 continue;
             }
             echo
-                '<tr data-id="',$data[0],'">',
+                '<tr data-id="', $this->convertToHtmlEntities($data[0]), '">',
                 '<td class="', $headstyle, '" nowrap="nowrap" align="right">';
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
                 && ($_REQUEST[$this->varDeleteID] == $data[0])) {

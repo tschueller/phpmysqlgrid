@@ -21,6 +21,7 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Fix custom row action output to sanitize `href`/`src` URL schemes (strict allowlist: relative + `http`/`https`) and cast image dimensions to safe integers.
 - Fix request-derived edit ID hidden field rendering by escaping the `value` attribute in edit mode.
 - Fix dynamic SQL identifier handling by validating table/field/lookup identifiers before query building.
+- Fix XSS in `data-id` attribute by HTML-escaping the primary key value rendered on table rows.
 
 
 ## [1.1.0] - 2026-04-14
