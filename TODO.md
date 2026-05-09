@@ -51,7 +51,7 @@
   - [x] add CSRF protection for add/edit/delete actions
   - [x] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
   - [x] harden custom action URL/image output contexts against XSS (escape `href`/`src`, restrict dangerous schemes like `javascript:`)
-  - [ ] escape request-derived hidden form values consistently (e.g. edit id in hidden input `value`)
+  - [x] escape request-derived hidden form values consistently (e.g. edit id in hidden input `value`)
   - [ ] validate or whitelist SQL identifiers used in dynamic query building (table/field/lookup identifiers)
   - [ ] harden URL import against DNS-rebinding/TOCTOU between validation and fetch
     - [ ] re-validate the final resolved target immediately before reading remote content

@@ -156,6 +156,44 @@ final class MySQLGridXssTest extends TestCase {
     }
 
     /**
+     * Test that request-derived edit ID hidden value is escaped in edit mode.
+     */
+    public function testEditIdHiddenValueEscapedInEditControls(): void {
+        $grid = new MySQLGrid();
+        $grid->columns = [
+            [
+                'field' => 'name',
+                'caption' => 'Name',
+                'type' => PHPMYSQLGRID_TEXT,
+            ],
+        ];
+        $grid->mode = PHPMYSQLGRID_EDITMODE;
+        $grid->prepareQueryVars();
+
+        $requestKey = (string)$grid->varEditID;
+        $originalRequest = $_REQUEST;
+        $_REQUEST[$requestKey] = '"><img src=x onerror=alert(1)>';
+
+        ob_start();
+        $grid->row = 0;
+        $grid->drawEditControls(['1', 'Alice']);
+        $output = ob_get_clean();
+
+        $_REQUEST = $originalRequest;
+
+        $this->assertStringContainsString(
+            'name="' . $requestKey . '" value="&quot;&gt;&lt;img src=x onerror=alert(1)&gt;"',
+            $output,
+            'Edit ID hidden input must escape request-derived values'
+        );
+        $this->assertStringNotContainsString(
+            'name="' . $requestKey . '" value="\"><img',
+            $output,
+            'Raw request payload must not be rendered into hidden edit ID'
+        );
+    }
+
+    /**
      * Test that size attribute in form fields is cast to int to prevent injection.
      */
     public function testSizeAttributeCastedToIntegerInEditControls(): void {

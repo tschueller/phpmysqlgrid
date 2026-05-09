@@ -1561,9 +1561,12 @@ class MySQLGrid {
             '<td align="right" class="', $headstyle, '" nowrap="nowrap">';
 
         if ($this->mode == PHPMYSQLGRID_EDITMODE) {
+            $editId = isset($_REQUEST[$this->varEditID]) && is_scalar($_REQUEST[$this->varEditID])
+                ? (string)$_REQUEST[$this->varEditID]
+                : "";
             echo
                 '<input type="hidden" name="', $this->varEditID, '" value="',
-                $_REQUEST[$this->varEditID], '">',
+                $this->convertToHtmlEntities($editId), '">',
                 '<input type="hidden" name="' . $this->cmdConfirmEdit. '" value="true" />'.
                 $this->renderCsrfTokenInput().
                 '<a href="#" onclick="document.getElementById(\'' . $formId . '\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
