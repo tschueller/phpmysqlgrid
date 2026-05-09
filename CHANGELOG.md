@@ -18,6 +18,7 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Fix "Delete file" checkbox being shown even when no file is present in edit mode.
 - Fix noisy PHP warning output for validation failures by reporting messages in-grid and logging server-side instead.
 - Fix state-changing confirm actions (`confirmadd`, `confirmedit`, `confirmdelete`) to run on POST requests only.
+- Fix custom row action output to sanitize `href`/`src` URL schemes (strict allowlist: relative + `http`/`https`) and cast image dimensions to safe integers.
 
 
 ## [1.1.0] - 2026-04-14

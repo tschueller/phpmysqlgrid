@@ -1230,6 +1230,27 @@ class MySQLGrid {
         return $sanitized;
     }
 
+    private function sanitizeActionUrl(string $url, string $type): string {
+        $fallback = ($type === "href") ? "#" : "";
+
+        $trimmed = trim($url);
+        if ($trimmed === "") {
+            return $fallback;
+        }
+
+        $scheme = parse_url($trimmed, PHP_URL_SCHEME);
+        if (!is_string($scheme) || $scheme === "") {
+            return $trimmed;
+        }
+
+        $allowedSchemes = array("http", "https");
+        if (!in_array(strtolower($scheme), $allowedSchemes, true)) {
+            return $fallback;
+        }
+
+        return $trimmed;
+    }
+
     /**
      * @internal
      * @ignore
@@ -1400,24 +1421,27 @@ class MySQLGrid {
                 foreach ($this->actions as $action) {
                     switch ($action["type"]) {
                         case PHPMYSQLGRID_IMAGEBUTTON:
+                            $actionUrl = $this->sanitizeActionUrl((string)str_replace("<ID>", (string)$data[0], (string)$action["url"]), "href");
+                            $actionImage = $this->sanitizeActionUrl((string)$action["image"], "src");
                             echo
                                 '<a href="',
-                                str_replace("<ID>", $data[0], $action["url"]),
+                                $this->convertToHtmlEntities($actionUrl),
                                 '">',
-                                '<img hspace="1" src="', $action["image"], '" alt="',
+                                '<img hspace="1" src="', $this->convertToHtmlEntities($actionImage), '" alt="',
                                 $this->convertToHtmlEntities($action["caption"]), '" title="',
                                 $this->convertToHtmlEntities($action["caption"]),
                                 '" border="0" align="middle"';
                             if (isset($action["width"]))
-                                echo ' width="', $action["width"], '"';
+                                echo ' width="', (int)$action["width"], '"';
                             if (isset($action["height"]))
-                                echo ' height="', $action["height"], '"';
+                                echo ' height="', (int)$action["height"], '"';
                             echo '/></a>';
                             break;
                         default:
+                            $actionUrl = $this->sanitizeActionUrl((string)str_replace("<ID>", (string)$data[0], (string)$action["url"]), "href");
                             echo
                                 '&nbsp;<a href="',
-                                str_replace("<ID>", $data[0], $action["url"]),
+                                $this->convertToHtmlEntities($actionUrl),
                                 '">',
                                 $this->convertToHtmlEntities($action["caption"]),
                                 '</a>';

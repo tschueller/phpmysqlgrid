@@ -276,6 +276,89 @@ final class MySQLGridRealCrudIntegrationTest extends DatabaseTestCase {
         $this->assertStringContainsString('class="phpmysqlgrid-action phpmysqlgrid-cell--odd"', $html);
     }
 
+    public function testExecuteSanitizesCustomActionHrefAgainstJavascriptScheme(): void {
+        $grid = $this->buildExecuteGrid();
+        $grid->actions = array(
+            array(
+                "type" => PHPMYSQLGRID_TEXTBUTTON,
+                "caption" => "Unsafe Action",
+                "url" => "javascript:alert(1)",
+            ),
+        );
+
+        ob_start();
+        $grid->execute();
+        $html = ob_get_clean();
+
+        $this->assertIsString($html);
+        if (!is_string($html)) {
+            $this->fail("Expected execute output string");
+        }
+
+        $this->assertStringNotContainsString('href="javascript:alert(1)"', $html);
+        $this->assertStringContainsString('href="#"', $html);
+        $this->assertStringContainsString('Unsafe Action', $html);
+    }
+
+    public function testExecuteSanitizesCustomActionHrefAgainstMailtoAndTelSchemes(): void {
+        $grid = $this->buildExecuteGrid();
+        $grid->actions = array(
+            array(
+                "type" => PHPMYSQLGRID_TEXTBUTTON,
+                "caption" => "Mail Action",
+                "url" => "mailto:user@example.test",
+            ),
+            array(
+                "type" => PHPMYSQLGRID_TEXTBUTTON,
+                "caption" => "Tel Action",
+                "url" => "tel:+49123456789",
+            ),
+        );
+
+        ob_start();
+        $grid->execute();
+        $html = ob_get_clean();
+
+        $this->assertIsString($html);
+        if (!is_string($html)) {
+            $this->fail("Expected execute output string");
+        }
+
+        $this->assertStringNotContainsString('href="mailto:user@example.test"', $html);
+        $this->assertStringNotContainsString('href="tel:+49123456789"', $html);
+        $this->assertStringContainsString('href="#"', $html);
+        $this->assertStringContainsString('Mail Action', $html);
+        $this->assertStringContainsString('Tel Action', $html);
+    }
+
+    public function testExecuteSanitizesCustomActionImageSourceAgainstJavascriptScheme(): void {
+        $grid = $this->buildExecuteGrid();
+        $grid->actions = array(
+            array(
+                "type" => PHPMYSQLGRID_IMAGEBUTTON,
+                "caption" => "Unsafe Image Action",
+                "url" => "https://example.com/action",
+                "image" => "javascript:alert(1)",
+                "width" => '" onload="alert(1)',
+                "height" => '" onload="alert(1)',
+            ),
+        );
+
+        ob_start();
+        $grid->execute();
+        $html = ob_get_clean();
+
+        $this->assertIsString($html);
+        if (!is_string($html)) {
+            $this->fail("Expected execute output string");
+        }
+
+        $this->assertStringNotContainsString('src="javascript:alert(1)"', $html);
+        $this->assertStringContainsString('src=""', $html);
+        $this->assertStringContainsString('width="0"', $html);
+        $this->assertStringContainsString('height="0"', $html);
+    }
+
     public function testExecuteProcessesConfirmAddRequestWithInjectedPdo(): void {
         $grid = $this->buildExecuteGrid();
 
