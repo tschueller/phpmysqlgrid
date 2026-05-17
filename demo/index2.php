@@ -40,7 +40,7 @@ $grid->primary = "id";
 $grid->name = "demo_products_grid";
 $grid->cssClass = "theme-" . $selectedTheme;
 
-// Secure defaults for FILE fields in demo.
+// Secure defaults in demo.
 $grid->allow_url_import = false;
 $grid->max_file_size = 2 * 1024 * 1024; // 2 MB
 $grid->allowed_file_extensions = array("jpg", "jpeg", "png", "gif", "webp");
