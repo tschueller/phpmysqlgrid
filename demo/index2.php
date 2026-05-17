@@ -148,15 +148,19 @@ $grid->columns = array(
                 if (!$value) {
                     return '<span class="demo-muted-small">No image</span>';
                 }
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->buffer((string)$value) ?: "image/jpeg";
                 $base64 = base64_encode((string)$value);
-                return '<img src="data:image/*;base64,' . $base64 . '" class="demo-thumbnail" alt="thumbnail">';
+                return '<img src="data:' . htmlspecialchars($mimeType, ENT_QUOTES, "UTF-8") . ';base64,' . $base64 . '" class="demo-thumbnail" alt="thumbnail">';
             }
             // edit mode: show existing thumbnail preview if present
             if (!$value) {
                 return '<span class="demo-muted-small">No image</span>';
             }
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->buffer((string)$value) ?: "image/jpeg";
             $base64 = base64_encode((string)$value);
-            return '<img src="data:image/*;base64,' . $base64 . '" class="demo-thumbnail" alt="thumbnail">';
+            return '<img src="data:' . htmlspecialchars($mimeType, ENT_QUOTES, "UTF-8") . ';base64,' . $base64 . '" class="demo-thumbnail" alt="thumbnail">';
         }
     )
 );

@@ -58,13 +58,11 @@ final class MySQLGridXssTest extends TestCase {
         $this->assertSame('&quot;', $grid->convertToHtmlEntities('"'));
     }
 
-    public function testConvertToHtmlEntitiesLeavesSingleQuotesLiteral(): void {
+    public function testConvertToHtmlEntitiesEncodesSingleQuotes(): void {
         $grid = new MySQLGrid();
 
-        // ENT_COMPAT does not encode single quotes — document this known gap
-        // TODO: consider switching to ENT_QUOTES as part of security hardening
-        //       (see TODO.md) to cover single-quote injection in HTML attributes.
-        $this->assertSame("it's", $grid->convertToHtmlEntities("it's"));
+        // ENT_QUOTES encodes single quotes as &#039; — prevents injection in single-quoted HTML attributes.
+        $this->assertSame("it&#039;s", $grid->convertToHtmlEntities("it's"));
     }
 
     /**

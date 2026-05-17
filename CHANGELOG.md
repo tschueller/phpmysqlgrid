@@ -14,6 +14,8 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ### Fixed
 - Fix XSS/attribute injection in edit controls by escaping `placeholder`/`align`/`accept` and enforcing integer casts for numeric attributes, including `width` in LOOKUP/SELECTION controls.
+- Fix single-quote injection risk by switching `convertToHtmlEntities` from `ENT_COMPAT` to `ENT_QUOTES`; single quotes are now encoded as `&#039;` in all HTML output contexts.
+- Fix invalid wildcard MIME type (`image/*`) in demo thumbnail data URI; actual MIME type is now detected via `finfo` for correct and standards-compliant data URIs.
 - Fix unsafe name-based DOM output by sanitizing `$grid->name` for generated form/footer IDs, add-button anchor fragments, and submit handlers.
 - Fix "Delete file" checkbox being shown even when no file is present in edit mode.
 - Fix noisy PHP warning output for validation failures by reporting messages in-grid and logging server-side instead.
@@ -22,6 +24,11 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 - Fix request-derived edit ID hidden field rendering by escaping the `value` attribute in edit mode.
 - Fix dynamic SQL identifier handling by validating table/field/lookup identifiers before query building.
 - Fix XSS in `data-id` attribute by HTML-escaping the primary key value rendered on table rows.
+
+### Changed
+
+- Change light theme CSS `--phpmysqlgrid-icon-add` color from CSS keyword `green` to explicit hex value `#2f9e44`.
+
 
 
 ## [1.1.0] - 2026-04-14

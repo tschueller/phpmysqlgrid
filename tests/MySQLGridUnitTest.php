@@ -44,7 +44,7 @@ final class MySQLGridUnitTest extends TestCase {
         return [
             'html tags and ampersand' => ["<b>Tom & Jerry</b>", "&lt;b&gt;Tom &amp; Jerry&lt;/b&gt;"],
             'double quotes'           => ['"hello"',            '&quot;hello&quot;'],
-            'single quotes not encoded' => ["it's fine",        "it's fine"],  // ENT_COMPAT leaves single quotes as-is
+            'single quotes encoded'     => ["it's fine",        "it&#039;s fine"],
             'empty string'            => ['',                    ''],
             'null'                    => [null,                  ''],
         ];

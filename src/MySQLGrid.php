@@ -2092,7 +2092,7 @@ class MySQLGrid {
      * @ignore
      */
     public function convertToHtmlEntities(mixed $data): string {
-        return htmlentities($data ?? "", ENT_COMPAT, $this->charset);
+        return htmlentities($data ?? "", ENT_QUOTES, $this->charset);
     }
 
     private function addFrontendError(string $message): void {
