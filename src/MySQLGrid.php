@@ -173,7 +173,7 @@ class MySQLGrid {
         $this->lookups = array();
         $this->charset = "UTF-8";
 
-        // File upload security configuration
+        // Security configuration
         $this->allow_url_import = false;  // Disabled by default to prevent SSRF attacks
         $this->max_file_size = null;      // No limit by default (can be set by user)
         $this->allowed_file_extensions = array();  // Empty array = allow all extensions
