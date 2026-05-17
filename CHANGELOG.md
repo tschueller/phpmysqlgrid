@@ -6,28 +6,21 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 ## [Unreleased]
 
 ### Added
-- Add file upload security: `allow_url_import` (default: false), `max_file_size`, `allowed_file_extensions`, and `allowed_file_mime_types` properties for server-side upload validation and SSRF prevention.
-- Add `allowed_url_domains` property to restrict URL imports to trusted hostnames.
-- Add `show_url_input` and `show_file_input` column options to control visibility of file upload controls.
-- Add grid-level frontend error summary (`*-error-summary`) to show validation/security failures in the UI.
-- Add optional built-in CSRF protection for state-changing confirm actions via `csrf_protection_enabled`.
+- Add file upload security: `allow_url_import` (default: false), `max_file_size`, `allowed_file_extensions`, `allowed_file_mime_types`, and `allowed_url_domains` properties for server-side validation and SSRF prevention.
+- Add `show_url_input` and `show_file_input` column options to control file upload control visibility.
+- Add grid-level frontend error summary (`*-error-summary`) for validation and security failures.
+- Add optional built-in CSRF protection for state-changing actions via `csrf_protection_enabled`.
 
 ### Fixed
-- Fix XSS/attribute injection in edit controls by escaping `placeholder`/`align`/`accept` and enforcing integer casts for numeric attributes, including `width` in LOOKUP/SELECTION controls.
-- Fix single-quote injection risk by switching `convertToHtmlEntities` from `ENT_COMPAT` to `ENT_QUOTES`; single quotes are now encoded as `&#039;` in all HTML output contexts.
-- Fix invalid wildcard MIME type (`image/*`) in demo thumbnail data URI; actual MIME type is now detected via `finfo` for correct and standards-compliant data URIs.
-- Fix unsafe name-based DOM output by sanitizing `$grid->name` for generated form/footer IDs, add-button anchor fragments, and submit handlers.
-- Fix "Delete file" checkbox being shown even when no file is present in edit mode.
-- Fix noisy PHP warning output for validation failures by reporting messages in-grid and logging server-side instead.
-- Fix state-changing confirm actions (`confirmadd`, `confirmedit`, `confirmdelete`) to run on POST requests only.
-- Fix custom row action output to sanitize `href`/`src` URL schemes (strict allowlist: relative + `http`/`https`) and cast image dimensions to safe integers.
-- Fix request-derived edit ID hidden field rendering by escaping the `value` attribute in edit mode.
-- Fix dynamic SQL identifier handling by validating table/field/lookup identifiers before query building.
-- Fix XSS in `data-id` attribute by HTML-escaping the primary key value rendered on table rows.
+- Fix XSS and attribute-injection vectors in HTML output: escape `placeholder`, `align`, `accept`, edit ID `value`, and `data-id`; encode single quotes via `ENT_QUOTES`; sanitize `$grid->name` in DOM IDs, anchor fragments, and inline JS handlers; cast numeric attributes (`size`, `maxlength`, `width`, `height`) to integers.
+- Fix state-changing confirm actions (`confirmadd`, `confirmedit`, `confirmdelete`) to POST requests only.
+- Fix custom row action `href`/`src` to allow only relative, `http`, and `https` schemes; cast image dimensions to integers.
+- Fix dynamic SQL identifier validation for table, field, and lookup identifiers before query building.
+- Fix "Delete file" checkbox shown when no file is present in edit mode.
+- Fix validation failure messages shown in-grid instead of as PHP warnings.
 
 ### Changed
-
-- Change light theme CSS `--phpmysqlgrid-icon-add` color from CSS keyword `green` to explicit hex value `#2f9e44`.
+- Change light theme `--phpmysqlgrid-icon-add` from CSS keyword `green` to `#2f9e44`.
 
 
 
