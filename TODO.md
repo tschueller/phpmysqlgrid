@@ -28,11 +28,11 @@
 
 ### Styling
   - [x] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
-  - [ ] Improve or add hover styles for action icons
   - [x] Add a second themes (TBD) to demonstrate theming capabilities
+  - [x] Add CSS classes for different column types (e.g. `mysqlgrid-cell--text`, `mysqlgrid-cell--select`, etc.) to allow more specific styling of different column types
+  - [ ] Improve or add hover styles for action icons
   - [ ] fix styling for tables with only a few columns (e.g. in full width mode centering content, max-width for action cells)
   - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
-  - [x] Add CSS classes for different column types (e.g. `mysqlgrid-cell--text`, `mysqlgrid-cell--select`, etc.) to allow more specific styling of different column types
   - [ ] Implement real dark mode support (e.g. via `prefers-color-scheme` media query) in default theme
   - [ ] center header text vertically when columns with and without filter are mixed
 
@@ -53,12 +53,12 @@
   - [x] harden custom action URL/image output contexts against XSS (escape `href`/`src`, restrict dangerous schemes like `javascript:`)
   - [x] escape request-derived hidden form values consistently (e.g. edit id in hidden input `value`)
   - [x] validate or whitelist SQL identifiers used in dynamic query building (table/field/lookup identifiers)
-  - [ ] harden URL import against DNS-rebinding/TOCTOU between validation and fetch
-    - [ ] re-validate the final resolved target immediately before reading remote content
-    - [ ] disallow redirects for URL import, or validate every redirect hop against SSRF/domain rules
   - [x] escape HTML attributes consistently (e.g. `placeholder`) in edit controls
   - [x] harden HTML/JS output contexts for configurable grid name (`$grid->name`) in DOM IDs and inline handlers
   - [x] add a grid-level error summary area (e.g. above table) for request-level errors
+  - [ ] harden URL import against DNS-rebinding/TOCTOU between validation and fetch
+    - [ ] re-validate the final resolved target immediately before reading remote content
+    - [ ] disallow redirects for URL import, or validate every redirect hop against SSRF/domain rules
 
 ## Error-handling and Validation
 - [ ] improve frontend error handling for security and validation failures

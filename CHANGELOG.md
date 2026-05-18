@@ -5,6 +5,8 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-05-18
+
 ### Added
 - Add file upload security: `allow_url_import` (default: false), `max_file_size`, `allowed_file_extensions`, `allowed_file_mime_types`, and `allowed_url_domains` properties for server-side validation and SSRF prevention.
 - Add `show_url_input` and `show_file_input` column options to control file upload control visibility.
