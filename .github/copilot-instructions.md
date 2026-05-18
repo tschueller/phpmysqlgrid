@@ -129,6 +129,27 @@ Refer to `.vscode/settings.json` for spell-check exceptions (cSpell words list).
 - After refactorings or new features, review `.github/instructions/*.instructions.md` and update any affected instruction files in the same change.
 - Track deferred work items (for example future PHPStan level increases) in `TODO.md`
 
+## Definition of Done (Agent Workflow)
+
+For every change that modifies runtime behavior, security behavior, public API, or rendering output:
+
+1. **CHANGELOG check is mandatory**
+  - Update `../CHANGELOG.md` in the same change, or
+  - Explicitly state why no changelog entry is needed (for example docs-only/internal-only no behavior change).
+
+2. **Test impact check is mandatory**
+  - Add or update tests when behavior/security/output changes, or
+  - Explicitly state why no new test is needed.
+
+3. **Validation command(s) are mandatory**
+  - Run at least targeted validation for touched code (`php -l`, targeted PHPUnit), and
+  - Include what was run in the final summary.
+
+4. **Final response must include a short checklist**
+  - Changelog: updated / not needed (with reason)
+  - Tests: added/updated / not needed (with reason)
+  - Validation: commands run and result
+
 ## When Working on MySQLGrid
 
 ### Understanding Grid Rendering

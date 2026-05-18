@@ -24,11 +24,12 @@
 - [ ] Save limit state in session/local storage for persistence across page reloads
 - [ ] show total row count in footer (total and filtered)
 - [ ] Better visual indication of active filters (e.g. filter icon in header, highlight active filter values)
+- [ ] Second New/edit mode (configurable): Instead of inline editing, open a modal dialog with a form for editing the row. This allows more space for complex forms and better UX on mobile devices.
 
 ### Styling
   - [x] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
   - [ ] Improve or add hover styles for action icons
-  - [ ] Add a second themes (TBD) to demonstrate theming capabilities
+  - [x] Add a second themes (TBD) to demonstrate theming capabilities
   - [ ] fix styling for tables with only a few columns (e.g. in full width mode centering content, max-width for action cells)
   - [ ] fix styling for tables with many columns (eg. horizontal scrolling, responsive collapse)
   - [x] Add CSS classes for different column types (e.g. `mysqlgrid-cell--text`, `mysqlgrid-cell--select`, etc.) to allow more specific styling of different column types
@@ -39,11 +40,33 @@
   - [x] add custom theming example to demo page
 
 ### Security
-  - [ ] secure file-upload handling (e.g. file type/size checks, )
-  - [ ] harden URL-based file import in FILE fields (restrict/validate or disable by default)
-  - [ ] add CSRF protection for add/edit/delete actions
-  - [ ] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
-  - [ ] escape HTML attributes consistently (e.g. `placeholder`) in edit controls
+  - [x] secure file-upload handling (e.g. file type/size checks, )
+    - [x] Validate file upload size via `max_file_size` property
+    - [x] Validate file extensions via `allowed_file_extensions` property
+    - [x] Add MIME type validation via `allowed_file_mime_types` property
+  - [x] harden URL-based file import in FILE fields (restrict/validate or disable by default)
+    - [x] Disable URL imports by default (`allow_url_import = false`)
+    - [x] Validate URLs to prevent SSRF attacks (only http/https, block private IPs)
+    - [x] Add optional URL allowlist for trusted domains via `allowed_url_domains` property
+  - [x] add CSRF protection for add/edit/delete actions
+  - [x] enforce POST-only handling for state-changing commands (confirm add/edit/delete)
+  - [x] harden custom action URL/image output contexts against XSS (escape `href`/`src`, restrict dangerous schemes like `javascript:`)
+  - [x] escape request-derived hidden form values consistently (e.g. edit id in hidden input `value`)
+  - [x] validate or whitelist SQL identifiers used in dynamic query building (table/field/lookup identifiers)
+  - [ ] harden URL import against DNS-rebinding/TOCTOU between validation and fetch
+    - [ ] re-validate the final resolved target immediately before reading remote content
+    - [ ] disallow redirects for URL import, or validate every redirect hop against SSRF/domain rules
+  - [x] escape HTML attributes consistently (e.g. `placeholder`) in edit controls
+  - [x] harden HTML/JS output contexts for configurable grid name (`$grid->name`) in DOM IDs and inline handlers
+  - [x] add a grid-level error summary area (e.g. above table) for request-level errors
+
+## Error-handling and Validation
+- [ ] improve frontend error handling for security and validation failures
+  - [ ] show user-friendly inline error messages for blocked uploads/URLs instead of silent failure
+  - [ ] define a consistent error response format (error code + message + field) for UI rendering
+  - [ ] keep technical details in logs, show safe/generalized messages in UI
+  - [ ] add integration tests that verify error messages are rendered for invalid file/url input
+- [ ] make messages customizable via properties for internationalization
 
 ### Testing
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)
@@ -71,6 +94,7 @@
 
 ### Cleanup
 - [ ] Remove legacy/deprecated properties or set to private/protected in MySQLGridAssets (e.g. `cssUrl`, `cssTag`, `cssUrls`, `cssTags`, `jsUrl`, `jsTag`, `assetUrl`)
+- [ ] Switch `csrf_protection_enabled` default to `true` in next major release (strict CSRF by default)
 
 ---
 

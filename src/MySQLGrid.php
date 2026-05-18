@@ -1,6 +1,6 @@
 <?php
 // +----------------------------------------------------------------------+
-// | phpMySQLGrid version 0.6                                             |
+// | phpMySQLGrid                                                         |
 // |                                                                      |
 // | A flexible mysql data grid for PHP.                                  |
 // +----------------------------------------------------------------------+
@@ -77,6 +77,14 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  * @property array<int, array<string, mixed>> $lookups Lookup definitions used by columns.
  * @property string $charset Charset used by HTML entity escaping. Default: "UTF-8".
  *
+ * @property bool $allow_url_import Whether to allow URL-based file imports. Default: false (disabled for security).
+ * @property int|null $max_file_size Maximum file upload size in bytes. Default: null (no limit).
+ * @property array<int, string> $allowed_file_extensions List of allowed file extensions (e.g. ['pdf', 'doc']). Empty array allows all. Default: [].
+ * @property array<int, string> $allowed_file_mime_types List of allowed MIME types detected via finfo (e.g. ['image/jpeg', 'image/png']). Empty array allows all. Default: [].
+ * @property array<int, string> $allowed_url_domains Allowlist of trusted hostnames for URL imports (e.g. ['cdn.example.com']). Empty array allows all hosts (when allow_url_import is true). Default: [].
+ * @property bool $csrf_protection_enabled Enables CSRF validation for state-changing confirm actions. Default: false.
+ * @property string $csrf_token_field Base field name used for CSRF hidden input (grid name prefix is added automatically). Default: "csrf_token".
+ *
  * @property callable|false $delete_before Hook called before delete. Default: false.
  * @property callable|false $delete_after Hook called after delete. Default: false.
  * @property callable|false $add_before Hook called before add. Default: false.
@@ -97,6 +105,7 @@ define("PHPMYSQLGRID_PWDUMMY", "********");
  * @property string $txtFileFalse Label for missing file values. Default: "No file present".
  * @property string $txtFile Label for file upload control. Default: "File".
  * @property string $txtURL Label for URL file source control. Default: "URL".
+ * @property string $txtCsrfError Error message shown when CSRF validation fails. Default: "Security check failed. Please try again.".
  * @property string $txtPaginationLabel ARIA label for pagination navigation. Default: "Pagination".
  * @property string $txtSortAsc ARIA/title label for ascending sort control. Default: "Sort ascending".
  * @property string $txtSortDesc ARIA/title label for descending sort control. Default: "Sort descending".
@@ -122,6 +131,8 @@ class MySQLGrid {
     private \PDO | null $db = null;
     private \PDO | null $db_connection = null;
     private string $db_driver = "pdo_mysql";
+    /** @var array<int, string> */
+    private array $frontendErrors = array();
     /** @internal @ignore */
     public int $mode = PHPMYSQLGRID_VIEWMODE;
 
@@ -161,8 +172,115 @@ class MySQLGrid {
         $this->edit_after = false;
         $this->lookups = array();
         $this->charset = "UTF-8";
+
+        // Security configuration
+        $this->allow_url_import = false;  // Disabled by default to prevent SSRF attacks
+        $this->max_file_size = null;      // No limit by default (can be set by user)
+        $this->allowed_file_extensions = array();  // Empty array = allow all extensions
+        $this->allowed_file_mime_types = array();  // Empty array = no MIME type restriction
+        $this->allowed_url_domains = array();     // Empty array = any host allowed (when allow_url_import = true)
+        $this->csrf_protection_enabled = false;
+        $this->csrf_token_field = "csrf_token";
+
         $this->internationalize();
         $this->initSvgIcons();
+    }
+
+    private function isPostRequest(): bool {
+        return isset($_SERVER["REQUEST_METHOD"]) && strtoupper((string)$_SERVER["REQUEST_METHOD"]) === "POST";
+    }
+
+    private function isCsrfProtectionEnabled(): bool {
+        return isset($this->csrf_protection_enabled) && (bool)$this->csrf_protection_enabled;
+    }
+
+    private function getGridSessionKey(): string {
+        return "phpMySQLGrid_" . $this->name;
+    }
+
+    private function getCsrfTokenFieldName(): string {
+        $fieldName = isset($this->csrf_token_field) ? trim((string)$this->csrf_token_field) : "csrf_token";
+        if ($fieldName === "") {
+            $fieldName = "csrf_token";
+        }
+
+        $prefix = $this->name . "_";
+        if (str_starts_with($fieldName, $prefix)) {
+            return $fieldName;
+        }
+
+        return $prefix . $fieldName;
+    }
+
+    private function ensureCsrfToken(): void {
+        if (!$this->isCsrfProtectionEnabled()) {
+            return;
+        }
+
+        $sessionKey = $this->getGridSessionKey();
+        if (!isset($_SESSION[$sessionKey]) || !is_array($_SESSION[$sessionKey])) {
+            $_SESSION[$sessionKey] = array();
+        }
+
+        if (!isset($_SESSION[$sessionKey]["csrf_token"]) || !is_string($_SESSION[$sessionKey]["csrf_token"]) || $_SESSION[$sessionKey]["csrf_token"] === "") {
+            try {
+                $_SESSION[$sessionKey]["csrf_token"] = bin2hex(random_bytes(32));
+            } catch (\Exception) {
+                $this->frontendErrors[] = "Unable to initialize security token.";
+            }
+        }
+    }
+
+    private function addCsrfFailureError(): void {
+        $error = isset($this->txtCsrfError) ? (string)$this->txtCsrfError : "Security check failed. Please try again.";
+        if (!in_array($error, $this->frontendErrors, true)) {
+            $this->frontendErrors[] = $error;
+        }
+    }
+
+    private function validateCsrfToken(): bool {
+        if (!$this->isCsrfProtectionEnabled()) {
+            return true;
+        }
+
+        $this->ensureCsrfToken();
+        $sessionToken = $_SESSION[$this->getGridSessionKey()]["csrf_token"] ?? "";
+        if (!is_string($sessionToken) || $sessionToken === "") {
+            $this->addCsrfFailureError();
+            return false;
+        }
+
+        $tokenField = $this->getCsrfTokenFieldName();
+        $submittedToken = $_POST[$tokenField] ?? null;
+        if (!is_string($submittedToken) || $submittedToken === "") {
+            $this->addCsrfFailureError();
+            return false;
+        }
+
+        if (!hash_equals($sessionToken, $submittedToken)) {
+            $this->addCsrfFailureError();
+            return false;
+        }
+
+        return true;
+    }
+
+    private function renderCsrfTokenInput(): string {
+        if (!$this->isCsrfProtectionEnabled()) {
+            return "";
+        }
+
+        $this->ensureCsrfToken();
+        $sessionToken = $_SESSION[$this->getGridSessionKey()]["csrf_token"] ?? "";
+        if (!is_string($sessionToken) || $sessionToken === "") {
+            return "";
+        }
+
+        return '<input type="hidden" name="'
+            . $this->convertToHtmlEntities($this->getCsrfTokenFieldName())
+            . '" value="'
+            . $this->convertToHtmlEntities($sessionToken)
+            . '">';
     }
 
     /**
@@ -220,6 +338,279 @@ class MySQLGrid {
         }
     }
 
+    /**
+     * Validates one SQL identifier (for example table/column name) against a strict allowlist.
+     *
+     * This protects dynamic SQL parts that cannot be parameterized via prepared statements
+     * (for example table names, column lists, ORDER BY fields, JOIN identifiers).
+     *
+     * Allowed forms:
+     * - Simple identifiers: letters/underscore first, then letters/digits/underscore.
+     * - Optional dotted identifiers when $allowQualified is true (for example schema.table).
+     * - Optional backtick-wrapped identifiers for backwards compatibility.
+     *
+     * Allowed examples: 'users', 'display_name', 'myschema.mytable' (with $allowQualified=true), '`column`'.
+     * Forbidden examples: 'users; DROP TABLE users; --', "col'injection", '0invalid', ''.
+     *
+     * @throws \InvalidArgumentException When the identifier is empty or contains unsafe characters/tokens.
+     */
+    private function assertSafeSqlIdentifier(string $identifier, string $context, bool $allowQualified = false): void {
+        $trimmed = trim($identifier);
+        if ($trimmed === "") {
+            throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+        }
+
+        $parts = $allowQualified ? explode(".", $trimmed) : array($trimmed);
+        foreach ($parts as $part) {
+            $segment = trim((string)$part);
+            if ($segment === "") {
+                throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+            }
+
+            // Allow backtick-quoted identifiers for backward compatibility.
+            if (str_starts_with($segment, "`") || str_ends_with($segment, "`")) {
+                if (!(str_starts_with($segment, "`") && str_ends_with($segment, "`") && strlen($segment) > 2)) {
+                    throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+                }
+
+                $unquoted = substr($segment, 1, -1);
+                if ($unquoted === "" || str_contains($unquoted, "`") || str_contains($unquoted, "\0")) {
+                    throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+                }
+                continue;
+            }
+
+            if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $segment)) {
+                throw new \InvalidArgumentException("Unsafe SQL identifier detected in " . $context);
+            }
+        }
+    }
+
+    /**
+     * Runs identifier validation for all dynamic SQL identifier sources used by the grid.
+     *
+     * Checked sources:
+     * - table + primary key definitions
+     * - column field names (including LOOKUP metadata)
+     * - global lookup definitions
+     * - add_values keys used as INSERT column names
+     *
+     * This method is intentionally called before SQL query assembly in read/write code paths,
+     * so invalid identifiers fail closed before any dynamic SQL is built.
+     *
+     * Example: a grid with $table='orders', $primary='id', columns [['field'=>'customer_name']] passes.
+     * Example: a grid with $table='orders; DROP TABLE orders; --' throws \InvalidArgumentException.
+     *
+     * @throws \InvalidArgumentException When any configured identifier is unsafe.
+     */
+    private function validateSqlIdentifiers(): void {
+        $this->assertSafeSqlIdentifier((string)$this->table, "table", true);
+
+        $primaryColumns = is_array($this->primary) ? $this->primary : array($this->primary);
+        foreach ($primaryColumns as $index => $primaryColumn) {
+            $this->assertSafeSqlIdentifier((string)$primaryColumn, "primary[" . $index . "]");
+        }
+
+        foreach ($this->columns as $index => $column) {
+            if (!isset($column["field"])) {
+                throw new \InvalidArgumentException("Unsafe SQL identifier detected in columns[" . $index . "].field");
+            }
+            $this->assertSafeSqlIdentifier((string)$column["field"], "columns[" . $index . "].field");
+
+            $columnType = isset($column["type"]) ? (int)$column["type"] : PHPMYSQLGRID_TEXT;
+            if ($columnType === PHPMYSQLGRID_LOOKUP) {
+                if (!isset($column["lookup_table"], $column["lookup_primary"], $column["lookup_field"])) {
+                    throw new \InvalidArgumentException("Unsafe SQL identifier detected in columns[" . $index . "].lookup");
+                }
+
+                $this->assertSafeSqlIdentifier((string)$column["lookup_table"], "columns[" . $index . "].lookup_table", true);
+                $this->assertSafeSqlIdentifier((string)$column["lookup_primary"], "columns[" . $index . "].lookup_primary");
+                $this->assertSafeSqlIdentifier((string)$column["lookup_field"], "columns[" . $index . "].lookup_field");
+            }
+        }
+
+        foreach ($this->lookups as $index => $lookup) {
+            if (!isset($lookup["lookup_table"], $lookup["lookup_primary"])) {
+                throw new \InvalidArgumentException("Unsafe SQL identifier detected in lookups[" . $index . "]");
+            }
+
+            $this->assertSafeSqlIdentifier((string)$lookup["lookup_table"], "lookups[" . $index . "].lookup_table", true);
+            $this->assertSafeSqlIdentifier((string)$lookup["lookup_primary"], "lookups[" . $index . "].lookup_primary");
+        }
+
+        foreach ($this->add_values as $key => $_value) {
+            $this->assertSafeSqlIdentifier((string)$key, "add_values[" . (string)$key . "]");
+        }
+    }
+
+    /**
+     * Validates an uploaded file against configured security rules.
+     *
+    * @param array<string, mixed>|false $fileData File data from $_FILES array (keys: "name", "type", "size", "tmp_name", "error").
+     * @return bool True if file passes validation, false otherwise.
+     * @internal
+     */
+    private function validateUploadedFile(mixed $fileData): bool {
+        if (!is_array($fileData)) {
+            return false;
+        }
+
+        // Check for upload errors
+        if (isset($fileData["error"]) && $fileData["error"] !== UPLOAD_ERR_OK) {
+            $this->reportValidationFailure("File upload error: " . $this->getUploadErrorMessage($fileData["error"]));
+            return false;
+        }
+
+        // Check file size if max_file_size is set
+        if ($this->max_file_size !== null && isset($fileData["size"])) {
+            if ((int)$fileData["size"] > $this->max_file_size) {
+                $this->reportValidationFailure(
+                    "File size (" . $fileData["size"] . " bytes) exceeds maximum allowed size (" . $this->max_file_size . " bytes)"
+                );
+                return false;
+            }
+        }
+
+        // Check file extension if allowed_file_extensions is set
+        if (!empty($this->allowed_file_extensions) && isset($fileData["name"])) {
+            $filename = (string)$fileData["name"];
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            if (!in_array($ext, $this->allowed_file_extensions, true)) {
+                $this->reportValidationFailure(
+                    "File extension '." . $ext . "' is not allowed. Allowed extensions: " . implode(", ", $this->allowed_file_extensions)
+                );
+                return false;
+            }
+        }
+
+        // Verify tmp_name is a valid uploaded file
+        if (!isset($fileData["tmp_name"]) || !is_uploaded_file((string)$fileData["tmp_name"])) {
+            $this->reportValidationFailure("Invalid uploaded file");
+            return false;
+        }
+
+        // Check MIME type if allowed_file_mime_types is set (uses finfo on the actual file, not client-supplied type)
+        if (!empty($this->allowed_file_mime_types)) {
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->file((string)$fileData["tmp_name"]);
+            if ($mime === false || !in_array($mime, $this->allowed_file_mime_types, true)) {
+                $this->reportValidationFailure(
+                    "MIME type '" . ($mime ?: "unknown") . "' is not allowed. Allowed types: " . implode(", ", $this->allowed_file_mime_types)
+                );
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates a URL for safe file import (only if allow_url_import is enabled).
+     *
+     * @param string $url URL to validate and open.
+     * @return bool True if URL passes validation, false otherwise.
+     * @internal
+     */
+    private function validateFileUrl(string $url): bool {
+        // URL imports are disabled by default for security (SSRF prevention)
+        if (!$this->allow_url_import) {
+            $this->reportValidationFailure("URL-based file imports are disabled for security. Set allow_url_import=true to enable.");
+            return false;
+        }
+
+        // Parse and validate URL
+        $parsed = parse_url($url);
+        if ($parsed === false || !isset($parsed["scheme"]) || !isset($parsed["host"])) {
+            $this->reportValidationFailure("Invalid URL format");
+            return false;
+        }
+
+        // Only allow http and https schemes
+        $scheme = strtolower((string)$parsed["scheme"]);
+        if (!in_array($scheme, array("http", "https"), true)) {
+            $this->reportValidationFailure("URL scheme '" . $scheme . "' is not allowed. Only http and https are supported.");
+            return false;
+        }
+
+        // Prevent localhost/private IP ranges to mitigate SSRF attacks
+        $host = (string)$parsed["host"];
+        $ip = gethostbyname($host);
+        if ($this->isPrivateIpAddress($ip)) {
+            $this->reportValidationFailure("URL points to a private IP address. Private IP ranges are not allowed for security.");
+            return false;
+        }
+
+        // Check domain allowlist if configured
+        if (!empty($this->allowed_url_domains) && !in_array($host, $this->allowed_url_domains, true)) {
+            $this->reportValidationFailure(
+                "Host '" . $host . "' is not in the allowed domains list."
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if an IP address is in a private range.
+     *
+     * @param string $ip IP address to check.
+     * @return bool True if IP is private/reserved, false otherwise.
+     * @internal
+     */
+    private function isPrivateIpAddress(string $ip): bool {
+        // Check if it's a valid IP first
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return true;  // Treat invalid as private for safety
+        }
+
+        // Private IPv4 ranges
+        $privateRanges = array(
+            "10.0.0.0|10.255.255.255",
+            "127.0.0.0|127.255.255.255",
+            "172.16.0.0|172.31.255.255",
+            "192.168.0.0|192.168.255.255",
+        );
+
+        // Check if IP is in any private range
+        foreach ($privateRanges as $range) {
+            list($start, $end) = explode("|", $range);
+            if (ip2long($ip) >= ip2long($start) && ip2long($ip) <= ip2long($end)) {
+                return true;
+            }
+        }
+
+        // Also check for localhost and special addresses
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets a user-friendly message for a PHP file upload error code.
+     *
+     * @param int $errorCode PHP upload error constant.
+     * @return string Error message.
+     * @internal
+     */
+    private function getUploadErrorMessage(int $errorCode): string {
+        // TODO: make messages customizable via properties for internationalization
+        $messages = array(
+            UPLOAD_ERR_OK => "No error",
+            UPLOAD_ERR_INI_SIZE => "File exceeds upload_max_filesize directive",
+            UPLOAD_ERR_FORM_SIZE => "File exceeds MAX_FILE_SIZE form directive",
+            UPLOAD_ERR_PARTIAL => "File was only partially uploaded",
+            UPLOAD_ERR_NO_FILE => "No file was uploaded",
+            UPLOAD_ERR_NO_TMP_DIR => "Missing temporary folder",
+            UPLOAD_ERR_CANT_WRITE => "Cannot write file to disk",
+            UPLOAD_ERR_EXTENSION => "PHP extension stopped the file upload",
+        );
+
+        return $messages[$errorCode] ?? "Unknown upload error";
+    }
+
     private function getPrimaryColumnForSingleColumnContext(): string {
         if (is_array($this->primary)) {
             return isset($this->primary[0]) ? (string)$this->primary[0] : "";
@@ -244,6 +635,8 @@ class MySQLGrid {
         if (!($this->db instanceof \PDO)) {
             trigger_error("PDO connection expected for injected PDO driver", E_USER_ERROR);
         }
+
+        $this->validateSqlIdentifiers();
 
         if (is_array($this->primary)) {
             $fields = array();
@@ -329,7 +722,7 @@ class MySQLGrid {
 
         if ($this->rows <= (($this->page - 1) * $this->limit)) {
             $this->page = (int)ceil((int)$this->rows / $this->limit);
-            $_SESSION["phpMySQLGrid_" . $this->name]["page"] = $this->page;
+            $_SESSION[$this->getGridSessionKey()]["page"] = $this->page;
         }
 
         $offset = ($this->page > 0 ? (($this->page - 1) * $this->limit) : 0);
@@ -368,6 +761,7 @@ class MySQLGrid {
         $this->txtFileFalse = "No file present";
         $this->txtFile = "File";
         $this->txtURL = "URL";
+        $this->txtCsrfError = "Security check failed. Please try again.";
         $this->txtPaginationLabel = "Pagination";
 
         // Accessible labels for sort controls
@@ -444,6 +838,7 @@ class MySQLGrid {
      * Auto-populates grid columns from the configured table metadata.
      */
     public function useAllColumns(): void {
+        $this->assertSafeSqlIdentifier((string)$this->table, "table", true);
         $this->columns = array();
 
         if ($this->db_driver === "pdo_sqlite") {
@@ -520,18 +915,20 @@ class MySQLGrid {
     }
 
     private function processSession(): void {
+        $sessionKey = $this->getGridSessionKey();
+
         if (!isset($this->page)) {
-            if (isset($_SESSION["phpMySQLGrid_" . $this->name]["page"]))
-                $this->page = $_SESSION["phpMySQLGrid_" . $this->name]["page"];
+            if (isset($_SESSION[$sessionKey]["page"]))
+                $this->page = $_SESSION[$sessionKey]["page"];
             else {
                 $this->page = 1;
-                $_SESSION["phpMySQLGrid_" . $this->name]["page"] = 1;
+                $_SESSION[$sessionKey]["page"] = 1;
             }
-        } else $_SESSION['phpMySQLGrid_' . $this->name]['page'] = $this->page;
+        } else $_SESSION[$sessionKey]['page'] = $this->page;
         for ($i = 0; $i < count($this->columns); $i++) {
-            if (isset($_SESSION['phpMySQLGrid_' . $this->name]['filter'][$i])) {
+            if (isset($_SESSION[$sessionKey]['filter'][$i])) {
                 $this->columns[$i]['active_filter'] =
-                    $_SESSION['phpMySQLGrid_' . $this->name]['filter'][$i];
+                    $_SESSION[$sessionKey]['filter'][$i];
             } else if (isset($this->columns[$i]['filter'])) {
                 $this->columns[$i]['active_filter'] =
                     $this->columns[$i]['filter'];
@@ -539,22 +936,25 @@ class MySQLGrid {
                 $this->columns[$i]['active_filter'] = '';
             }
         }
-        if (isset($_SESSION["phpMySQLGrid_" . $this->name]["sort"]))
+        if (isset($_SESSION[$sessionKey]["sort"]))
             $this->sort = min(count($this->columns) - 1,
-                $_SESSION["phpMySQLGrid_" . $this->name]["sort"]);
+                $_SESSION[$sessionKey]["sort"]);
         else {
             $this->sort = $this->default_sort_column;
-            $_SESSION["phpMySQLGrid_" . $this->name]["sort"] = $this->default_sort_column;
+            $_SESSION[$sessionKey]["sort"] = $this->default_sort_column;
         }
-        if (isset($_SESSION["phpMySQLGrid_" . $this->name]["dir"]))
-            $this->dir = $_SESSION["phpMySQLGrid_" . $this->name]["dir"];
+        if (isset($_SESSION[$sessionKey]["dir"]))
+            $this->dir = $_SESSION[$sessionKey]["dir"];
         else {
             $this->dir = $this->default_sort_direction;
-            $_SESSION["phpMySQLGrid_" . $this->name]["dir"] = $this->default_sort_direction;
+            $_SESSION[$sessionKey]["dir"] = $this->default_sort_direction;
         }
+
+        $this->ensureCsrfToken();
     }
 
     private function addDataWithPdo(mixed $data): void {
+        $this->validateSqlIdentifiers();
         $columns = array();
         $params = array();
 
@@ -645,6 +1045,7 @@ class MySQLGrid {
     }
 
     private function deleteDataWithPdo(mixed $id): void {
+        $this->validateSqlIdentifiers();
         $query = sprintf(
             "DELETE FROM %s where %s=:id",
             $this->table,
@@ -655,6 +1056,7 @@ class MySQLGrid {
     }
 
     private function editDataWithPdo(mixed $id, mixed $data): void {
+        $this->validateSqlIdentifiers();
         $updates = array();
         $params = array();
 
@@ -776,50 +1178,75 @@ class MySQLGrid {
     }
 
     private function processRequests(): void {
+        $sessionKey = $this->getGridSessionKey();
+
         // Process SetPage command
         if (isset($_REQUEST[$this->cmdSetPage])) {
             $this->page = intval($_REQUEST[$this->cmdSetPage]);
-            $_SESSION["phpMySQLGrid_" . $this->name]["page"] = $this->page;
+            $_SESSION[$sessionKey]["page"] = $this->page;
         }
 
         // Process SetSort command
         if (isset($_REQUEST[$this->cmdSetSort])) {
             $this->sort = intval($_REQUEST[$this->cmdSetSort]);
-            $_SESSION["phpMySQLGrid_" . $this->name]["sort"] = $this->sort;
+            $_SESSION[$sessionKey]["sort"] = $this->sort;
         }
 
         // Process SetFilter command
         if (isset($_REQUEST[$this->cmdSetFilter])) {
             foreach ($_REQUEST[$this->cmdSetFilter] as $key => $value) {
                 $this->columns[$key]['active_filter'] = stripslashes($value);
-                $_SESSION["phpMySQLGrid_" . $this->name]["filter"][$key] = $this->columns[$key]['active_filter'];
+                $_SESSION[$sessionKey]["filter"][$key] = $this->columns[$key]['active_filter'];
             }
         }
 
         // Process SetDir command
         if (isset($_REQUEST[$this->cmdSetDir])) {
             $this->dir = intval($_REQUEST[$this->cmdSetDir]);
-            $_SESSION["phpMySQLGrid_" . $this->name]["dir"] = $this->dir;
+            $_SESSION[$sessionKey]["dir"] = $this->dir;
         }
 
         // Process data vars
         $data = array();
-        if (isset($_REQUEST[$this->cmdSetData])) {
+        if (isset($_POST[$this->cmdSetData])) {
             reset($_FILES);
 
             for ($i = 0; $i < count($this->columns); $i++) {
                 switch ($this->columns[$i]["type"]) {
                     case PHPMYSQLGRID_FILE:
-                        if (isset($_REQUEST[$this->cmdClearFile][$i]))
+                        if (isset($_POST[$this->cmdClearFile][$i])) {
                             $data[$i] = false;
-                        else if ($_REQUEST[$this->cmdSetURL][$i])
-                            $data[$i] = $_REQUEST[$this->cmdSetURL][$i];
-                        else
-                            $data[$i] = current($_FILES);
+                        } else if (isset($_POST[$this->cmdSetURL][$i]) && $_POST[$this->cmdSetURL][$i]) {
+                            // URL import - validate if enabled
+                            $url = (string)$_POST[$this->cmdSetURL][$i];
+                            if ($this->validateFileUrl($url)) {
+                                $data[$i] = $url;
+                            } else {
+                                // Validation failed - skip this file
+                                $data[$i] = false;
+                            }
+                        } else {
+                            // Regular file upload - validate
+                            $fileData = current($_FILES);
+                            if ($fileData && isset($fileData["error"])) {
+                                // Skip validation if no file was uploaded (optional file upload)
+                                if ($fileData["error"] === UPLOAD_ERR_NO_FILE) {
+                                    $data[$i] = false;
+                                } else if ($this->validateUploadedFile($fileData)) {
+                                    $data[$i] = $fileData;
+                                } else {
+                                    // Validation failed - skip this file
+                                    $data[$i] = false;
+                                }
+                            } else {
+                                // No file data available - treat as no upload
+                                $data[$i] = false;
+                            }
+                        }
                         next($_FILES);
                         break;
                     default:
-                        $data[$i] = $_REQUEST[$this->cmdSetData][$i];
+                        $data[$i] = $_POST[$this->cmdSetData][$i];
                 }
             }
         }
@@ -830,7 +1257,7 @@ class MySQLGrid {
         }
 
         // Process ConfirmAdd command
-        if (($this->can_add) && (isset($_REQUEST[$this->cmdConfirmAdd]))) {
+        if (($this->can_add) && $this->isPostRequest() && (isset($_POST[$this->cmdConfirmAdd])) && $this->validateCsrfToken()) {
             $this->addData($data);
         }
 
@@ -840,9 +1267,9 @@ class MySQLGrid {
         }
 
         // Process ConfirmDelete command
-        if (($this->can_delete) &&
-            (isset($_REQUEST[$this->cmdConfirmDelete]))) {
-            $this->deleteData($_REQUEST[$this->varDeleteID]);
+        if (($this->can_delete) && $this->isPostRequest() &&
+            (isset($_POST[$this->cmdConfirmDelete])) && isset($_POST[$this->varDeleteID]) && $this->validateCsrfToken()) {
+            $this->deleteData($_POST[$this->varDeleteID]);
         }
 
         // Process Edit command
@@ -851,9 +1278,9 @@ class MySQLGrid {
         }
 
         // Process ConfirmEdit command
-        if (($this->can_edit) &&
-            (isset($_REQUEST[$this->cmdConfirmEdit]))) {
-            $this->editData($_REQUEST[$this->varEditID], $data);
+        if (($this->can_edit) && $this->isPostRequest() &&
+            (isset($_POST[$this->cmdConfirmEdit])) && isset($_POST[$this->varEditID]) && $this->validateCsrfToken()) {
+            $this->editData($_POST[$this->varEditID], $data);
         }
     }
 
@@ -904,6 +1331,38 @@ class MySQLGrid {
     }
 
     /**
+     * Creates a safe DOM id from user-configurable values (for example $this->name).
+     */
+    private function buildSafeDomId(string $value): string {
+        $sanitized = preg_replace('/[^A-Za-z0-9_\-:.]/', '_', $value);
+        if (!is_string($sanitized) || $sanitized === "") {
+            return "mysqlgrid";
+        }
+        return $sanitized;
+    }
+
+    private function sanitizeActionUrl(string $url, string $type): string {
+        $fallback = ($type === "href") ? "#" : "";
+
+        $trimmed = trim($url);
+        if ($trimmed === "") {
+            return $fallback;
+        }
+
+        $scheme = parse_url($trimmed, PHP_URL_SCHEME);
+        if (!is_string($scheme) || $scheme === "") {
+            return $trimmed;
+        }
+
+        $allowedSchemes = array("http", "https");
+        if (!in_array(strtolower($scheme), $allowedSchemes, true)) {
+            return $fallback;
+        }
+
+        return $trimmed;
+    }
+
+    /**
      * @internal
      * @ignore
      */
@@ -930,12 +1389,24 @@ class MySQLGrid {
             $formAction .= "?" . http_build_query($preservedParams, "", "&amp;");
         }
 
+        $formId = $this->buildSafeDomId($this->name . "_form");
+
         echo
-            '<form action="', $formAction, '" method="post" id="' , $this->name,'_form"',
+            '<form action="', $formAction, '" method="post" id="' , $this->convertToHtmlEntities($formId),'"',
             $upload ? ' enctype="multipart/form-data"' : '',
             '>',
-            '<input type="image" style="width: 0; height: 0; border: none; visibility: hidden; position: absolute; left: -999px" />',
-            '<table class="', $tableClass ,'" border="0" cellspacing="1">';
+            '<input type="image" style="width: 0; height: 0; border: none; visibility: hidden; position: absolute; left: -999px" />';
+
+        if (!empty($this->frontendErrors)) {
+            echo '<div class="', $this->style, '-error-summary" role="alert" aria-live="polite">',
+                '<ul class="', $this->style, '-error-list">';
+            foreach ($this->frontendErrors as $message) {
+                echo '<li class="', $this->style, '-error-item">', $this->convertToHtmlEntities($message), '</li>';
+            }
+            echo '</ul></div>';
+        }
+
+        echo '<table class="', $tableClass ,'" border="0" cellspacing="1">';
     }
 
     /**
@@ -943,9 +1414,10 @@ class MySQLGrid {
      * @ignore
      */
     public function drawFooter(): void {
+        $bottomId = $this->buildSafeDomId($this->name . "_bottom");
         echo
             '</table>',
-            '</form><a href="#" id="',$this->name,'_bottom"></a>';
+            '</form><a href="#" id="', $this->convertToHtmlEntities($bottomId), '"></a>';
     }
 
     /**
@@ -1000,6 +1472,7 @@ class MySQLGrid {
     }
 
     private function drawData(): void {
+        $formId = $this->buildSafeDomId($this->name . "_form");
         echo '<tbody>';
         $this->row = 0;
         while (($data = $this->fetchResultRow()) !== false) {
@@ -1018,14 +1491,16 @@ class MySQLGrid {
                 continue;
             }
             echo
-                '<tr data-id="',$data[0],'">',
+                '<tr data-id="', $this->convertToHtmlEntities($data[0]), '">',
                 '<td class="', $headstyle, '" nowrap="nowrap" align="right">';
             if (($this->mode == PHPMYSQLGRID_DELETEMODE)
                 && ($_REQUEST[$this->varDeleteID] == $data[0])) {
                 echo
-                    '<a href="', $this->selfUrl(), '?',
-                    $this->buildUrl(array($this->cmdConfirmDelete => 1, $this->varDeleteID => $data[0])), '"',
-                    '" aria-label="', $this->convertToHtmlEntities($this->txtConfirm),
+                    '<input type="hidden" name="', $this->cmdConfirmDelete, '" value="1">',
+                    '<input type="hidden" name="', $this->varDeleteID, '" value="', $this->convertToHtmlEntities($data[0]), '">',
+                    $this->renderCsrfTokenInput(),
+                    '<a href="#" onclick="document.getElementById(\'', $formId, '\').submit(); return false;"',
+                    ' aria-label="', $this->convertToHtmlEntities($this->txtConfirm),
                     '" title="', $this->convertToHtmlEntities($this->txtConfirm), '">',
                         $this->renderIcon($this->svgIconConfirm, "confirm"),
                     '</a>',
@@ -1057,24 +1532,27 @@ class MySQLGrid {
                 foreach ($this->actions as $action) {
                     switch ($action["type"]) {
                         case PHPMYSQLGRID_IMAGEBUTTON:
+                            $actionUrl = $this->sanitizeActionUrl((string)str_replace("<ID>", (string)$data[0], (string)$action["url"]), "href");
+                            $actionImage = $this->sanitizeActionUrl((string)$action["image"], "src");
                             echo
                                 '<a href="',
-                                str_replace("<ID>", $data[0], $action["url"]),
+                                $this->convertToHtmlEntities($actionUrl),
                                 '">',
-                                '<img hspace="1" src="', $action["image"], '" alt="',
+                                '<img hspace="1" src="', $this->convertToHtmlEntities($actionImage), '" alt="',
                                 $this->convertToHtmlEntities($action["caption"]), '" title="',
                                 $this->convertToHtmlEntities($action["caption"]),
                                 '" border="0" align="middle"';
                             if (isset($action["width"]))
-                                echo ' width="', $action["width"], '"';
+                                echo ' width="', (int)$action["width"], '"';
                             if (isset($action["height"]))
-                                echo ' height="', $action["height"], '"';
+                                echo ' height="', (int)$action["height"], '"';
                             echo '/></a>';
                             break;
                         default:
+                            $actionUrl = $this->sanitizeActionUrl((string)str_replace("<ID>", (string)$data[0], (string)$action["url"]), "href");
                             echo
                                 '&nbsp;<a href="',
-                                str_replace("<ID>", $data[0], $action["url"]),
+                                $this->convertToHtmlEntities($actionUrl),
                                 '">',
                                 $this->convertToHtmlEntities($action["caption"]),
                                 '</a>';
@@ -1142,7 +1620,7 @@ class MySQLGrid {
 
                 echo '<td class="', $datastyle , ' ' , $cellTypeClass, '"';
                 if (isset($this->columns[$i]["align"]))
-                    echo ' align="', $this->columns[$i]["align"], '"';
+                    echo ' align="', $this->convertToHtmlEntities($this->columns[$i]["align"]), '"';
                 echo '>';
 
                 // Trust converted output, otherwise htmlentity it.
@@ -1174,6 +1652,7 @@ class MySQLGrid {
      * @ignore
      */
     public function drawEditControls(array|false $data = false): void {
+        $formId = $this->buildSafeDomId($this->name . "_form");
         $rowClass = $this->style . '-cell--' . (($this->row % 2) ? 'odd' : 'even');
         switch ($this->mode) {
             case PHPMYSQLGRID_EDITMODE:
@@ -1193,11 +1672,15 @@ class MySQLGrid {
             '<td align="right" class="', $headstyle, '" nowrap="nowrap">';
 
         if ($this->mode == PHPMYSQLGRID_EDITMODE) {
+            $editId = isset($_REQUEST[$this->varEditID]) && is_scalar($_REQUEST[$this->varEditID])
+                ? (string)$_REQUEST[$this->varEditID]
+                : "";
             echo
                 '<input type="hidden" name="', $this->varEditID, '" value="',
-                $_REQUEST[$this->varEditID], '">',
+                $this->convertToHtmlEntities($editId), '">',
                 '<input type="hidden" name="' . $this->cmdConfirmEdit. '" value="true" />'.
-                '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
+                $this->renderCsrfTokenInput().
+                '<a href="#" onclick="document.getElementById(\'' . $formId . '\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
                     $this->renderIcon($this->svgIconConfirm, "confirm").
                 '</a>',
                 '<a href="', $this->selfUrl(), "?",
@@ -1210,7 +1693,8 @@ class MySQLGrid {
         } else {
             echo
                 '<input type="hidden" name="' . $this->cmdConfirmAdd. '" value="true" />'.
-                '<a href="#" onclick="document.getElementById(\''.$this->name.'_form\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
+                $this->renderCsrfTokenInput().
+                '<a href="#" onclick="document.getElementById(\'' . $formId . '\').submit(); return false;" aria-label="' . $this->convertToHtmlEntities($this->txtConfirm) . '" title="' . $this->convertToHtmlEntities($this->txtConfirm) . '">'.
                     $this->renderIcon($this->svgIconConfirm, "confirm").
                 '</a>',
                 '<a href="', $this->selfUrl(), "?",
@@ -1223,7 +1707,7 @@ class MySQLGrid {
         for ($i = 0; $i < count($this->columns); $i++) {
             echo '<td class="', $datastyle, '"';
             if (isset($this->columns[$i]["align"]))
-                echo ' align="', $this->columns[$i]["align"], '"';
+                echo ' align="', $this->convertToHtmlEntities($this->columns[$i]["align"]), '"';
             echo '>';
             switch($this->columns[$i]["type"]) {
                 case PHPMYSQLGRID_LOOKUP:
@@ -1233,7 +1717,7 @@ class MySQLGrid {
                         ' name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["width"]))
                         echo
-                            ' style="width:', $this->columns[$i]["width"],
+                            ' style="width:', (int)$this->columns[$i]["width"],
                             'px;"';
                     echo '>';
                     $lookupFilter = isset($this->columns[$i]["lookup_filter"]) ? (string)$this->columns[$i]["lookup_filter"] : "";
@@ -1268,7 +1752,7 @@ class MySQLGrid {
                         ' name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["width"]))
                         echo
-                            ' style="width:', $this->columns[$i]["width"],
+                            ' style="width:', (int)$this->columns[$i]["width"],
                             'px;"';
                     echo '>';
                     foreach($this->columns[$i]["selection"] as $key => $value) {
@@ -1293,14 +1777,14 @@ class MySQLGrid {
                     if ($data) echo PHPMYSQLGRID_PWDUMMY;
                     echo '" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
-                        echo ' size="', $this->columns[$i]["size"], '"';
+                        echo ' size="', (int)$this->columns[$i]["size"], '"';
                     if (isset($this->columns[$i]["maxlength"]))
                         echo
-                            ' maxlength="', $this->columns[$i]["maxlength"],
+                            ' maxlength="', (int)$this->columns[$i]["maxlength"],
                             '"';
                     if (isset($this->columns[$i]["width"]))
                         echo
-                            ' style="width:', $this->columns[$i]["width"],
+                            ' style="width:', (int)$this->columns[$i]["width"],
                             'px;"';
                     echo '>';
                     break;
@@ -1320,16 +1804,16 @@ class MySQLGrid {
                     echo
                         '<textarea class="', $this->style, '-textarea" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
-                        echo ' cols="', $this->columns[$i]["size"], '"';
+                        echo ' cols="', (int)$this->columns[$i]["size"], '"';
                     if (isset($this->columns[$i]["lines"]))
-                        echo ' rows="', $this->columns[$i]["lines"], '"';
+                        echo ' rows="', (int)$this->columns[$i]["lines"], '"';
                     $style = "";
                     if (isset($this->columns[$i]["width"]))
                         $style .= sprintf("width:%dpx;",
-                            $this->columns[$i]["width"]);
+                            (int)$this->columns[$i]["width"]);
                     if (isset($this->columns[$i]["height"]))
                         $style .= sprintf("height:%dpx;",
-                            $this->columns[$i]["height"]);
+                            (int)$this->columns[$i]["height"]);
                     if ($style)
                         echo ' style="', $style, '"';
                     echo '>';
@@ -1340,8 +1824,9 @@ class MySQLGrid {
                     echo '</textarea>';
                     break;
                 case PHPMYSQLGRID_FILE:
+                    $rawFileValue = ($this->mode === PHPMYSQLGRID_EDITMODE && $data) ? $data[$i + $this->countPrimaries()] : '';
                     if ($this->mode == PHPMYSQLGRID_EDITMODE) {
-                        $value = $data ? $data[$i + $this->countPrimaries()] : '';
+                        $value = $rawFileValue;
                         if (isset($this->columns[$i]["convert_output"]))
                             $value = $this->columns[$i]["convert_output"]($this, $value, $i + $this->countPrimaries(), $data, true);
                         else
@@ -1349,38 +1834,42 @@ class MySQLGrid {
                         if ($data) echo $value;
                         echo '<br><br>';
                     }
-                    echo
-                        $this->txtURL, '&nbsp;<input type="text" class="', $this->style,'-file" ',
-                        'name="', $this->cmdSetURL, '[', $i, ']"';
-                    if (isset($this->columns[$i]["size"]))
-                        echo ' size="', $this->columns[$i]["size"], '"';
-                    $style = "";
-                    if (isset($this->columns[$i]["width"]))
-                        $style .= sprintf("width:%dpx;",
-                            $this->columns[$i]["width"]);
-                    if ($style)
-                        echo ' style="', $style, '"';
-                    echo
-                        '><br>';
-                    echo
-                        $this->txtFile, '&nbsp;<input type="file" class="', $this->style,
-                        '" name="', $this->cmdSetFile, $i, '"';
-                    if (isset($this->columns[$i]["size"]))
-                        echo ' size="', $this->columns[$i]["size"], '"';
-                    if (isset($this->columns[$i]["maxlength"]))
-                        echo ' maxlength="', $this->columns[$i]["maxlength"], '"';
-                    if (isset($this->columns[$i]["accept"]))
-                        echo ' accept="', $this->columns[$i]["accept"], '"';
-                    $style = "";
-                    if (isset($this->columns[$i]["width"]))
-                        $style .= sprintf("width:%dpx;",
-                            $this->columns[$i]["width"]);
-                    if ($style)
-                        echo ' style="', $style, '"';
-                    echo
-                        '>';
-
-                    if ($this->mode == PHPMYSQLGRID_EDITMODE) {
+                    // Also hide URL input when URL imports are disabled globally (allow_url_import = false),
+                    // to avoid showing a field whose input would be silently discarded server-side.
+                    $showUrlInput = (!isset($this->columns[$i]["show_url_input"]) || $this->columns[$i]["show_url_input"])
+                        && $this->allow_url_import;
+                    $showFileInput = !isset($this->columns[$i]["show_file_input"]) || $this->columns[$i]["show_file_input"];
+                    if ($showUrlInput) {
+                        echo
+                            $this->txtURL, '&nbsp;<input type="text" class="', $this->style, '-file" ',
+                            'name="', $this->cmdSetURL, '[', $i, ']"';
+                        if (isset($this->columns[$i]["size"]))
+                            echo ' size="', (int)$this->columns[$i]["size"], '"';
+                        $style = "";
+                        if (isset($this->columns[$i]["width"]))
+                            $style .= sprintf("width:%dpx;", (int)$this->columns[$i]["width"]);
+                        if ($style)
+                            echo ' style="', $style, '"';
+                        echo '><br>';
+                    }
+                    if ($showFileInput) {
+                        echo
+                            $this->txtFile, '&nbsp;<input type="file" class="', $this->style,
+                            '" name="', $this->cmdSetFile, $i, '"';
+                        if (isset($this->columns[$i]["size"]))
+                            echo ' size="', (int)$this->columns[$i]["size"], '"';
+                        if (isset($this->columns[$i]["maxlength"]))
+                            echo ' maxlength="', (int)$this->columns[$i]["maxlength"], '"';
+                        if (isset($this->columns[$i]["accept"]))
+                            echo ' accept="', $this->convertToHtmlEntities($this->columns[$i]["accept"]), '"';
+                        $style = "";
+                        if (isset($this->columns[$i]["width"]))
+                            $style .= sprintf("width:%dpx;", (int)$this->columns[$i]["width"]);
+                        if ($style)
+                            echo ' style="', $style, '"';
+                        echo '>';
+                    }
+                    if ($this->mode == PHPMYSQLGRID_EDITMODE && $rawFileValue) {
                         echo
                             '<br>',
                             $this->txtDelete, '&nbsp;<input type="checkbox"',
@@ -1401,18 +1890,18 @@ class MySQLGrid {
                         echo $this->convertToHtmlEntities($this->columns[$i]["default"]);
                     echo '" name="', $this->cmdSetData, '[', $i, ']"';
                     if (isset($this->columns[$i]["size"]))
-                        echo ' size="', $this->columns[$i]["size"], '"';
+                        echo ' size="', (int)$this->columns[$i]["size"], '"';
                     if (isset($this->columns[$i]["maxlength"]))
                         echo
-                            ' maxlength="', $this->columns[$i]["maxlength"],
+                            ' maxlength="', (int)$this->columns[$i]["maxlength"],
                             '"';
                     if (isset($this->columns[$i]["width"]))
                         echo
-                            ' style="width:', $this->columns[$i]["width"],
+                            ' style="width:', (int)$this->columns[$i]["width"],
                             'px;"';
                     if (isset($this->columns[$i]["placeholder"]))
                         echo
-                            ' placeholder="', $this->columns[$i]["placeholder"],
+                            ' placeholder="', $this->convertToHtmlEntities($this->columns[$i]["placeholder"]),
                             '"';
                     echo '>';
             }
@@ -1427,13 +1916,14 @@ class MySQLGrid {
      * @ignore
      */
     public function drawNavigation(): void {
+        $bottomId = $this->buildSafeDomId($this->name . "_bottom");
         echo
             '<tfoot><tr>',
             '<td align="right" class="', $this->style, '-action">';
         // Draw Add Button if wanted
         if ($this->can_add) {
             echo
-                '<a href="', $this->selfUrl(), '?', $this->buildUrl(array($this->cmdAdd => 1)), '#',$this->name,'_bottom" class="add-button"',
+                '<a href="', $this->selfUrl(), '?', $this->buildUrl(array($this->cmdAdd => 1)), '#', $this->convertToHtmlEntities($bottomId), '" class="add-button"',
                 ' aria-label="', $this->convertToHtmlEntities($this->txtAdd),
                 '" title="', $this->convertToHtmlEntities($this->txtAdd), '">',
                     $this->renderIcon($this->svgIconAdd, "add"),
@@ -1547,6 +2037,8 @@ class MySQLGrid {
      * Executes one full grid request lifecycle and renders the grid HTML.
      */
     public function execute(): void {
+        $this->frontendErrors = array();
+
         // Prepare some variables
         $this->prepareQueryVars();
 
@@ -1600,7 +2092,21 @@ class MySQLGrid {
      * @ignore
      */
     public function convertToHtmlEntities(mixed $data): string {
-        return htmlentities($data ?? "", ENT_COMPAT, $this->charset);
+        return htmlentities($data ?? "", ENT_QUOTES, $this->charset);
+    }
+
+    private function addFrontendError(string $message): void {
+        if ($message === "") {
+            return;
+        }
+        if (!in_array($message, $this->frontendErrors, true)) {
+            $this->frontendErrors[] = $message;
+        }
+    }
+
+    private function reportValidationFailure(string $message): void {
+        $this->addFrontendError($message);
+        error_log("MySQLGrid validation: " . $message);
     }
 }
 

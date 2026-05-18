@@ -9,3 +9,13 @@ Report vulnerabilities privately to:
 - thorsten@schueller.me
 
 Please include affected version, reproduction steps, and impact.
+
+---
+
+## Secure Configuration and Hardening
+
+Runtime security settings and hardening guidance are documented in:
+
+- [docs/security-settings.md](docs/security-settings.md)
+
+This includes file upload hardening, URL import restrictions, and recommended defaults.

@@ -44,7 +44,7 @@ final class MySQLGridUnitTest extends TestCase {
         return [
             'html tags and ampersand' => ["<b>Tom & Jerry</b>", "&lt;b&gt;Tom &amp; Jerry&lt;/b&gt;"],
             'double quotes'           => ['"hello"',            '&quot;hello&quot;'],
-            'single quotes not encoded' => ["it's fine",        "it's fine"],  // ENT_COMPAT leaves single quotes as-is
+            'single quotes encoded'     => ["it's fine",        "it&#039;s fine"],
             'empty string'            => ['',                    ''],
             'null'                    => [null,                  ''],
         ];
@@ -241,6 +241,23 @@ final class MySQLGridUnitTest extends TestCase {
         $this->assertStringNotContainsString('enctype="multipart/form-data"', $output);
     }
 
+    public function testDrawHeaderRendersFrontendErrorSummary(): void {
+        $grid = new MySQLGrid();
+        $grid->columns = array();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        $addFrontendError = new \ReflectionMethod($grid, "addFrontendError");
+        $addFrontendError->invoke($grid, "Upload blocked by policy");
+
+        ob_start();
+        $grid->drawHeader();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('phpmysqlgrid-error-summary', $output);
+        $this->assertStringContainsString('role="alert"', $output);
+        $this->assertStringContainsString('Upload blocked by policy', $output);
+    }
+
     public function testDrawFooterOutputsClosingTags(): void {
         $grid = new MySQLGrid();
 
@@ -303,6 +320,7 @@ final class MySQLGridUnitTest extends TestCase {
         $grid->rows = 0;
         $grid->page = 1;
         $grid->limit = 10;
+        $grid->row = 0;
         $grid->prepareQueryVars();
         $_SERVER["PHP_SELF"] = "/test.php";
 
@@ -322,6 +340,7 @@ final class MySQLGridUnitTest extends TestCase {
         $grid->rows = 0;
         $grid->page = 1;
         $grid->limit = 10;
+        $grid->row = 0;
         $grid->prepareQueryVars();
         $_SERVER["PHP_SELF"] = "/test.php";
 
@@ -340,6 +359,7 @@ final class MySQLGridUnitTest extends TestCase {
         $grid->rows = 0;
         $grid->page = 1;
         $grid->limit = 10;
+        $grid->row = 0;
         $grid->prepareQueryVars();
         $_SERVER["PHP_SELF"] = "/test.php";
 
@@ -483,6 +503,49 @@ final class MySQLGridUnitTest extends TestCase {
         $output = ob_get_clean();
 
         $this->assertStringContainsString('class="phpmysqlgrid-action phpmysqlgrid-cell--even phpmysqlgrid-action--add"', $output);
+    }
+
+    public function testNameIsSanitizedBeforeUsingItInDomIdsAndHandlers(): void {
+        $grid = new MySQLGrid();
+        $grid->name = "grid<evil name>";
+        $grid->mode = PHPMYSQLGRID_ADDMODE;
+        $grid->columns = array(
+            array("field" => "name", "type" => PHPMYSQLGRID_TEXT)
+        );
+        $grid->rows = 0;
+        $grid->page = 1;
+        $grid->limit = 10;
+        $grid->row = 0;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawHeader();
+        $headerOutput = ob_get_clean();
+
+        ob_start();
+        $grid->drawEditControls(false);
+        $editOutput = ob_get_clean();
+
+        ob_start();
+        $grid->drawNavigation();
+        $navigationOutput = ob_get_clean();
+
+        ob_start();
+        $grid->drawFooter();
+        $footerOutput = ob_get_clean();
+
+        $this->assertStringContainsString('id="grid_evil_name__form"', $headerOutput);
+        $this->assertStringNotContainsString('id="grid<evil name>_form"', $headerOutput);
+
+        $this->assertStringContainsString("document.getElementById('grid_evil_name__form').submit();", $editOutput);
+        $this->assertStringNotContainsString("document.getElementById('grid<evil name>_form')", $editOutput);
+
+        $this->assertStringContainsString('#grid_evil_name__bottom" class="add-button"', $navigationOutput);
+        $this->assertStringNotContainsString('#grid<evil name>_bottom" class="add-button"', $navigationOutput);
+
+        $this->assertStringContainsString('id="grid_evil_name__bottom"', $footerOutput);
+        $this->assertStringNotContainsString('id="grid<evil name>_bottom"', $footerOutput);
     }
 
     public function testGetPreservedParamsFiltersGridSpecificParams(): void {

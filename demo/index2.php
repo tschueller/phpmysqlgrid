@@ -40,6 +40,13 @@ $grid->primary = "id";
 $grid->name = "demo_products_grid";
 $grid->cssClass = "theme-" . $selectedTheme;
 
+// Secure defaults in demo.
+$grid->allow_url_import = false;
+$grid->max_file_size = 2 * 1024 * 1024; // 2 MB
+$grid->allowed_file_extensions = array("jpg", "jpeg", "png", "gif", "webp");
+$grid->allowed_file_mime_types = array("image/jpeg", "image/png", "image/gif", "image/webp");
+$grid->csrf_protection_enabled = true;
+
 $grid->can_add = true;
 $grid->can_edit = true;
 $grid->can_delete = true;
@@ -132,6 +139,7 @@ $grid->columns = array(
         "type" => PHPMYSQLGRID_FILE,
         "accept" => "image/*",
         "size" => 30,
+        "show_url_input" => false,  // URL import disabled; use file upload only
         "can_sort" => false,
         "can_filter" => false,
         "width" => 180,
@@ -140,15 +148,19 @@ $grid->columns = array(
                 if (!$value) {
                     return '<span class="demo-muted-small">No image</span>';
                 }
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->buffer((string)$value) ?: "image/jpeg";
                 $base64 = base64_encode((string)$value);
-                return '<img src="data:image/*;base64,' . $base64 . '" class="demo-thumbnail" alt="thumbnail">';
+                return '<img src="data:' . htmlspecialchars($mimeType, ENT_QUOTES, "UTF-8") . ';base64,' . $base64 . '" class="demo-thumbnail" alt="thumbnail">';
             }
             // edit mode: show existing thumbnail preview if present
             if (!$value) {
                 return '<span class="demo-muted-small">No image</span>';
             }
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->buffer((string)$value) ?: "image/jpeg";
             $base64 = base64_encode((string)$value);
-            return '<img src="data:image/*;base64,' . $base64 . '" class="demo-thumbnail" alt="thumbnail">';
+            return '<img src="data:' . htmlspecialchars($mimeType, ENT_QUOTES, "UTF-8") . ';base64,' . $base64 . '" class="demo-thumbnail" alt="thumbnail">';
         }
     )
 );
@@ -171,6 +183,9 @@ $grid->columns = array(
         <p>
             This advanced demo showcases the grid library with multiple column types, advanced features, and complex data relationships.
             Use this for internal testing of different field types and grid interactions.
+        </p>
+        <p class="demo-note">
+            File upload hardening is active: URL import disabled, max 2 MB, allowed extensions: jpg/jpeg/png/gif/webp, MIME types validated via finfo.
         </p>
         <div class="demo-actions">
             <a href="index2.php?reset=1" class="reset">🔄 Reset Demo Data</a>

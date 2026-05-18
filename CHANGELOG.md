@@ -5,6 +5,24 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+### Added
+- Add file upload security: `allow_url_import` (default: false), `max_file_size`, `allowed_file_extensions`, `allowed_file_mime_types`, and `allowed_url_domains` properties for server-side validation and SSRF prevention.
+- Add `show_url_input` and `show_file_input` column options to control file upload control visibility.
+- Add grid-level frontend error summary (`*-error-summary`) for validation and security failures.
+- Add optional built-in CSRF protection for state-changing actions via `csrf_protection_enabled`.
+
+### Fixed
+- Fix XSS and attribute-injection vectors in HTML output: escape `placeholder`, `align`, `accept`, edit ID `value`, and `data-id`; encode single quotes via `ENT_QUOTES`; sanitize `$grid->name` in DOM IDs, anchor fragments, and inline JS handlers; cast numeric attributes (`size`, `maxlength`, `width`, `height`) to integers.
+- Fix state-changing confirm actions (`confirmadd`, `confirmedit`, `confirmdelete`) to POST requests only.
+- Fix custom row action `href`/`src` to allow only relative, `http`, and `https` schemes; cast image dimensions to integers.
+- Fix dynamic SQL identifier validation for table, field, and lookup identifiers before query building.
+- Fix "Delete file" checkbox shown when no file is present in edit mode.
+- Fix validation failure messages shown in-grid instead of as PHP warnings.
+
+### Changed
+- Change light theme `--phpmysqlgrid-icon-add` from CSS keyword `green` to `#2f9e44`.
+
+
 
 ## [1.1.0] - 2026-04-14
 

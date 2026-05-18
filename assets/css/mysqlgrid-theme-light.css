@@ -29,6 +29,11 @@ table.phpmysqlgrid.theme-light {
     --phpmysqlgrid-delete-text: #721c24;
     --phpmysqlgrid-text-color: #212529;
 
+    /* Error state */
+    --phpmysqlgrid-error-bg: #fdecef;
+    --phpmysqlgrid-error-border: #efc5cc;
+    --phpmysqlgrid-error-text: #7a2230;
+
     /* Effects */
     --phpmysqlgrid-add-button-hover-bg: rgba(255, 255, 255, 0.2);
     --phpmysqlgrid-pagination-hover-bg: rgba(255, 255, 255, 0.2);
@@ -37,7 +42,7 @@ table.phpmysqlgrid.theme-light {
     /* Icon accents */
     --phpmysqlgrid-icon-edit: #0b7285;
     --phpmysqlgrid-icon-delete: #c92a2a;
-    --phpmysqlgrid-icon-add: green;
+    --phpmysqlgrid-icon-add: #2f9e44;
     --phpmysqlgrid-icon-confirm: #2b8a3e;
     --phpmysqlgrid-icon-bool-true: #2b8a3e;
     --phpmysqlgrid-icon-bool-false: #c92a2a;
