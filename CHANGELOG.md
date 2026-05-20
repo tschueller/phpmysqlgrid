@@ -5,6 +5,19 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+### Added
+
+- Add comprehensive test suite for field type rendering: Boolean, Lookup, Password, Selection, and Multiline text field types in both view and edit modes.
+- Add grid behavior tests for pagination, column filtering, and column sorting.
+- Add lifecycle hook tests: `add_before`/`add_after`, `edit_before`/`edit_after`, `delete_before`/`delete_after` with abort scenarios.
+- Add multiple grid isolation tests: verify independent pagination and filter state across grid instances.
+- Add global SQL filter tests and unsafe SQL fragment detection with error triggering validation.
+- Add default sort column and direction tests applied on initial load.
+- Add filter and sort state persistence tests across page navigation.
+- Add enhanced file security tests with MIME type spoofing detection and improved validation coverage.
+- Add UI regression tests for CSS class variants, internationalization labels, and SVG icon customization.
+
+
 ## [1.2.0] - 2026-05-18
 
 ### Added

@@ -70,11 +70,11 @@
 
 ### Testing
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)
-  - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
-  - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
-  - [ ] test filter/sort/pagination behavior
-  - [ ] test file upload handling and security
-  - [ ] add regression tests for `cssClass` as string and string-array variants
+  - [x] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks (T024-T026)
+  - [x] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter) (T013-T016, T030, T044, T046-T047)
+  - [x] test filter/sort/pagination behavior (T009-T011, T028, T032, T037, T041-T042)
+  - [x] test file upload handling and security (T017-T021, T033)
+  - [x] add regression tests for `cssClass` as string and string-array variants (T027)
   - [ ] add regression tests for CSRF and POST-only state-changing request handling
   - [ ] add regression test for escaped `placeholder` attribute values
   - [ ] add playwright test (optional) for demo page to verify basic functionality and prevent regressions
