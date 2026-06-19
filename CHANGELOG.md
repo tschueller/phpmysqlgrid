@@ -5,6 +5,8 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-06-19
+
 ### Added
 
 - Add comprehensive test suite for field type rendering: Boolean, Lookup, Password, Selection, and Multiline text field types in both view and edit modes.
