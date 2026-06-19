@@ -2106,7 +2106,13 @@ class MySQLGrid {
 
     private function reportValidationFailure(string $message): void {
         $this->addFrontendError($message);
-        error_log("MySQLGrid validation: " . $message);
+        if ($this->shouldLogValidationFailures()) {
+            error_log("MySQLGrid validation: " . $message);
+        }
+    }
+
+    private function shouldLogValidationFailures(): bool {
+        return !defined("PHPUNIT_COMPOSER_INSTALL");
     }
 }
 

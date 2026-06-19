@@ -69,14 +69,14 @@
 - [ ] make messages customizable via properties for internationalization
 
 ### Testing
+  - [x] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
+  - [x] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
+  - [x] test filter/sort/pagination behavior
+  - [x] test file upload handling and security
+  - [x] add regression tests for `cssClass` as string and string-array variants
+  - [x] add regression tests for CSRF and POST-only state-changing request handling
+  - [x] add regression test for escaped `placeholder` attribute values
   - [ ] find other solution for @internal methods in MySQLGrid.php which are currently public for testing purposes, but should not be part of the public API (e.g. via friend class pattern or test-specific sub-classing)
-  - [ ] $this->delete_before, $this->delete_after, $this->edit_after, $this->add_before, $this->add_after, $this->edit_before hooks
-  - [ ] test html output for different column types (text, textarea, select, ...) and settings (e.g. other texts, sort order, can_sort, can_filter)
-  - [ ] test filter/sort/pagination behavior
-  - [ ] test file upload handling and security
-  - [ ] add regression tests for `cssClass` as string and string-array variants
-  - [ ] add regression tests for CSRF and POST-only state-changing request handling
-  - [ ] add regression test for escaped `placeholder` attribute values
   - [ ] add playwright test (optional) for demo page to verify basic functionality and prevent regressions
 
 ### Documentation

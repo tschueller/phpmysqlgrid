@@ -11,4 +11,7 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <php>
+        <ini name="error_log" value="php://memory"/>
+    </php>
 </phpunit>

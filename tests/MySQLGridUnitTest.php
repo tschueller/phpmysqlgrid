@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MySQLGridTests;
 
 use PhpMySQLGrid\MySQLGrid;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 
 final class MySQLGridUnitTest extends TestCase {
@@ -589,5 +590,240 @@ final class MySQLGridUnitTest extends TestCase {
 
         $this->assertSame("light", $result["theme"]);
         $this->assertSame("price", $result["cmdSort"]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Grid renders custom CSS class on table element
+    // -------------------------------------------------------------------------
+
+    #[TestDox("cssClass string is appended to the table element's class attribute")]
+    public function testCssClassStringIsAppendedToTableElement(): void {
+        $grid = new MySQLGrid();
+        $grid->cssClass = "my-custom-class";
+        $grid->columns  = array();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawHeader();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('my-custom-class', $output);
+        $this->assertStringContainsString('phpmysqlgrid', $output);
+    }
+
+    #[TestDox("cssClass array values are all appended to the table element's class attribute")]
+    public function testCssClassArrayValuesAreAppendedToTableElement(): void {
+        $grid = new MySQLGrid();
+        $grid->cssClass = array("class-one", "class-two");
+        $grid->columns  = array();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawHeader();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('class-one', $output);
+        $this->assertStringContainsString('class-two', $output);
+    }
+
+    // -------------------------------------------------------------------------
+    // Internationalization labels render correctly in grid UI
+    // -------------------------------------------------------------------------
+
+    #[TestDox("Custom txtAdd label appears in the add button output")]
+    public function testCustomTxtAddLabelAppearsInNavigationOutput(): void {
+        $grid = new MySQLGrid();
+        $grid->name     = "test_grid";
+        $grid->txtAdd   = "Neu hinzufügen";
+        $grid->can_add  = true;
+        $grid->columns  = array(array("field" => "id"));
+        $grid->rows     = 0;
+        $grid->page     = 1;
+        $grid->limit    = 10;
+        $grid->row      = 0;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('Neu hinzuf', $output);
+    }
+
+    #[TestDox("Custom txtPrevious and txtNext labels appear in navigation output")]
+    public function testCustomTxtPreviousAndNextLabelsAppearInNavigationOutput(): void {
+        $grid = new MySQLGrid();
+        $grid->name         = "test_grid";
+        $grid->txtPrevious  = "Vorherige Seite";
+        $grid->txtNext      = "Nächste Seite";
+        $grid->can_navigate = true;
+        $grid->columns      = array(array("field" => "id"));
+        $grid->rows         = 50;
+        $grid->page         = 2;
+        $grid->limit        = 10;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('Vorherige Seite', $output);
+        $this->assertStringContainsString('N', $output); // "Nächste Seite" encoded
+    }
+
+    #[TestDox("Custom txtConfirm label appears in edit controls output")]
+    public function testCustomTxtConfirmLabelAppearsInEditControlsOutput(): void {
+        $grid = new MySQLGrid();
+        $grid->name        = "test_grid";
+        $grid->txtConfirm  = "Änderungen speichern";
+        $grid->mode        = PHPMYSQLGRID_EDITMODE;
+        $grid->row         = 0;
+        $grid->columns     = array(array("field" => "id", "type" => PHPMYSQLGRID_TEXT));
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawEditControls(false);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('nderungen speichern', $output); // HTML-encoded ä
+    }
+
+    #[TestDox("Custom txtCancel label appears in edit controls output")]
+    public function testCustomTxtCancelLabelAppearsInEditControlsOutput(): void {
+        $grid = new MySQLGrid();
+        $grid->name       = "test_grid";
+        $grid->txtCancel  = "Abbrechen";
+        $grid->mode       = PHPMYSQLGRID_EDITMODE;
+        $grid->row        = 0;
+        $grid->columns    = array(array("field" => "id", "type" => PHPMYSQLGRID_TEXT));
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawEditControls(false);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('Abbrechen', $output);
+    }
+
+    #[TestDox("Custom txtYes and txtNo are stored as properties and differ from defaults")]
+    public function testCustomTxtYesAndNoPropertiesAreStored(): void {
+        $grid = new MySQLGrid();
+        $grid->txtYes = "Ja";
+        $grid->txtNo  = "Nein";
+
+        $this->assertSame("Ja", $grid->txtYes);
+        $this->assertSame("Nein", $grid->txtNo);
+        $this->assertNotSame($grid->txtYes, $grid->txtNo);
+    }
+
+    // -------------------------------------------------------------------------
+    // SVG icons render correctly for all action buttons
+    // -------------------------------------------------------------------------
+
+    #[TestDox("Default SVG icons are present in edit controls output")]
+    public function testDefaultSvgIconsArePresentInEditControls(): void {
+        $grid = new MySQLGrid();
+        $grid->name       = "test_grid";
+        $grid->can_edit   = true;
+        $grid->can_delete = true;
+        $grid->mode       = PHPMYSQLGRID_EDITMODE;
+        $grid->row        = 0;
+        $grid->columns    = array(array("field" => "id", "type" => PHPMYSQLGRID_TEXT));
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawEditControls(false);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('<svg', $output);
+    }
+
+    #[TestDox("Default SVG icon is present in the add button output")]
+    public function testDefaultSvgIconIsPresentInAddButton(): void {
+        $grid = new MySQLGrid();
+        $grid->name    = "test_grid";
+        $grid->can_add = true;
+        $grid->columns = array(array("field" => "id"));
+        $grid->rows    = 0;
+        $grid->page    = 1;
+        $grid->limit   = 10;
+        $grid->row     = 0;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('<svg', $output);
+    }
+
+    // -------------------------------------------------------------------------
+    // Custom SVG icons replace default icons in grid output
+    // -------------------------------------------------------------------------
+
+    #[TestDox("Custom svgIconConfirm replaces the default confirm icon in edit controls output")]
+    public function testCustomSvgIconConfirmReplacesDefaultInEditControlsOutput(): void {
+        $grid = new MySQLGrid();
+        $grid->name            = "test_grid";
+        $grid->svgIconConfirm  = '<svg id="custom-confirm-icon"></svg>';
+        $grid->mode            = PHPMYSQLGRID_EDITMODE;
+        $grid->row             = 0;
+        $grid->columns         = array(array("field" => "id", "type" => PHPMYSQLGRID_TEXT));
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawEditControls(false);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('custom-confirm-icon', $output);
+        $this->assertStringNotContainsString('M12.736 3.97', $output); // default confirm SVG path fragment
+    }
+
+    #[TestDox("Custom svgIconCancel replaces the default cancel icon in edit controls output")]
+    public function testCustomSvgIconCancelReplacesDefaultInEditControlsOutput(): void {
+        $grid = new MySQLGrid();
+        $grid->name           = "test_grid";
+        $grid->svgIconCancel  = '<svg id="custom-cancel-icon"></svg>';
+        $grid->mode           = PHPMYSQLGRID_EDITMODE;
+        $grid->row            = 0;
+        $grid->columns        = array(array("field" => "id", "type" => PHPMYSQLGRID_TEXT));
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawEditControls(false);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('custom-cancel-icon', $output);
+        $this->assertStringNotContainsString('M4.646 4.646', $output); // default cancel SVG path fragment
+    }
+
+    #[TestDox("Custom svgIconAdd replaces the default add icon in navigation output")]
+    public function testCustomSvgIconAddReplacesDefaultInNavigationOutput(): void {
+        $grid = new MySQLGrid();
+        $grid->name        = "test_grid";
+        $grid->svgIconAdd  = '<svg id="custom-add-icon"></svg>';
+        $grid->can_add     = true;
+        $grid->columns     = array(array("field" => "id"));
+        $grid->rows        = 0;
+        $grid->page        = 1;
+        $grid->limit       = 10;
+        $grid->row         = 0;
+        $grid->prepareQueryVars();
+        $_SERVER["PHP_SELF"] = "/test.php";
+
+        ob_start();
+        $grid->drawNavigation();
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('custom-add-icon', $output);
+        $this->assertStringNotContainsString('M8 4a.5.5', $output); // default add SVG path fragment
     }
 }
