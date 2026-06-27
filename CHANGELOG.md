@@ -5,6 +5,12 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+### Changed
+
+- Require the base PDO extension in Composer metadata and document optional PDO drivers for MySQL/MariaDB usage and SQLite-based development.
+- Expand PHP CS Fixer coverage to `demo`, `tests`, and PHP CLI scripts in `bin`.
+- Run PHPStan with an explicit `512M` memory limit in the Composer lint workflow to avoid environment-dependent worker crashes.
+
 ## [1.2.1] - 2026-06-19
 
 ### Added

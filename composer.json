@@ -15,12 +15,18 @@
         }
     ],
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "ext-pdo": "*"
     },
     "require-dev": {
+        "ext-pdo_sqlite": "*",
         "friendsofphp/php-cs-fixer": "^3.0",
         "phpstan/phpstan": "^1.0",
         "phpunit/phpunit": "^11.5"
+    },
+    "suggest": {
+        "ext-pdo_mysql": "Required for the default MySQL/MariaDB connection mode.",
+        "ext-pdo_sqlite": "Required for the demo and SQLite-backed tests."
     },
     "bin": [
         "bin/phpmysqlgrid-assets"
@@ -39,7 +45,7 @@
         "lint:syntax": "php bin/lint-syntax",
         "lint:style": "php-cs-fixer fix --dry-run --diff",
         "fix:style": "php-cs-fixer fix",
-        "lint:static": "phpstan analyse",
+        "lint:static": "phpstan analyse --memory-limit=512M",
         "test": "phpunit",
         "assets:publish": "php bin/phpmysqlgrid-assets",
         "demo:start": [

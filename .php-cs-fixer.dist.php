@@ -1,8 +1,16 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
-    ->in(__DIR__ . '/src')
-    ->name('*.php');
+    ->in([
+        __DIR__ . '/src',
+        __DIR__ . '/demo',
+        __DIR__ . '/tests',
+    ])
+    ->name('*.php')
+    ->append([
+        new SplFileInfo(__DIR__ . '/bin/phpmysqlgrid-assets'),
+        new SplFileInfo(__DIR__ . '/bin/lint-syntax'),
+    ]);
 
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(false)
