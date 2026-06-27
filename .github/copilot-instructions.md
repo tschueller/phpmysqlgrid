@@ -1,5 +1,7 @@
 # MySQLGrid Workspace Instructions
 
+Shared tool-neutral agent guidance lives in [`../AGENTS.md`](../AGENTS.md). Follow that file first for cross-agent rules, then use this file and `.github/instructions/*.instructions.md` for Copilot-specific and topic-specific details.
+
 ## Project Overview
 
 **phpMySQLGrid** is a flexible MySQL data grid library for PHP that provides a reusable class for displaying and managing MySQL database records in a grid/table format. The project is maintained as a Composer package under `tschueller/phpmysqlgrid`.
