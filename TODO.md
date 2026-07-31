@@ -25,6 +25,7 @@
 - [ ] show total row count in footer (total and filtered)
 - [ ] Better visual indication of active filters (e.g. filter icon in header, highlight active filter values)
 - [ ] Second New/edit mode (configurable): Instead of inline editing, open a modal dialog with a form for editing the row. This allows more space for complex forms and better UX on mobile devices.
+- [ ] Preview mode: Instead of showing many columns in the table, show only a few special columns and a "preview" button to open a modal with the full preview of the data. First in a read-only mode, maybe later with an edit button to open the edit modal.
 
 ### Styling
   - [x] Split `mysqlgrid.css` into `mysqlgrid-base.css` (base styles) and `gridstyle-theme-default.css` (default theme overrides), and update asset publishing accordingly
