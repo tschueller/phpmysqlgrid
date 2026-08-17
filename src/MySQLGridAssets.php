@@ -132,7 +132,7 @@ final class MySQLGridAssets {
         $urls = array();
 
         foreach ($resolvedFileNames as $fileName) {
-            if (!is_string($fileName) || $fileName === "") {
+            if ($fileName === "") {
                 continue;
             }
             $urls[] = self::cssUrlFor($fileName, $documentRoot, $publicBasePath);
@@ -388,7 +388,7 @@ final class MySQLGridAssets {
             $filesystemPath = self::resolveFilesystemPath($publicPath, $resolvedDocumentRoot);
             if (is_file($filesystemPath)) {
                 $fileHash = sha1_file($filesystemPath);
-                if (is_string($fileHash) && $fileHash !== "") {
+                if ($fileHash !== false) {
                     $resolvedHash = substr($fileHash, 0, 12);
                     self::$cacheTokens[$cacheKey] = $resolvedHash;
                     return $resolvedHash;

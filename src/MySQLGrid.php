@@ -318,7 +318,7 @@ class MySQLGrid {
 
         if (!$statement->execute($params)) {
             $errorInfo = $statement->errorInfo();
-            $message = is_array($errorInfo) && isset($errorInfo[2]) ? (string)$errorInfo[2] : "PDO execute failed";
+            $message = isset($errorInfo[2]) ? (string)$errorInfo[2] : "PDO execute failed";
             trigger_error($message, E_USER_ERROR);
         }
 
@@ -848,9 +848,6 @@ class MySQLGrid {
         }
 
         $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
-        if (!is_array($rows)) {
-            return;
-        }
 
         foreach ($rows as $row) {
             if (isset($row["name"])) {
@@ -1300,14 +1297,12 @@ class MySQLGrid {
      */
     protected function getPreservedParams(array $gridParams = []): array {
         $params = [];
-        if (is_array($_GET)) {
-            foreach ($_GET as $key => $value) {
-                if (is_string($key) && strpos($key, $this->name . "_") === 0) {
-                    continue;
-                }
-                if (is_scalar($value)) {
-                    $params[(string)$key] = (string)$value;
-                }
+        foreach ($_GET as $key => $value) {
+            if (is_string($key) && strpos($key, $this->name . "_") === 0) {
+                continue;
+            }
+            if (is_scalar($value)) {
+                $params[(string)$key] = (string)$value;
             }
         }
         foreach ($gridParams as $key => $value) {
