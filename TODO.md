@@ -4,7 +4,7 @@
 
 ### Tooling / Quality
 - [ ] Raise PHPStan to level 9 or 10 (Reason: stricter type checks for mixed data paths in MySQLGrid.php)
-- [ ] update phpstan to v2 (https://github.com/tschueller/phpmysqlgrid/pull/3)
+- [x] Update PHPStan to v2
 - [ ] Investigate PSR coding standards
   - [ ] Define target style profile (PSR-12 baseline + project-specific exceptions)
   - [ ] Decide and document array syntax policy (`array(...)` vs `[]`) for new code
