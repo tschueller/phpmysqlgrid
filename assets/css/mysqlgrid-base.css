@@ -173,7 +173,6 @@ table.phpmysqlgrid thead input {
     border: 1px solid var(--phpmysqlgrid-border);
     border-radius: 4px;
     line-height: calc(var(--phpmysqlgrid-line-height) - 0.2em);
-    color: var(--phpmysqlgrid-text-color);
 }
 
 table.phpmysqlgrid tbody input,
@@ -182,6 +181,17 @@ table.phpmysqlgrid tbody option {
     padding: 8px 12px;
     border: 1px solid var(--phpmysqlgrid-border);
     border-radius: 4px;
+}
+
+/* Text-bearing controls use their own surface rather than the grid background. */
+table.phpmysqlgrid thead input,
+table.phpmysqlgrid tbody input[type="text"],
+table.phpmysqlgrid tbody input[type="password"],
+table.phpmysqlgrid tbody select,
+table.phpmysqlgrid tbody textarea,
+table.phpmysqlgrid tbody option {
+    color: var(--phpmysqlgrid-control-text);
+    background-color: var(--phpmysqlgrid-control-bg);
 }
 
 table.phpmysqlgrid .add-button {

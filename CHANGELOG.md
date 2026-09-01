@@ -7,7 +7,7 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ### Fixed
 
-- Set an explicit text color on header filter inputs so CSS reset styles cannot inherit the header text color onto their default light background.
+- Define theme tokens for form control foreground and background colors, preventing filter inputs from inheriting the header text color and keeping text-bearing controls consistent across themes.
 
 ### Changed
 

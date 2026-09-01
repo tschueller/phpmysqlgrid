@@ -29,6 +29,10 @@ table.phpmysqlgrid.theme-dark {
     --phpmysqlgrid-delete-text: #f78686;
     --phpmysqlgrid-text-color: #d0d0d0;
 
+    /* Form control colors */
+    --phpmysqlgrid-control-bg: #ffffff;
+    --phpmysqlgrid-control-text: #212529;
+
     /* Error state */
     --phpmysqlgrid-error-bg: #4a2227;
     --phpmysqlgrid-error-border: #7d3038;
