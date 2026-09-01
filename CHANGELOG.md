@@ -5,6 +5,8 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-09-01
+
 ### Fixed
 
 - Define theme tokens for form control foreground and background colors, preventing filter inputs from inheriting the header text color and keeping text-bearing controls consistent across themes.
