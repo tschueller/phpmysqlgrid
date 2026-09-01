@@ -5,6 +5,10 @@ This changelog bases on the [Keep a Changelog](https://keepachangelog.com/) form
 
 ## [Unreleased]
 
+### Fixed
+
+- Set an explicit text color on header filter inputs so CSS reset styles cannot inherit the header text color onto their default light background.
+
 ### Changed
 
 - Require the base PDO extension in Composer metadata and document optional PDO drivers for MySQL/MariaDB usage and SQLite-based development.

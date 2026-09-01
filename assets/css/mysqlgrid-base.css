@@ -173,6 +173,7 @@ table.phpmysqlgrid thead input {
     border: 1px solid var(--phpmysqlgrid-border);
     border-radius: 4px;
     line-height: calc(var(--phpmysqlgrid-line-height) - 0.2em);
+    color: var(--phpmysqlgrid-text-color);
 }
 
 table.phpmysqlgrid tbody input,
